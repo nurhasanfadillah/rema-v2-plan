@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, FileText } from 'lucide-react';
 import { resizeImage } from '../lib/utils';
+import { toast } from 'react-hot-toast';
 
 interface MultiFileUploadProps {
   values: string[];
@@ -26,7 +27,7 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
   const processFiles = async (files: FileList | File[]) => {
     const validFiles = Array.from(files).filter(f => f.size <= 2 * 1024 * 1024);
     if (validFiles.length < files.length) {
-      alert("Beberapa file terlalu besar dan diabaikan. Maksimal 2MB per file.");
+      toast.error("Beberapa file terlalu besar (maksimal 2MB per file) dan telah diabaikan.");
     }
 
     if (validFiles.length === 0) return;
@@ -40,10 +41,9 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
           const resized = await resizeImage(file, 800); 
           newValues.push(resized);
         } catch(e) {
-          // fallback
           const reader = new FileReader();
           const base64 = await new Promise<string>(res => {
-            reader.onloadend = () => res(reader.result as string);
+            reader.onloadend = () => res(reader.result as string || "");
             reader.readAsDataURL(file);
           });
           newValues.push(base64);
@@ -51,7 +51,7 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
       } else {
         const reader = new FileReader();
         const base64 = await new Promise<string>(res => {
-          reader.onloadend = () => res(reader.result as string);
+          reader.onloadend = () => res(reader.result as string || "");
           reader.readAsDataURL(file);
         });
         newValues.push(base64);
@@ -59,6 +59,7 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
     }
     
     onChange([...(Array.isArray(values) ? values : []), ...newValues]);
+    toast.success(`${newValues.length} file berhasil ditambahkan!`);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -84,29 +85,34 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
     const newVals = Array.isArray(values) ? [...values] : [];
     newVals.splice(index, 1);
     onChange(newVals);
+    toast.success("Lampiran berhasil dihapus");
   };
 
   return (
     <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{label}</label>
       
       {Array.isArray(values) && values.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
           {values.map((val, idx) => {
             const isImage = typeof val === 'string' && val.startsWith('data:image/');
             return (
-              <div key={idx} className="relative rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center h-24 p-2">
+              <div key={idx} className="relative rounded-2xl border border-slate-200/60 bg-white shadow-sm flex items-center justify-center h-24 p-2 hover:shadow-md transition-all duration-300">
                 {isImage ? (
-                  <img src={val} alt="Preview" className="max-h-full max-w-full rounded object-contain" />
+                  <img src={val} alt="Preview" className="max-h-full max-w-full rounded-xl object-contain" />
                 ) : (
-                  <div className="text-xs font-medium text-gray-600 text-center break-all w-full truncate px-1">File {idx+1}</div>
+                  <div className="flex flex-col items-center gap-1 text-[11px] text-slate-500 font-bold px-2 truncate w-full">
+                    <FileText className="w-5 h-5 text-indigo-500" />
+                    <span className="truncate max-w-full text-center">Lampiran {idx+1}</span>
+                  </div>
                 )}
                 <button 
                   type="button" 
                   onClick={() => handleRemove(idx)} 
-                  className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 shadow z-10"
+                  className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full hover:scale-110 shadow-md active:scale-95 transition-all z-10 cursor-pointer"
+                  title="Hapus berkas"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             );
@@ -115,16 +121,26 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
       )}
 
       <div 
-        className={`relative border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center transition-colors cursor-pointer ${dragActive ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
+        className={`relative border-2 border-dashed rounded-2xl p-5 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer min-h-[120px] group ${
+          dragActive 
+            ? 'border-indigo-500 bg-indigo-500/5' 
+            : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/50 hover:shadow-sm'
+        }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
       >
-        <Upload className={`w-6 h-6 mb-2 ${dragActive ? 'text-gray-900' : 'text-gray-400'}`} />
-        <p className="text-sm text-gray-600 font-medium text-center">Klik atau Drop file di sini</p>
-        <p className="text-xs text-gray-400 mt-1 max-w-[200px] text-center">Maksimal ukuran file 2MB (Bisa pilih banyak)</p>
+        <div className={`p-3.5 rounded-full mb-2 border transition-all duration-300 ${
+          dragActive 
+            ? 'bg-indigo-100 border-indigo-200 text-indigo-600' 
+            : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:text-slate-600 group-hover:bg-slate-100/85 group-hover:scale-105'
+        }`}>
+          <Upload className="w-4.5 h-4.5" />
+        </div>
+        <p className="text-sm text-slate-700 font-bold text-center">Tarik & Lepas File ke Sini</p>
+        <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Bisa memilih lebih dari 1 file sekaligus (Maksimal 2MB per file)</p>
         <input 
           ref={inputRef}
           type="file" 

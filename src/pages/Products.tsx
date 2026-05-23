@@ -5,8 +5,9 @@ import { useConfirm } from '../context/ConfirmContext';
 import { db } from '../lib/db';
 import { Product } from '../types';
 import { formatCurrency } from '../lib/utils';
-import { Plus, Archive, Edit2, Trash2, X } from 'lucide-react';
+import { Plus, Archive, Edit2, Trash2, X, Shirt, Award, AlertCircle, ShoppingBag } from 'lucide-react';
 import { FileUpload } from '../components/FileUpload';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function Products() {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ export default function Products() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  if (!user || !['admin', 'mitra'].includes(user.role)) return <div className="p-4 text-red-500">Akses ditolak</div>;
+  if (!user || !['admin', 'mitra'].includes(user.role)) return <div className="p-8 text-center text-red-500 font-bold">Akses Ditolak</div>;
 
   const handleArchive = async (id: string, currentArchive: boolean) => {
     if (user?.role !== 'admin') return;
@@ -77,7 +78,7 @@ export default function Products() {
     let newProducts = [...products];
     const idx = newProducts.findIndex(p => p.id === prod.id);
     if (idx !== -1) {
-       newProducts[idx] = prod;
+       newProducts[idx] = { ...prod };
        db.addAuditLog({ userId: user!.id, action: 'PRODUCT_UPDATED', details: `Product ${prod.id}` });
        toast.success('Produk berhasil diperbarui');
        setSelectedProduct(prod);
@@ -91,52 +92,90 @@ export default function Products() {
     setIsAddOpen(false);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.04 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    show: { opacity: 1, scale: 1 }
+  };
+
+  const formattedLabel = (p: string) => {
+     const num = parseInt(p.replace(/\D/g, ''));
+     if (isNaN(num)) return '';
+     return new Intl.NumberFormat('id-ID').format(num);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-slate-900">Katalog Produk</h1>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-150 rounded-md px-2 py-0.5 w-max mb-1.5">
+            <ShoppingBag className="w-3.5 h-3.5" /> Katalog Produk
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Katalog & Koleksi Produk</h1>
+          <p className="text-[13px] text-slate-500 mt-0.5 font-semibold">Kelola ketersediaan barang, list harga jual mitra, dan foto produk.</p>
+        </div>
         {user?.role === 'admin' && (
           <button 
             onClick={() => setIsAddOpen(true)}
-            className="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-lg text-[13px] font-medium flex items-center gap-1.5 transition"
+            className="bg-gradient-to-tr from-slate-950 to-slate-900 hover:from-slate-900 hover:to-slate-850 text-white px-5 py-3 rounded-2xl text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
           >
-            <Plus className="w-4 h-4" /> Tambah Produk
+            <Plus className="w-4.5 h-4.5" /> Tambah Produk Baru
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4 md:gap-5">
+      <motion.div 
+        variants={containerVariants} 
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5"
+      >
         {products.map(p => (
-          <div 
+          <motion.div 
+            variants={itemVariants}
             key={p.id} 
             onClick={() => user?.role === 'admin' && setSelectedProduct(p)}
-            className={`bg-white border border-slate-200/60 rounded-xl overflow-hidden shadow-sm flex flex-col hover:shadow-md transition cursor-pointer ${p.isArchived ? 'opacity-60 grayscale' : ''}`}
+            className={`bg-white border border-slate-200/60 rounded-3xl overflow-hidden shadow-sm flex flex-col hover:shadow-md transition-all duration-300 relative ${user?.role === 'admin' ? 'cursor-pointer hover:border-slate-350 active:scale-[0.98]' : 'select-none'} ${p.isArchived ? 'opacity-60 grayscale' : ''}`}
           >
-            <div className="h-24 sm:h-40 bg-slate-50 flex items-center justify-center relative overflow-hidden">
+            <div className="aspect-[4/3] sm:aspect-square bg-slate-50 flex items-center justify-center relative overflow-hidden group border-b border-slate-100">
                {p.imageUrl ? (
-                  <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                  <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                ) : (
-                  <span className="text-slate-400 text-[10px] sm:text-xs font-medium">Tanpa Gambar</span>
+                  <div className="flex flex-col items-center gap-1.5 text-slate-350">
+                    <ShoppingBag className="w-8 h-8 opacity-40" />
+                    <span className="text-[10px] sm:text-xs font-semibold">Default Placeholder</span>
+                  </div>
                )}
                {p.isArchived && (
-                 <div className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-slate-900/80 text-white px-1 sm:px-2 py-0.5 rounded text-[8px] sm:text-[10px] font-bold uppercase tracking-wider">
-                   Diarsipkan
+                 <div className="absolute top-2.5 right-2.5 bg-slate-950 border border-slate-800 text-[9px] font-black uppercase text-slate-100 px-2 py-0.5 rounded-md shadow-sm">
+                   DIARSIPKAN
                  </div>
                )}
             </div>
-            <div className="p-2 sm:p-3 flex-1 flex flex-col">
-               <h3 className="text-[11px] sm:text-base font-semibold tracking-tight text-slate-900 mb-0.5 line-clamp-2 leading-tight">{p.name}</h3>
-               <p className="text-xs sm:text-lg font-bold text-slate-700 mb-1 sm:mb-2">{formatCurrency(p.price)}</p>
-               {p.description && <p className="hidden sm:block text-[12px] text-slate-500 line-clamp-2 leading-relaxed">{p.description}</p>}
+            <div className="p-3.5 flex-1 flex flex-col justify-between gap-1.5">
+               <div>
+                 <h3 className="text-xs sm:text-sm font-extrabold tracking-tight text-slate-900 line-clamp-2 leading-tight">{p.name}</h3>
+                 {p.description && <p className="hidden sm:block text-[11px] text-slate-400 font-medium line-clamp-1 leading-relaxed mt-1">{p.description}</p>}
+               </div>
+               <p className="text-sm sm:text-base font-black text-slate-950 leading-none">{formatCurrency(p.price)}</p>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {products.length === 0 && (
-         <div className="text-center py-12 text-gray-500 border-2 border-dashed rounded-xl">
-           Belum ada produk di katalog.
-         </div>
+         <motion.div variants={itemVariants} className="text-center py-16 border-2 border-dashed rounded-3xl p-8 max-w-md mx-auto">
+           <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+           <p className="text-slate-800 font-bold mb-1">Belum Ada Produk Katalog</p>
+           <p className="text-xs text-slate-400 font-medium">Tambahkan produk baru sebagai item persediaan pesanan.</p>
+         </motion.div>
       )}
 
       {isAddOpen && (
@@ -144,19 +183,23 @@ export default function Products() {
           product={null} 
           onClose={() => setIsAddOpen(false)} 
           onSave={handleSave} 
+          formattedLabel={formattedLabel}
         />
       )}
 
-      {selectedProduct && user?.role === 'admin' && (
-        <ProductDetailPanel 
-          product={selectedProduct} 
-          onClose={() => setSelectedProduct(null)} 
-          onSave={handleSave} 
-          onToggleArchive={() => handleArchive(selectedProduct.id, selectedProduct.isArchived)}
-          onDelete={() => handleDelete(selectedProduct.id)}
-        />
-      )}
-    </div>
+      <AnimatePresence>
+        {selectedProduct && user?.role === 'admin' && (
+          <ProductDetailPanel 
+            product={selectedProduct} 
+            onClose={() => setSelectedProduct(null)} 
+            onSave={handleSave} 
+            onToggleArchive={() => handleArchive(selectedProduct.id, selectedProduct.isArchived)}
+            onDelete={() => handleDelete(selectedProduct.id)}
+            formattedLabel={formattedLabel}
+          />
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -165,13 +208,15 @@ function ProductDetailPanel({
   onClose, 
   onSave, 
   onToggleArchive, 
-  onDelete 
+  onDelete,
+  formattedLabel
 }: { 
   product: Product, 
   onClose: () => void, 
   onSave: (p: Product) => void,
   onToggleArchive: () => void,
-  onDelete: () => void
+  onDelete: () => void,
+  formattedLabel: (p: string) => string
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(product.name);
@@ -192,11 +237,17 @@ function ProductDetailPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 transition-opacity">
-      <div className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col animate-slide-in-right">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="text-xl font-bold text-slate-900">Detail Produk</h2>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition">
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/40 backdrop-blur-sm">
+      <motion.div 
+        initial={{ x: '100vw' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100vw' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+        className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col"
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+          <h2 className="text-lg font-black text-slate-900 tracking-tight">Detail Info Produk</h2>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-50 transition-all cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -205,81 +256,85 @@ function ProductDetailPanel({
           {!isEditing ? (
             <div className="space-y-8">
                <div>
-                 <div className="w-full aspect-video bg-slate-100 rounded-xl overflow-hidden mb-5 border border-slate-200">
+                 <div className="w-full aspect-video bg-slate-50 border rounded-2xl overflow-hidden mb-5">
                     {product.imageUrl ? (
                        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
-                       <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium text-sm">
-                         Gambar Tidak Tersedia
+                       <div className="w-full h-full flex flex-col items-center justify-center text-slate-350 gap-2">
+                         <ShoppingBag className="w-10 h-10 opacity-30" />
+                         <span className="text-xs font-semibold">Gambar Tidak Tersedia</span>
                        </div>
                     )}
                  </div>
                  
-                 <h3 className="text-2xl font-bold text-slate-900 mb-2">{product.name}</h3>
-                 <p className="text-xl font-bold text-emerald-600 mb-4">{formatCurrency(product.price)}</p>
+                 <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1.5 leading-tight">{product.name}</h3>
+                 <p className="text-lg font-black text-slate-950 mb-4">{formatCurrency(product.price)}</p>
                  
                  <div className="flex items-center gap-2 mb-6">
                     {product.isArchived ? (
-                         <span className="inline-flex items-center px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-[12px] font-medium uppercase tracking-wider">Diarsipkan</span>
+                         <span className="inline-flex items-center px-2.5 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-[10px] font-extrabold uppercase">DIARSIPKAN</span>
                       ) : (
-                         <span className="inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md text-[12px] font-medium uppercase tracking-wider">Aktif</span>
+                         <span className="inline-flex items-center px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[10px] font-extrabold uppercase animate-pulse">AKTIF</span>
                     )}
                  </div>
 
                  {product.description && (
-                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <p className="text-xs text-slate-500 mb-1 font-medium">Deskripsi</p>
-                      <p className="text-[13px] text-slate-700 leading-relaxed">{product.description}</p>
-                   </div>
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                       <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Deskripsi Produk</p>
+                       <p className="text-xs leading-relaxed text-slate-600 font-semibold">{product.description}</p>
+                    </div>
                  )}
                </div>
 
-               <div className="space-y-4">
-                 <h4 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">Aksi</h4>
-                 <div className="grid grid-cols-2 gap-3">
-                    <button onClick={() => setIsEditing(true)} className="col-span-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
-                      <Edit2 className="w-4 h-4" /> Ubah Produk
+               <div className="space-y-4 pt-1">
+                 <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Kontrol Manajemen</h4>
+                 <div className="grid grid-cols-2 gap-3 text-xs font-bold">
+                    <button onClick={() => setIsEditing(true)} className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 border border-slate-900 text-white hover:bg-slate-800 rounded-xl transition-all cursor-pointer active:scale-95 text-xs font-extrabold shadow-md">
+                      <Edit2 className="w-4 h-4" /> Edit & Perbarui Produk
                     </button>
-                    <button onClick={onToggleArchive} className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition ${product.isArchived ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700' : 'bg-orange-50 hover:bg-orange-100 text-orange-700'}`}>
+                    <button onClick={onToggleArchive} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all cursor-pointer active:scale-95 ${product.isArchived ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700' : 'bg-orange-50 hover:bg-orange-100 text-orange-700'}`}>
                       <Archive className="w-4 h-4" />
                       {product.isArchived ? 'Buka Arsip' : 'Arsipkan'}
                     </button>
-                    <button onClick={onDelete} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition">
+                    <button onClick={onDelete} className="flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition-all cursor-pointer active:scale-95">
                       <Trash2 className="w-4 h-4" /> Hapus
                     </button>
                  </div>
                </div>
             </div>
           ) : (
-             <form onSubmit={handleSubmit} className="space-y-4">
-               <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Nama Produk</label>
-                  <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900" />
-               </div>
-               <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Harga (Rp)</label>
-                  <input required type="text" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g, ''))} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900" />
-               </div>
-               <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Deskripsi (Opsional)</label>
-                  <textarea value={desc} onChange={e=>setDesc(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900" />
-               </div>
-               <div>
-                  <FileUpload value={img} onChange={setImg} label="Gambar (Opsional)" accept="image/*" />
-               </div>
-               <div className="pt-6 flex justify-end gap-3">
-                  <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition">Batal</button>
-                  <button type="submit" className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition">Simpan Perubahan</button>
-               </div>
+             <form onSubmit={handleSubmit} className="space-y-4 font-bold text-xs sm:text-sm">
+                <div>
+                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nama Produk</label>
+                   <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all text-xs" />
+                </div>
+                <div>
+                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Harga Jual (Rp)</label>
+                   <div className="relative">
+                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">Rp</span>
+                     <input required type="text" value={new Intl.NumberFormat('id-ID').format(parseInt(price.replace(/\D/g, '')) || 0)} onChange={e=>setPrice(e.target.value.replace(/\D/g, ''))} className="w-full pl-9 pr-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-extrabold text-slate-850 text-xs" />
+                   </div>
+                </div>
+                <div>
+                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Deskripsi Produk (Opsional)</label>
+                   <textarea value={desc} onChange={e=>setDesc(e.target.value)} rows={3} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-semibold text-xs leading-relaxed" />
+                </div>
+                <div>
+                   <FileUpload value={img} onChange={setImg} label="Gambar Visual Produk" accept="image/*" />
+                </div>
+                <div className="pt-6 flex justify-end gap-3 text-xs">
+                   <button type="button" onClick={() => setIsEditing(false)} className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold transition-all cursor-pointer">Batal</button>
+                   <button type="submit" className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold transition-all cursor-pointer active:scale-95">Simpan Perubahan</button>
+                </div>
              </form>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
-function ProductModal({ product, onClose, onSave }: { product: Product | null, onClose: () => void, onSave: (p: Product) => void }) {
+function ProductModal({ product, onClose, onSave, formattedLabel }: { product: Product | null, onClose: () => void, onSave: (p: Product) => void, formattedLabel: (p: string) => string }) {
   const [name, setName] = useState(product?.name || '');
   const [price, setPrice] = useState(product?.price.toString() || '');
   const [desc, setDesc] = useState(product?.description || '');
@@ -287,10 +342,11 @@ function ProductModal({ product, onClose, onSave }: { product: Product | null, o
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanPrice = parseInt(price.replace(/\D/g, '')) || 0;
     const newProd: Product = {
        id: product?.id || crypto.randomUUID(),
        name,
-       price: parseInt(price.replace(/\D/g, '')) || 0,
+       price: cleanPrice,
        description: desc,
        imageUrl: img,
        isArchived: product?.isArchived || false
@@ -299,31 +355,34 @@ function ProductModal({ product, onClose, onSave }: { product: Product | null, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 transition-opacity">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate-fade-in">
-        <h2 className="text-xl font-bold mb-4">{product ? 'Ubah Produk' : 'Tambah Produk'}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 lg:p-8 animate-in slide-in-from-bottom-8">
+        <h2 className="text-lg font-black text-slate-900 mb-6">{product ? '📝 Ubah Detail Produk' : '📦 Tambah Kategori Produk'}</h2>
+        <form onSubmit={handleSubmit} className="space-y-4 font-bold text-xs sm:text-sm">
           <div>
-             <label className="block text-sm font-medium text-slate-700 mb-1">Nama Produk</label>
-             <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900" />
+             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nama Produk</label>
+             <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-bold text-slate-800 text-xs" placeholder="Mis. Produk Kualitas Premium" />
           </div>
           <div>
-             <label className="block text-sm font-medium text-slate-700 mb-1">Harga (Rp)</label>
-             <input required type="text" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g, ''))} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900" />
+             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Harga Dasar (Rp)</label>
+             <div className="relative">
+               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">Rp</span>
+               <input required type="text" value={new Intl.NumberFormat('id-ID').format(parseInt(price.replace(/\D/g, '')) || 0)} onChange={e=>setPrice(e.target.value.replace(/\D/g, ''))} className="w-full pl-9 pr-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-extrabold text-slate-850 text-xs" placeholder="0" />
+             </div>
           </div>
           <div>
-             <label className="block text-sm font-medium text-slate-700 mb-1">Deskripsi (Opsional)</label>
-             <textarea value={desc} onChange={e=>setDesc(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900" />
+             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Deskripsi Produk (Opsional)</label>
+             <textarea value={desc} onChange={e=>setDesc(e.target.value)} rows={3} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-semibold text-xs leading-relaxed" placeholder="Penjelasan bahan, warna, dll." />
           </div>
           <div>
-             <FileUpload value={img} onChange={setImg} label="Gambar (Opsional)" accept="image/*" />
+             <FileUpload value={img} onChange={setImg} label="Gambar Utama Produk" accept="image/*" />
           </div>
-          <div className="pt-4 flex justify-end gap-3">
-             <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition">Batal</button>
-             <button type="submit" className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition">Simpan</button>
+          <div className="pt-6 flex justify-end gap-3 text-xs">
+             <button type="button" onClick={onClose} className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold transition-all cursor-pointer">Batal</button>
+             <button type="submit" className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold transition-all cursor-pointer active:scale-95">Simpan Produk</button>
           </div>
         </form>
       </div>
     </div>
   );
-}
+}export {};

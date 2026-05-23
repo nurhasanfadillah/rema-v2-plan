@@ -20,6 +20,7 @@ import CreateOrder from './pages/orders/CreateOrder';
 import OrderDetail from './pages/orders/OrderDetail';
 import AppQueue from './pages/AppQueue';
 import Finance from './pages/Finance';
+import CancellationsReturns from './pages/CancellationsReturns';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -42,9 +43,11 @@ export default function App() {
               <Route path="orders" element={<OrdersList />} />
               <Route path="orders/drafts" element={<OrdersList />} />
               <Route path="orders/create" element={<CreateOrder />} />
+              <Route path="orders/:id/edit" element={<CreateOrder />} />
               <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="queue" element={<AppQueue />} />
               <Route path="finance" element={<Finance />} />
+              <Route path="cancellations" element={<CancellationsReturns />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

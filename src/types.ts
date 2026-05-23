@@ -63,6 +63,7 @@ export interface Order {
   totalAmount: number;
   totalQty: number;
   isBilled: boolean; // Flag if it has reached Packing
+  creatorId?: string;
 }
 
 export type LedgerSource = 'order' | 'payment' | 'manual' | 'cancellation' | 'return';

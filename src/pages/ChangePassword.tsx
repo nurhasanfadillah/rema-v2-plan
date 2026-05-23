@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/db';
+import { motion } from 'motion/react';
+import { Lock, LogOut, KeyRound } from 'lucide-react';
 
 export default function ChangePassword() {
   const { user, logout, updateUser } = useAuth();
@@ -33,44 +35,87 @@ export default function ChangePassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900 font-sans p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden p-8">
-        <h2 className="text-2xl font-bold mb-2">Change Password Required</h2>
-        <p className="text-gray-500 mb-6 text-sm">Please secure your account by changing the default password.</p>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-            <input 
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-gray-900 outline-none"
-              required minLength={8} maxLength={64}
-            />
-          </div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-radial from-slate-900 via-slate-950 to-black text-slate-100 font-sans p-4 relative overflow-hidden">
+      {/* Decorative ambient gradients */}
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-600/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-            <input 
-              type="password"
-              value={confirm}
-              onChange={e => setConfirm(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-gray-900 outline-none"
-              required
-            />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="max-w-md w-full animate-fade-in"
+      >
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 shadow-lg shadow-amber-500/20 mb-4 ring-4 ring-amber-500/10">
+            <KeyRound className="w-7 h-7 text-white animate-pulse" />
           </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">
+            REMA<span className="text-blue-500">.</span>
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">Dibutuhkan Perubahan Kata Sandi</p>
+          <p className="text-[11px] font-mono text-slate-500 uppercase tracking-widest mt-1">PT. Redone Berkah Mandiri Utama</p>
+        </div>
 
-          <div className="pt-4 flex gap-3">
-             <button type="button" onClick={logout} className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition">
-              Logout
-            </button>
-            <button type="submit" className="flex-1 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition">
-              Save changes
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="bg-slate-900/50 border border-slate-800/80 rounded-3xl p-8 backdrop-blur-xl shadow-2xl relative">
+          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
+          
+          <h2 className="text-lg font-semibold text-white mb-2">Change Password Required</h2>
+          <p className="text-slate-400 text-sm mb-6">Silakan amankan akun Anda dengan mengganti kata sandi default sebelum melanjutkan.</p>
+          
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Kata Sandi Baru</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-400 transition-colors" />
+                <input 
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3.5 bg-slate-950/40 border border-slate-800 hover:border-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition text-sm text-white placeholder-slate-500 font-medium"
+                  placeholder="Minimal 8 karakter"
+                  required minLength={8} maxLength={64}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Konfirmasi Kata Sandi Baru</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-400 transition-colors" />
+                <input 
+                  type="password"
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3.5 bg-slate-950/40 border border-slate-800 hover:border-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition text-sm text-white placeholder-slate-500 font-medium"
+                  placeholder="Ulangi kata sandi baru"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 flex gap-4">
+              <button 
+                type="button" 
+                onClick={logout} 
+                className="flex-1 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-slate-700 font-semibold py-3.5 px-4 rounded-2xl transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" /> Keluar (Logout)
+              </button>
+              <button 
+                type="submit" 
+                className="flex-1 bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white font-semibold py-3.5 px-4 rounded-2xl transition shadow-lg shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+              >
+                Simpan Perubahan
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <p className="text-center text-xs text-slate-400/70 mt-8">
+          Fase Pengembangan v2.1 • Keamanan Enkripsi Lokal
+        </p>
+      </motion.div>
     </div>
   );
 }
