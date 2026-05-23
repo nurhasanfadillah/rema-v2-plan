@@ -1,0 +1,6 @@
+{
+  "name": "REMA-V2.1",
+  "description": "Sistem Informasi Manajemen Produksi & Finance - PT. Redone Berkah Mandiri Utama",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

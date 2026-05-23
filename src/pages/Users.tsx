@@ -1,0 +1,499 @@
+import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
+import { useConfirm } from '../context/ConfirmContext';
+import { db } from '../lib/db';
+import { User, Role } from '../types';
+import { normalizePhone } from '../lib/utils';
+import { Plus, Edit2, Lock, Unlock, MailX, Trash2, X, AlertCircle } from 'lucide-react';
+
+export default function Users() {
+  const { user } = useAuth();
+  const { confirm } = useConfirm();
+  const [users, setUsers] = useState<User[]>(db.getUsers());
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  
+  if (user?.role !== 'admin') return <div className="p-4 text-red-500">Access denied</div>;
+
+  const handleToggleActive = async (targetId: string, currentStatus: boolean) => {
+    if (targetId === user.id) return; // Cant disable self
+    const isConfirmed = await confirm({
+      title: currentStatus ? 'Nonaktifkan Pengguna' : 'Aktifkan Pengguna',
+      message: `Apakah Anda yakin ingin ${currentStatus ? 'menonaktifkan' : 'mengaktifkan'} pengguna ini?`,
+      confirmText: currentStatus ? 'Nonaktifkan' : 'Aktifkan',
+      type: currentStatus ? 'danger' : 'info'
+    });
+    
+    if (!isConfirmed) return;
+
+    const newUsers = [...users];
+    const idx = newUsers.findIndex(u => u.id === targetId);
+    if (idx !== -1) {
+      newUsers[idx] = { ...newUsers[idx], isActive: !currentStatus };
+      db.saveUsers(newUsers);
+      db.addAuditLog({ userId: user.id, action: currentStatus ? 'USER_DISABLED' : 'USER_ENABLED', details: `Target: ${targetId}` });
+      setUsers(newUsers);
+      setSelectedUser(newUsers[idx]);
+      toast.success(`Pengguna berhasil di${currentStatus ? 'nonaktifkan' : 'aktifkan'}`);
+    }
+  };
+
+  const handleUnlock = async (targetId: string) => {
+    const isConfirmed = await confirm({
+      title: 'Buka Blokir Pengguna',
+      message: 'Apakah Anda yakin ingin membuka blokir akun pengguna ini?',
+      confirmText: 'Buka Blokir',
+      type: 'info'
+    });
+    
+    if (!isConfirmed) return;
+
+    const newUsers = [...users];
+    const idx = newUsers.findIndex(u => u.id === targetId);
+    if (idx !== -1) {
+      newUsers[idx] = { ...newUsers[idx], lockedUntil: undefined, failedLoginAttempts: 0 };
+      db.saveUsers(newUsers);
+      db.addAuditLog({ userId: user.id, action: 'USER_UNLOCKED', details: `Target: ${targetId}` });
+      setUsers(newUsers);
+      setSelectedUser(newUsers[idx]);
+      toast.success('Blokir pengguna berhasil dibuka');
+    }
+  };
+
+  const handleResetPassword = async (targetId: string) => {
+    const isConfirmed = await confirm({
+      title: 'Reset Password',
+      message: 'Apakah Anda yakin ingin melakukan reset password pengguna ini? Semua sesi akan diakhiri dan mereka wajib mengganti password saat login kembali.',
+      confirmText: 'Reset Password',
+      type: 'warning'
+    });
+
+    if (!isConfirmed) return;
+    
+    const newUsers = [...users];
+    const idx = newUsers.findIndex(u => u.id === targetId);
+    if (idx !== -1) {
+      newUsers[idx] = { ...newUsers[idx], passwordHash: 'rema1234', mustChangePassword: true };
+      db.saveUsers(newUsers);
+      db.addAuditLog({ userId: user.id, action: 'PASSWORD_RESET_ADMIN', details: `Target: ${targetId}` });
+      setUsers(newUsers);
+      setSelectedUser(newUsers[idx]);
+      toast.success('Password pengguna berhasil direset');
+    }
+  };
+
+  const handleEditSave = (updatedUser: User) => {
+    const oldUser = users.find(u => u.id === updatedUser.id);
+    
+    if (oldUser && oldUser.role !== 'mitra' && updatedUser.role === 'mitra') {
+      const existingMitra = db.getMitras().find(m => m.userId === updatedUser.id);
+      if (!existingMitra) {
+        const newMitra = {
+          id: crypto.randomUUID(),
+          userId: updatedUser.id,
+          name: updatedUser.name,
+          creditLimit: null,
+          isArchived: false,
+        };
+        db.saveMitras([newMitra, ...db.getMitras()]);
+      }
+    }
+
+    const newUsers = [...users];
+    const idx = newUsers.findIndex(u => u.id === updatedUser.id);
+    if (idx !== -1) {
+      newUsers[idx] = updatedUser;
+      db.saveUsers(newUsers);
+      db.addAuditLog({ userId: user.id, action: 'USER_UPDATED', details: `Target: ${updatedUser.id}` });
+      setUsers(newUsers);
+      setSelectedUser(updatedUser);
+      toast.success('Data pengguna berhasil diperbarui');
+    }
+  };
+
+  const handleDelete = async (targetId: string) => {
+    if (targetId === user.id) {
+      toast.error("Anda tidak dapat menghapus akun Anda sendiri.");
+      return;
+    }
+
+    const targetUser = users.find(u => u.id === targetId);
+    if (!targetUser) return;
+
+    const auditLogs = db.getAuditLogs();
+    const hasAuditTrail = auditLogs.some(log => log.userId === targetId);
+    
+    if (hasAuditTrail) {
+      toast.error("Tidak dapat menghapus pengguna ini karena memiliki riwayat aktivitas di sistem. Silakan nonaktifkan saja.");
+      return;
+    }
+
+    if (targetUser.role === 'mitra') {
+      const mitras = db.getMitras();
+      const linkedMitra = mitras.find(m => m.userId === targetId);
+      if (linkedMitra) {
+        const orders = db.getOrders();
+        const ledgers = db.getLedgers();
+        const requests = db.getRequests();
+        const isUsedInOrders = orders.some(o => o.mitraId === linkedMitra.id);
+        const isUsedInLedger = ledgers.some(l => l.mitraId === linkedMitra.id);
+        const isUsedInRequests = requests.some(r => r.mitraId === linkedMitra.id);
+        if (isUsedInOrders || isUsedInLedger || isUsedInRequests) {
+          toast.error("Tidak dapat menghapus user ini karena entitas mitranya sudah memiliki pesanan, riwayat saldo, atau pengajuan (request).");
+          return;
+        }
+      }
+    }
+
+    const isConfirmed = await confirm({
+      title: 'Hapus Pengguna',
+      message: 'Apakah Anda yakin ingin menghapus pengguna ini secara permanen? Tindakan ini tidak dapat dibatalkan.',
+      confirmText: 'Hapus',
+      type: 'danger'
+    });
+
+    if (!isConfirmed) return;
+
+    if (targetUser.role === 'mitra') {
+      const mitras = db.getMitras();
+      const linkedMitra = mitras.find(m => m.userId === targetId);
+      if (linkedMitra) {
+        db.saveMitras(mitras.filter(m => m.id !== linkedMitra.id));
+      }
+    }
+
+    const newUsers = users.filter(u => u.id !== targetId);
+    db.saveUsers(newUsers);
+    db.addAuditLog({ userId: user.id, action: 'USER_DELETED', details: `User ${targetId}` });
+    setUsers(newUsers);
+    setSelectedUser(null);
+    toast.success('Pengguna berhasil dihapus');
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold text-slate-900">User Management</h1>
+        <button 
+          onClick={() => setIsAddOpen(true)}
+          className="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-lg text-[13px] font-medium flex items-center gap-1.5 transition"
+        >
+          <Plus className="w-4 h-4" /> Add User
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        {/* Mobile View */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {users.map(u => (
+            <div 
+              key={u.id}
+              onClick={() => setSelectedUser(u)}
+              className="p-4 hover:bg-slate-50/50 transition-colors cursor-pointer"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                   <h3 className="font-semibold text-slate-900">{u.name}</h3>
+                   <p className="text-sm font-mono text-slate-500 mt-1">{u.phone}</p>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                   <span className="capitalize text-[12px] font-medium text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md bg-white shadow-sm">{u.role}</span>
+                   <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium uppercase tracking-wider ${u.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                      {u.isActive ? 'Active' : 'Disabled'}
+                   </span>
+                   {u.lockedUntil && u.lockedUntil > Date.now() && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium uppercase tracking-wider bg-orange-50 text-orange-700">
+                         Locked
+                      </span>
+                   )}
+                </div>
+              </div>
+            </div>
+          ))}
+          {users.length === 0 && (
+            <div className="p-8 text-center text-slate-500">No users found.</div>
+          )}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left text-[13px] text-slate-600">
+            <thead className="bg-slate-50 border-b border-slate-200/80 text-slate-900 font-medium text-[12px]">
+              <tr>
+                <th className="px-5 py-3">Name</th>
+                <th className="px-5 py-3">Phone</th>
+                <th className="px-5 py-3">Role</th>
+                <th className="px-5 py-3 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {users.map(u => (
+                <tr 
+                  key={u.id} 
+                  onClick={() => setSelectedUser(u)}
+                  className="hover:bg-slate-50/50 transition-colors cursor-pointer"
+                >
+                  <td className="px-5 py-3 font-medium text-slate-900">{u.name}</td>
+                  <td className="px-5 py-3 font-mono">{u.phone}</td>
+                  <td className="px-5 py-3 capitalize">{u.role}</td>
+                  <td className="px-5 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium uppercase tracking-wider ${u.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                        {u.isActive ? 'Active' : 'Disabled'}
+                      </span>
+                      {u.lockedUntil && u.lockedUntil > Date.now() && (
+                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium uppercase tracking-wider bg-orange-50 text-orange-700">
+                          Locked
+                         </span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {isAddOpen && <AddUserModal onClose={() => setIsAddOpen(false)} onAdd={(newUser) => setUsers([newUser, ...users])} />}
+      {selectedUser && (
+        <UserDetailPanel 
+          userTarget={selectedUser} 
+          currentUserId={user.id}
+          onClose={() => setSelectedUser(null)} 
+          onSave={handleEditSave}
+          onToggleActive={() => handleToggleActive(selectedUser.id, selectedUser.isActive)}
+          onUnlock={() => handleUnlock(selectedUser.id)}
+          onResetPassword={() => handleResetPassword(selectedUser.id)}
+          onDelete={() => handleDelete(selectedUser.id)}
+        />
+      )}
+    </div>
+  );
+}
+
+function UserDetailPanel({ 
+  userTarget, 
+  currentUserId,
+  onClose, 
+  onSave, 
+  onToggleActive, 
+  onUnlock, 
+  onResetPassword, 
+  onDelete 
+}: { 
+  userTarget: User, 
+  currentUserId: string,
+  onClose: () => void, 
+  onSave: (u: User) => void,
+  onToggleActive: () => void,
+  onUnlock: () => void,
+  onResetPassword: () => void,
+  onDelete: () => void
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState(userTarget.name);
+  const [phone, setPhone] = useState(userTarget.phone);
+  const [role, setRole] = useState<Role>(userTarget.role);
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const p = normalizePhone(phone);
+    
+    if (p !== userTarget.phone) {
+      const existing = db.getUsers().find(u => u.phone === p);
+      if(existing) {
+        setError('Nomor telepon sudah digunakan.');
+        return;
+      }
+    }
+
+    if (!name.trim()) {
+      setError('Nama tidak boleh kosong.');
+      return;
+    }
+
+    onSave({
+      ...userTarget,
+      name: name.trim(),
+      phone: p,
+      role
+    });
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 transition-opacity">
+      <div className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col animate-slide-in-right">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <h2 className="text-xl font-bold text-slate-900">User Details</h2>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6">
+          {!isEditing ? (
+            <div className="space-y-8">
+               <div>
+                 <div className="flex items-center gap-3 mb-4">
+                   <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-2xl uppercase">
+                      {userTarget.name.charAt(0)}
+                   </div>
+                   <div>
+                     <h3 className="text-xl font-bold text-slate-900">{userTarget.name}</h3>
+                     <p className="text-sm text-slate-500 capitalize">{userTarget.role}</p>
+                   </div>
+                 </div>
+                 
+                 <div className="grid grid-cols-2 gap-4 mt-6">
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                       <p className="text-xs text-slate-500 mb-1 font-medium">Status</p>
+                       <div className="flex items-center gap-2">
+                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium uppercase tracking-wider ${userTarget.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                           {userTarget.isActive ? 'Active' : 'Disabled'}
+                         </span>
+                       </div>
+                    </div>
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                       <p className="text-xs text-slate-500 mb-1 font-medium">Phone</p>
+                       <p className="text-sm font-mono text-slate-900">{userTarget.phone}</p>
+                    </div>
+                 </div>
+               </div>
+
+               <div className="space-y-4">
+                 <h4 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">Actions</h4>
+                 <div className="grid grid-cols-2 gap-3">
+                    <button onClick={() => setIsEditing(true)} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
+                      <Edit2 className="w-4 h-4" /> Edit Profile
+                    </button>
+                    {userTarget.lockedUntil && userTarget.lockedUntil > Date.now() && (
+                      <button onClick={onUnlock} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg text-sm font-medium transition">
+                        <Unlock className="w-4 h-4" /> Unlock
+                      </button>
+                    )}
+                    <button onClick={onResetPassword} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
+                      <Lock className="w-4 h-4" /> Reset PW
+                    </button>
+                    <button onClick={onToggleActive} disabled={userTarget.id === currentUserId} className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition ${userTarget.isActive ? 'bg-orange-50 hover:bg-orange-100 text-orange-700' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700'} disabled:opacity-50`}>
+                      {userTarget.isActive ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                      {userTarget.isActive ? 'Disable' : 'Enable'}
+                    </button>
+                    <button onClick={onDelete} disabled={userTarget.id === currentUserId} className="col-span-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition disabled:opacity-50">
+                      <Trash2 className="w-4 h-4" /> Delete User
+                    </button>
+                 </div>
+               </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 flex items-start gap-2"><AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> {error}</div>}
+              <div>
+                 <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                 <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900" />
+              </div>
+              <div>
+                 <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                 <input required type="tel" value={phone} onChange={e=>setPhone(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900" />
+              </div>
+              <div>
+                 <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
+                 <select value={role} disabled={userTarget.role === 'admin'} onChange={e=>setRole(e.target.value as Role)} className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900 disabled:opacity-50 disabled:bg-slate-50">
+                   <option value="admin">Admin</option>
+                   <option value="staff">Staff</option>
+                   <option value="operational">Operational</option>
+                   <option value="mitra">Mitra</option>
+                 </select>
+              </div>
+              <div className="pt-6 flex justify-end gap-3">
+                 <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition">Cancel</button>
+                 <button type="submit" className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition">Save Changes</button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AddUserModal({ onClose, onAdd }: { onClose: () => void, onAdd: (user: User) => void }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [role, setRole] = useState<Role>('mitra');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const p = normalizePhone(phone);
+    
+    const existing = db.getUsers().find(u => u.phone === p);
+    if(existing) {
+      setError('Phone number already exists.');
+      return;
+    }
+
+    const newUser: User = {
+      id: crypto.randomUUID(),
+      name,
+      phone: p,
+      role,
+      passwordHash: 'rema1234',
+      isActive: true,
+      mustChangePassword: true,
+    };
+
+    const newUsers = [newUser, ...db.getUsers()];
+    db.saveUsers(newUsers);
+    
+    if (role === 'mitra') {
+      const newMitra = {
+        id: crypto.randomUUID(),
+        userId: newUser.id,
+        name,
+        creditLimit: null,
+        isArchived: false,
+      };
+      db.saveMitras([newMitra, ...db.getMitras()]);
+    }
+
+    db.addAuditLog({ userId: 'system', action: 'USER_CREATED', details: `User ${name} created` });
+    onAdd(newUser);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+        <h2 className="text-xl font-bold mb-4">Add User</h2>
+        {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+             <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-gray-900" />
+          </div>
+          <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+             <input required type="tel" value={phone} onChange={e=>setPhone(e.target.value)} className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-gray-900" />
+          </div>
+          <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+             <select value={role} onChange={e=>setRole(e.target.value as Role)} className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-gray-900">
+               <option value="admin">Admin</option>
+               <option value="staff">Staff</option>
+               <option value="operational">Operational</option>
+               <option value="mitra">Mitra</option>
+             </select>
+          </div>
+          <div className="pt-4 flex justify-end gap-3">
+             <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition">Cancel</button>
+             <button type="submit" className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
