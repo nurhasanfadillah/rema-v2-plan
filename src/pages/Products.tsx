@@ -117,54 +117,52 @@ export default function Products() {
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-150 rounded-md px-2 py-0.5 w-max mb-1.5">
-            <ShoppingBag className="w-3.5 h-3.5" /> Katalog Produk
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Katalog & Koleksi Produk</h1>
-          <p className="text-[13px] text-slate-500 mt-0.5 font-semibold">Kelola ketersediaan barang, list harga jual mitra, dan foto produk.</p>
+          <h1 className="text-2xl font-bold text-white tracking-tighter leading-none">Katalog & Koleksi Produk</h1>
+          <p className="text-[12px] text-slate-500 mt-2 font-medium italic opacity-80 decoration-slate-800">Manajemen inventori, basis harga mitra, dan visual aset produk.</p>
         </div>
         {user?.role === 'admin' && (
           <button 
             onClick={() => setIsAddOpen(true)}
-            className="bg-gradient-to-tr from-slate-950 to-slate-900 hover:from-slate-900 hover:to-slate-850 text-white px-5 py-3 rounded-2xl text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-blue-600/10 active:scale-95 cursor-pointer uppercase tracking-widest"
           >
-            <Plus className="w-4.5 h-4.5" /> Tambah Produk Baru
+            <Plus className="w-4 h-4" /> Add Item
           </button>
         )}
       </div>
 
       <motion.div 
         variants={containerVariants} 
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
       >
         {products.map(p => (
           <motion.div 
             variants={itemVariants}
             key={p.id} 
-            onClick={() => user?.role === 'admin' && setSelectedProduct(p)}
-            className={`bg-white border border-slate-200/60 rounded-3xl overflow-hidden shadow-sm flex flex-col hover:shadow-md transition-all duration-300 relative ${user?.role === 'admin' ? 'cursor-pointer hover:border-slate-350 active:scale-[0.98]' : 'select-none'} ${p.isArchived ? 'opacity-60 grayscale' : ''}`}
+            onClick={() => setSelectedProduct(p)}
+            className={`bg-white/5 border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col hover:border-blue-500/30 transition-all duration-300 relative cursor-pointer active:scale-[0.98] group ${p.isArchived ? 'opacity-40 grayscale' : ''}`}
           >
-            <div className="aspect-[4/3] sm:aspect-square bg-slate-50 flex items-center justify-center relative overflow-hidden group border-b border-slate-100">
+            <div className="aspect-[4/3] sm:aspect-square bg-slate-950 flex items-center justify-center relative overflow-hidden border-b border-white/5">
                {p.imageUrl ? (
-                  <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" />
                ) : (
-                  <div className="flex flex-col items-center gap-1.5 text-slate-350">
-                    <ShoppingBag className="w-8 h-8 opacity-40" />
-                    <span className="text-[10px] sm:text-xs font-semibold">Default Placeholder</span>
+                  <div className="flex flex-col items-center gap-1.5 text-slate-700">
+                    <ShoppingBag className="w-8 h-8 opacity-40 group-hover:text-blue-500 transition-colors" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest opacity-30">No Image</span>
                   </div>
                )}
+               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
                {p.isArchived && (
-                 <div className="absolute top-2.5 right-2.5 bg-slate-950 border border-slate-800 text-[9px] font-black uppercase text-slate-100 px-2 py-0.5 rounded-md shadow-sm">
+                 <div className="absolute top-2.5 right-2.5 bg-slate-900 border border-slate-800 text-[8px] font-black uppercase text-slate-300 px-2 py-0.5 rounded-lg shadow-2xl tracking-[0.1em]">
                    DIARSIPKAN
                  </div>
                )}
             </div>
-            <div className="p-3.5 flex-1 flex flex-col justify-between gap-1.5">
-               <div>
-                 <h3 className="text-xs sm:text-sm font-extrabold tracking-tight text-slate-900 line-clamp-2 leading-tight">{p.name}</h3>
-                 {p.description && <p className="hidden sm:block text-[11px] text-slate-400 font-medium line-clamp-1 leading-relaxed mt-1">{p.description}</p>}
+            <div className="p-4 flex-1 flex flex-col justify-between gap-1">
+               <div className="space-y-1">
+                 <h3 className="text-[13px] font-bold tracking-tight text-white line-clamp-1 group-hover:text-blue-400 transition-colors uppercase">{p.name}</h3>
+                 <p className="text-[10px] text-slate-500 font-medium line-clamp-1 leading-relaxed opacity-70 italic">{p.description || 'Tanpa deskripsi tambahan'}</p>
                </div>
-               <p className="text-sm sm:text-base font-black text-slate-950 leading-none">{formatCurrency(p.price)}</p>
+               <p className="text-base font-bold text-white leading-none mt-2 tabular-nums tracking-tighter">{formatCurrency(p.price)}</p>
             </div>
           </motion.div>
         ))}
@@ -188,7 +186,7 @@ export default function Products() {
       )}
 
       <AnimatePresence>
-        {selectedProduct && user?.role === 'admin' && (
+        {selectedProduct && (
           <ProductDetailPanel 
             product={selectedProduct} 
             onClose={() => setSelectedProduct(null)} 
@@ -218,6 +216,7 @@ function ProductDetailPanel({
   onDelete: () => void,
   formattedLabel: (p: string) => string
 }) {
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(product.name);
   const [price, setPrice] = useState(product.price.toString());
@@ -286,21 +285,23 @@ function ProductDetailPanel({
                  )}
                </div>
 
-               <div className="space-y-4 pt-1">
-                 <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Kontrol Manajemen</h4>
-                 <div className="grid grid-cols-2 gap-3 text-xs font-bold">
-                    <button onClick={() => setIsEditing(true)} className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 border border-slate-900 text-white hover:bg-slate-800 rounded-xl transition-all cursor-pointer active:scale-95 text-xs font-extrabold shadow-md">
-                      <Edit2 className="w-4 h-4" /> Edit & Perbarui Produk
-                    </button>
-                    <button onClick={onToggleArchive} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all cursor-pointer active:scale-95 ${product.isArchived ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700' : 'bg-orange-50 hover:bg-orange-100 text-orange-700'}`}>
-                      <Archive className="w-4 h-4" />
-                      {product.isArchived ? 'Buka Arsip' : 'Arsipkan'}
-                    </button>
-                    <button onClick={onDelete} className="flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition-all cursor-pointer active:scale-95">
-                      <Trash2 className="w-4 h-4" /> Hapus
-                    </button>
+               {user?.role === 'admin' && (
+                 <div className="space-y-4 pt-1">
+                   <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Kontrol Manajemen</h4>
+                   <div className="grid grid-cols-2 gap-3 text-xs font-bold">
+                      <button onClick={() => setIsEditing(true)} className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 border border-slate-900 text-white hover:bg-slate-800 rounded-xl transition-all cursor-pointer active:scale-95 text-xs font-extrabold shadow-md">
+                        <Edit2 className="w-4 h-4" /> Edit & Perbarui Produk
+                      </button>
+                      <button onClick={onToggleArchive} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all cursor-pointer active:scale-95 ${product.isArchived ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700' : 'bg-orange-50 hover:bg-orange-100 text-orange-700'}`}>
+                        <Archive className="w-4 h-4" />
+                        {product.isArchived ? 'Buka Arsip' : 'Arsipkan'}
+                      </button>
+                      <button onClick={onDelete} className="flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition-all cursor-pointer active:scale-95">
+                        <Trash2 className="w-4 h-4" /> Hapus
+                      </button>
+                   </div>
                  </div>
-               </div>
+               )}
             </div>
           ) : (
              <form onSubmit={handleSubmit} className="space-y-4 font-bold text-xs sm:text-sm">

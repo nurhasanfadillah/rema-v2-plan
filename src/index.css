@@ -1,8 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
   --animate-slide-in-right: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-fade-in: fadeIn 0.2s ease-out forwards;
   
@@ -27,7 +30,20 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased bg-slate-950 text-slate-100 text-[13px];
+    @apply font-sans antialiased bg-slate-950 text-slate-200 text-[13px] selection:bg-blue-500/30;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-white;
+  }
+
+  /* Compact Principle: tighter line height for small text */
+  p {
+    @apply leading-relaxed;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -279,6 +295,7 @@ button.bg-slate-100:hover {
 html, body, #root {
   height: 100%;
   width: 100%;
+  overflow-x: hidden;
   overscroll-behavior-y: none; /* Prevents pull-to-refresh on desktop/mobile browsers to mimic native */
 }
 

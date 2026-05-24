@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/db';
-import { formatDate } from '../../lib/utils';
+import { formatDate, cn } from '../../lib/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Eye, Package, Calendar, User, LayoutList, Search, ArrowRight, Layers, FileSpreadsheet, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Eye, Package, Calendar, User, LayoutList, Search, ArrowRight, FileSpreadsheet, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function OrdersList() {
@@ -13,6 +13,7 @@ export default function OrdersList() {
   const orders = db.getOrders();
   const mitras = db.getMitras();
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -47,6 +48,26 @@ export default function OrdersList() {
     displayOrders = displayOrders.filter(o => o.status === 'draft');
   } else if (user.role === 'mitra') {
     displayOrders = displayOrders.filter(o => o.status !== 'draft');
+  }
+
+  // Status Filter
+  const statusStats = displayOrders.reduce((acc, order) => {
+    if (!acc[order.status]) {
+      acc[order.status] = { orders: 0, qty: 0 };
+    }
+    acc[order.status].orders += 1;
+    acc[order.status].qty += (order.totalQty || 0);
+    return acc;
+  }, {} as Record<string, { orders: number; qty: number }>);
+
+  const totalStats = Object.values(statusStats).reduce((acc, curr) => {
+    acc.orders += curr.orders;
+    acc.qty += curr.qty;
+    return acc;
+  }, { orders: 0, qty: 0 });
+
+  if (!isDraftPage && statusFilter !== 'all') {
+    displayOrders = displayOrders.filter(o => o.status === statusFilter);
   }
 
   // Live filter query
@@ -120,10 +141,9 @@ export default function OrdersList() {
   const getStatusBadge = (status: string) => {
     const specs: Record<string, { bg: string, text: string, border: string, dot: string, label: string }> = {
       draft: { bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200', dot: 'bg-slate-400', label: 'Draft' },
-      waiting_confirmation: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200/60', dot: 'bg-amber-505', label: 'Menunggu' },
+      waiting_confirmation: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200/60', dot: 'bg-amber-500', label: 'Menunggu' },
       confirmed: { bg: 'bg-blue-50 border-blue-100', text: 'text-blue-700', border: 'border-blue-200/60', dot: 'bg-blue-500', label: 'Dikonfirmasi' },
       processing: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200/60', dot: 'bg-purple-500', label: 'Diproses' },
-      printing: { bg: 'bg-indigo-50 border-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200/60', dot: 'bg-indigo-500', label: 'Cetak DTF' },
       pressing: { bg: 'bg-rose-50 border-rose-100', text: 'text-rose-700', border: 'border-rose-200/60', dot: 'bg-rose-500', label: 'Press Sablon' },
       packing: { bg: 'bg-orange-50 border-orange-100', text: 'text-orange-700', border: 'border-orange-200/60', dot: 'bg-orange-500', label: 'Packing' },
       shipped: { bg: 'bg-emerald-50 border-emerald-100', text: 'text-emerald-700 border-emerald-200/60', border: 'border-emerald-200/60', dot: 'bg-emerald-500', label: 'Kirim' },
@@ -159,38 +179,59 @@ export default function OrdersList() {
       className="space-y-6"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest text-blue-600 bg-blue-50 border border-blue-100 rounded-md px-2 py-0.5 w-max mb-1.5">
-            <Layers className="w-3.5 h-3.5" /> Monitor Transaksi
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">{isDraftPage ? 'Draft Unit Pesanan' : 'Daftar Manajemen Pesanan'}</h1>
-          <p className="text-[13px] text-slate-500 mt-0.5 font-medium">{isDraftPage ? 'Lanjutkan pesanan yang belum selesai' : 'Kelola dan pantau pesanan Anda'}</p>
+        <div className="space-y-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tighter text-white">{isDraftPage ? 'Draft Unit Pesanan' : 'Daftar Manajemen Pesanan'}</h1>
+          <p className="text-[12px] text-slate-500 font-medium tracking-wide italic opacity-80">{isDraftPage ? 'Lanjutkan pesanan yang belum selesai' : 'Kelola dan pantau pesanan Anda'}</p>
         </div>
         {user.role === 'mitra' && (
           <Link 
             to="/orders/create"
-            className="bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-50 hover:to-indigo-400 text-white px-5 py-3 rounded-2xl text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-md shadow-blue-500/10 active:scale-[0.98] w-full sm:w-auto text-center"
+            className="bg-slate-900 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all border border-slate-800 hover:border-blue-500 shadow-xl shadow-black/20 active:scale-[0.98] w-full sm:w-auto text-center group"
           >
-            <Plus className="w-4.5 h-4.5" /> Buat Pesanan Baru
+            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" /> Buat Pesanan Baru
           </Link>
         )}
       </div>
 
       {/* Control bar */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="relative w-full sm:max-w-md group">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-          <input 
-            type="text"
-            value={searchQuery}
-            onChange={e => handleSearchChange(e.target.value)}
-            placeholder="Cari berdasarkan nomor order, tipe, atau nama mitra..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 focus:bg-white transition"
-          />
+      <div className="bg-white/5 rounded-2xl border border-white/5 p-4 shadow-2xl flex flex-col lg:flex-row gap-4 items-center justify-between backdrop-blur-sm">
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:max-w-3xl">
+          <div className="relative flex-1 group">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+            <input 
+              type="text"
+              value={searchQuery}
+              onChange={e => handleSearchChange(e.target.value)}
+              placeholder="Cari nomor order, tipe, atau mitra..."
+              className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs sm:text-[13px] font-medium outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-slate-950 transition placeholder:text-slate-600 tabular-nums"
+            />
+          </div>
+          
+          {!isDraftPage && (
+            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 min-w-[200px]">
+              <LayoutList className="w-4 h-4 text-slate-500" />
+              <select
+                value={statusFilter}
+                onChange={e => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="bg-transparent border-0 text-[11px] font-bold text-slate-300 outline-none focus:ring-0 cursor-pointer p-0 pr-6 flex-1 italic"
+              >
+                <option value="all">Semua Status - {totalStats.orders} ({totalStats.qty})</option>
+                <option value="waiting_confirmation">Menunggu - {statusStats['waiting_confirmation']?.orders || 0} ({statusStats['waiting_confirmation']?.qty || 0})</option>
+                <option value="confirmed">Dikonfirmasi - {statusStats['confirmed']?.orders || 0} ({statusStats['confirmed']?.qty || 0})</option>
+                <option value="processing">Diproses - {statusStats['processing']?.orders || 0} ({statusStats['processing']?.qty || 0})</option>
+                <option value="pressing">Press Sablon - {statusStats['pressing']?.orders || 0} ({statusStats['pressing']?.qty || 0})</option>
+                <option value="packing">Packing - {statusStats['packing']?.orders || 0} ({statusStats['packing']?.qty || 0})</option>
+                <option value="shipped">Kirim - {statusStats['shipped']?.orders || 0} ({statusStats['shipped']?.qty || 0})</option>
+              </select>
+            </div>
+          )}
         </div>
         
-        <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 self-stretch sm:self-auto justify-center flex items-center">
-          Total: {totalItems} Pesanan
+        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em] bg-slate-900/50 border border-slate-800/50 rounded-lg px-4 py-2 self-stretch lg:self-auto justify-center flex items-center tabular-nums">
+          Total: <span className="text-slate-300 ml-1.5 font-bold italic">{totalItems}</span> <span className="ml-1 opacity-60">Pesanan</span>
         </div>
       </div>
 
@@ -203,32 +244,41 @@ export default function OrdersList() {
               variants={itemVariants}
               key={o.id} 
               onClick={() => navigate(`/orders/${o.id}`)}
-              className="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm relative hover:shadow-md transition cursor-pointer hover:border-slate-300 active:scale-[0.99]"
+              className="bg-slate-900/40 rounded-2xl border border-white/5 p-4 shadow-xl relative hover:bg-slate-900/60 transition cursor-pointer hover:border-blue-500/30 active:scale-[0.99] group"
             >
-              <div className="flex justify-between items-start mb-3">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="font-mono font-black text-slate-900 text-sm">{o.orderNumber}</h3>
-                  <div className="flex flex-col gap-1 mt-1.5">
-                     <span className="flex items-center text-xs text-slate-500 gap-1.5 font-bold"><Calendar className="w-3.5 h-3.5 text-slate-400" /> {formatDate(o.createdAt)}</span>
+                  <h3 className="font-mono font-bold text-white text-sm tracking-tighter uppercase">{o.orderNumber}</h3>
+                  <div className="flex flex-col gap-1.5 mt-2">
+                     <span className="flex items-center text-[11px] text-slate-500 gap-2 font-medium tabular-nums"><Calendar className="w-3.5 h-3.5 opacity-60" /> {formatDate(o.createdAt)}</span>
                      {user.role !== 'mitra' && (
-                       <span className="flex items-center text-xs text-slate-500 gap-1.5 font-extrabold"><User className="w-3.5 h-3.5 text-slate-400" /> {mitraName}</span>
+                       <span className="flex items-center text-[11px] text-slate-400 gap-2 font-bold"><User className="w-3.5 h-3.5 opacity-60" /> {mitraName}</span>
                      )}
                   </div>
                 </div>
-                <div>{getStatusBadge(o.status)}</div>
+                <div>
+                  <div className="flex flex-col items-end gap-2">
+                    {getStatusBadge(o.status)}
+                    {o.items.some(i => i.dtfStatus === 'sudah_cetak') && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-[9px] font-bold uppercase tracking-[0.1em] border border-emerald-500/20">
+                        DTF
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center justify-between mt-4 pt-3.5 border-t border-slate-100 bg-slate-50/50 -mx-4 -mb-4 p-4 rounded-b-2xl">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5 bg-black/20 -mx-4 -mb-4 p-4 rounded-b-2xl">
+                <div className="flex items-center gap-6">
                    <div className="flex flex-col">
-                     <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Tipe</span>
-                     <span className="text-xs font-bold text-slate-700 capitalize mt-0.5">{o.type}</span>
+                     <span className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">Tipe</span>
+                     <span className="text-[12px] font-semibold text-slate-300 capitalize mt-0.5">{o.type}</span>
                    </div>
                    <div className="flex flex-col">
-                     <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Total</span>
-                     <span className="text-xs font-bold text-slate-700 mt-0.5">{o.totalQty} pcs</span>
+                     <span className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">Total</span>
+                     <span className="text-[12px] font-bold text-slate-300 mt-0.5 tabular-nums">{o.totalQty} <span className="text-[10px] font-normal opacity-60">pcs</span></span>
                    </div>
                 </div>
-                <div className="w-7 h-7 bg-slate-100 hover:bg-slate-200/80 rounded-full flex items-center justify-center text-slate-500 transition-colors">
+                <div className="w-8 h-8 bg-slate-800 text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-500/10 rounded-xl flex items-center justify-center transition-all duration-300 border border-slate-700 group-hover:border-blue-500/30 shadow-lg">
                   <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
@@ -236,9 +286,9 @@ export default function OrdersList() {
           );
         })}
         {paginatedOrders.length === 0 && (
-          <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500">
-             <LayoutList className="w-10 h-10 mx-auto text-slate-400 mb-3" />
-             Tidak ada pesanan.
+          <motion.div variants={itemVariants} className="bg-slate-900/50 rounded-2xl border border-white/5 p-12 text-center text-slate-500">
+             <LayoutList className="w-10 h-10 mx-auto text-slate-700 mb-4 opacity-50" />
+             <p className="text-sm font-medium">Tidak ada pesanan.</p>
           </motion.div>
         )}
       </div>
@@ -246,47 +296,58 @@ export default function OrdersList() {
       {/* Desktop view (>= md) */}
       <motion.div 
         variants={itemVariants}
-        className="hidden md:block bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03),0_8px_20px_-8px_rgba(0,0,0,0.01)] border border-slate-200/60 overflow-hidden"
+        className="hidden md:block bg-slate-900/30 rounded-3xl shadow-2xl border border-white/5 overflow-hidden backdrop-blur-sm"
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] text-slate-600">
-            <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-900 font-extrabold text-[11px] uppercase tracking-wider">
+          <table className="w-full text-left text-[13px] text-slate-300">
+            <thead className="bg-slate-950/50 border-b border-white/5 text-slate-500 font-bold text-[10px] uppercase tracking-[0.15em]">
               <tr>
-                <th className="px-6 py-4">Nomor Pesanan</th>
-                <th className="px-6 py-4">Tanggal Masuk</th>
-                {user.role !== 'mitra' && <th className="px-6 py-4">Mitra</th>}
-                <th className="px-6 py-4">Tipe</th>
-                <th className="px-6 py-4 text-center">Total Qty</th>
-                <th className="px-6 py-4 text-right">Status</th>
+                <th className="px-6 py-4.5 font-bold">Nomor Pesanan</th>
+                <th className="px-6 py-4.5">Tanggal Masuk</th>
+                {user.role !== 'mitra' && <th className="px-6 py-4.5">Mitra</th>}
+                <th className="px-6 py-4.5">Tipe</th>
+                <th className="px-6 py-4.5 text-center">Total Qty</th>
+                <th className="px-6 py-4.5 text-right">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100/80 font-bold">
+            <tbody className="divide-y divide-white/5">
               {paginatedOrders.map(o => {
                 const mitraName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
                 return (
                   <tr 
                     key={o.id} 
                     onClick={() => navigate(`/orders/${o.id}`)}
-                    className="hover:bg-slate-50/70 transition-colors duration-200 cursor-pointer font-semibold"
+                    className="hover:bg-white/5 transition-colors duration-200 cursor-pointer"
                   >
-                    <td className="px-6 py-4 font-mono font-black text-slate-900">{o.orderNumber}</td>
-                    <td className="px-6 py-4 font-medium text-slate-500">{formatDate(o.createdAt)}</td>
-                    {user.role !== 'mitra' && <td className="px-6 py-4 font-extrabold text-slate-900">{mitraName}</td>}
-                    <td className="px-6 py-4 capitalize font-bold">
-                      <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${o.type === 'online' ? 'bg-sky-50 text-sky-600 border border-sky-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                    <td className="px-6 py-4 font-mono font-bold text-white tracking-tighter uppercase whitespace-nowrap">{o.orderNumber}</td>
+                    <td className="px-6 py-4 font-medium text-slate-500 italic tabular-nums">{formatDate(o.createdAt)}</td>
+                    {user.role !== 'mitra' && <td className="px-6 py-4 font-bold text-slate-200">{mitraName}</td>}
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wide border ${o.type === 'online' ? 'bg-sky-500/10 text-sky-400 border-sky-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>
                         {o.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-bold text-center text-slate-800">{o.totalQty} pcs</td>
-                    <td className="px-6 py-4 text-right">{getStatusBadge(o.status)}</td>
+                    <td className="px-6 py-4 font-bold text-center text-slate-400 tabular-nums">
+                      <span className="text-slate-100">{o.totalQty}</span> <span className="text-[11px] font-normal opacity-50 ml-1 italic">pcs</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        {o.items.some(i => i.dtfStatus === 'sudah_cetak') && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-[9px] font-bold uppercase tracking-wider border border-emerald-500/20">
+                            DTF
+                          </span>
+                        )}
+                        {getStatusBadge(o.status)}
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
               {paginatedOrders.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400 font-medium">
-                    <FileSpreadsheet className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                    Belum ada data pesanan yang tersedia.
+                  <td colSpan={6} className="px-6 py-16 text-center text-slate-500">
+                    <FileSpreadsheet className="w-12 h-12 text-slate-700 mx-auto mb-4 opacity-40" />
+                    <p className="text-sm font-medium">Belum ada data pesanan yang tersedia.</p>
                   </td>
                 </tr>
               )}
@@ -297,76 +358,77 @@ export default function OrdersList() {
 
       {/* Pagination Controls */}
       {totalItems > 0 && (
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-4 bg-white rounded-2xl shadow-sm border border-slate-200/60">
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest whitespace-nowrap">Baris per halaman:</span>
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-4 bg-slate-900/50 rounded-2xl shadow-xl border border-white/5 backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto justify-between lg:justify-start">
+            <div className="flex items-center gap-3 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 shadow-inner">
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">Show Limit:</span>
               <select
                 value={pageSize}
                 onChange={e => {
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="bg-transparent border-0 text-[10px] font-extrabold text-slate-700 uppercase outline-none focus:ring-0 cursor-pointer p-0 pr-1"
+                className="bg-transparent border-0 text-[11px] font-bold text-slate-300 uppercase outline-none focus:ring-0 cursor-pointer p-0 pr-1 tabular-nums italic"
               >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
+                <option value={5}>5 Units</option>
+                <option value={10}>10 Units</option>
+                <option value={25}>25 Units</option>
+                <option value={50}>50 Units</option>
+                <option value={100}>100 Units</option>
               </select>
             </div>
             
-            <div className="text-xs font-semibold text-slate-500 text-center sm:text-left">
-              Menampilkan <span className="font-bold text-slate-800">{totalItems === 0 ? 0 : startIndex + 1}</span> sampai{' '}
-              <span className="font-bold text-slate-800">{Math.min(endIndex, totalItems)}</span> dari{' '}
-              <span className="font-bold text-slate-800">{totalItems}</span> pesanan
+            <div className="text-[12px] font-medium text-slate-500 text-center sm:text-left tracking-wide">
+              Menampilkan <span className="font-bold text-slate-300 tabular-nums">{(startIndex + 1).toLocaleString()}</span> –{' '}
+              <span className="font-bold text-slate-300 tabular-nums">{Math.min(endIndex, totalItems).toLocaleString()}</span> <span className="opacity-60 italic mx-1">dari</span>{' '}
+              <span className="font-bold text-slate-300 tabular-nums">{totalItems.toLocaleString()}</span> <span className="opacity-60 italic uppercase text-[10px] font-bold tracking-tighter">Entri Pesanan</span>
             </div>
           </div>
           
           {totalPages > 1 && (
-            <div className="flex items-center gap-1.5 self-center">
+            <div className="flex items-center gap-1 self-center">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 transition disabled:opacity-40 disabled:hover:bg-transparent text-slate-600 disabled:cursor-not-allowed"
-                title="Halaman Sebelumnya"
+                className="w-10 h-10 flex items-center justify-center border border-slate-800 rounded-xl bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg active:scale-90"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4.5 h-4.5" />
               </button>
               
-              {getPageNumbers().map((p, idx) => {
-                if (p === 'ellipsis1' || p === 'ellipsis2') {
+              <div className="flex items-center gap-1 mx-1.5">
+                {getPageNumbers().map((p, idx) => {
+                  if (p === 'ellipsis1' || p === 'ellipsis2') {
+                    return (
+                      <span key={`ellipsis-${idx}`} className="w-8 h-8 flex items-center justify-center text-slate-700 text-xs font-bold">
+                        •••
+                      </span>
+                    );
+                  }
+                  const pageNum = p as number;
+                  const isActive = pageNum === currentPage;
                   return (
-                    <span key={`ellipsis-${idx}`} className="w-8 h-8 flex items-center justify-center text-slate-400 text-xs font-semibold">
-                      ...
-                    </span>
+                    <button
+                      key={`page-${pageNum}`}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={cn(
+                        "w-9 h-9 rounded-xl flex items-center justify-center text-[12px] font-bold transition-all duration-300 tabular-nums",
+                        isActive
+                          ? "bg-blue-600 text-white shadow-xl shadow-blue-600/20 scale-110"
+                          : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+                      )}
+                    >
+                      {pageNum}
+                    </button>
                   );
-                }
-                const pageNum = p as number;
-                const isActive = pageNum === currentPage;
-                return (
-                  <button
-                    key={`page-${pageNum}`}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition ${
-                      isActive
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/10'
-                        : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
+                })}
+              </div>
               
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 transition disabled:opacity-40 disabled:hover:bg-transparent text-slate-600 disabled:cursor-not-allowed"
-                title="Halaman Selanjutnya"
+                className="w-10 h-10 flex items-center justify-center border border-slate-800 rounded-xl bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg active:scale-90"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4.5 h-4.5" />
               </button>
             </div>
           )}

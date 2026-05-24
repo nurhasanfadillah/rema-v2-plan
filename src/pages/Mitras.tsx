@@ -5,7 +5,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { db } from '../lib/db';
 import { Mitra } from '../types';
 import { formatCurrency } from '../lib/utils';
-import { Save, Edit2, Archive, Trash2, X, Shield, Sparkles, AlertCircle, Award } from 'lucide-react';
+import { Save, Edit2, Archive, Trash2, X, Sparkles, AlertCircle, Award, ChevronRight } from 'lucide-react';
 import { FileUpload } from '../components/FileUpload';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -15,8 +15,21 @@ export default function Mitras() {
   const [mitras, setMitras] = useState<Mitra[]>(db.getMitras());
   const [selectedMitra, setSelectedMitra] = useState<Mitra | null>(null);
   const users = db.getUsers();
+  const orders = db.getOrders();
+  const ledgers = db.getLedgers();
 
   if (user?.role !== 'admin') return <div className="p-8 text-center text-red-500 font-bold">Akses Ditolak</div>;
+
+  const getMitraStats = (mitraId: string) => {
+    const mitraOrders = orders.filter(o => o.mitraId === mitraId && o.status !== 'cancelled');
+    const totalOrders = mitraOrders.length;
+    const totalSales = mitraOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+    
+    const mitraLedgers = ledgers.filter(l => l.mitraId === mitraId);
+    const saldoPiutang = mitraLedgers.reduce((acc, curr) => acc + (curr.direction === 'debit' ? curr.nominal : -curr.nominal), 0);
+    
+    return { totalOrders, totalSales, saldoPiutang };
+  };
 
   const handleUpdateLimit = (mitraId: string, newLimit: string) => {
     let limitVal: number | null = parseInt(newLimit.replace(/\D/g, ''));
@@ -134,116 +147,139 @@ export default function Mitras() {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="space-y-6"
+      className="space-y-4"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-150 rounded-md px-2 py-0.5 w-max mb-1.5">
-            <Shield className="w-3.5 h-3.5" /> Mitra Overview
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Manajemen Mitra Bisnis</h1>
-          <p className="text-[13px] text-slate-500 mt-0.5 font-semibold">Pantau limit kredit masing-masing partner usaha, unggah brand logo, dan atur arsip.</p>
+          <h1 className="text-xl font-bold text-white tracking-tight leading-none">Manajemen Partner & Mitra</h1>
+          <p className="text-[11px] text-slate-500 mt-1 font-medium opacity-80">Pantau limit kredit, identitas brand mitra, dan statistik performa partner.</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03),0_8px_16px_-8px_rgba(0,0,0,0.01)] border border-slate-200/60 overflow-hidden">
-        {/* Mobile View */}
-        <div className="md:hidden divide-y divide-slate-100">
-          {mitras.map(m => {
-            const mitraUser = users.find(u => u.id === m.userId);
-            return (
-              <div 
-                key={m.id}
-                onClick={() => setSelectedMitra(m)}
-                className={`p-4 hover:bg-slate-50/70 transition-colors cursor-pointer ${m.isArchived ? 'opacity-50' : ''}`}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  {m.logoUrl ? (
-                      <img src={m.logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover border border-slate-250/60 bg-white shadow-sm" />
-                  ) : (
-                      <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm border border-indigo-100">
+      {mitras.length === 0 ? (
+        <div className="bg-white/5 border border-white/5 rounded-2xl p-10 text-center shadow-2xl backdrop-blur-sm">
+          <div className="w-16 h-16 bg-slate-900 border border-slate-800 text-slate-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+          <h3 className="text-white font-bold text-lg tracking-tight">Data Mitra Kosong</h3>
+          <p className="text-slate-500 text-[12px] mt-1.5 mx-auto max-w-sm font-medium leading-relaxed">Silakan daftarkan akun dengan role 'Mitra' terlebih dahulu melalui menu Manajemen User untuk memunculkan profil di sini.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* Mobile View - Cards */}
+          <motion.div 
+            variants={containerVariants}
+            className="md:hidden grid grid-cols-1 gap-2.5"
+          >
+            {mitras.map(m => {
+              const mitraUser = users.find(u => u.id === m.userId);
+              const stats = getMitraStats(m.id);
+              return (
+                <motion.div 
+                  key={m.id}
+                  variants={itemVariants}
+                  onClick={() => setSelectedMitra(m)}
+                  className={`bg-white/5 rounded-2xl p-3.5 border border-white/5 shadow-2xl hover:border-blue-500/30 transition-all cursor-pointer group flex items-center justify-between gap-3 backdrop-blur-sm ${m.isArchived ? 'opacity-40 grayscale' : ''}`}
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    {m.logoUrl ? (
+                      <img src={m.logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover border border-white/5 flex-shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex-shrink-0 flex items-center justify-center font-bold text-md border border-blue-500/20 transition-transform group-hover:scale-105">
                         {m.name.charAt(0)}
                       </div>
-                  )}
-                  <div>
-                    <h3 className="font-extrabold text-slate-900 text-sm leading-tight">{m.name}</h3>
-                    <p className="text-xs font-semibold font-mono text-slate-400 mt-0.5">{mitraUser?.phone || '-'}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 mt-2 bg-slate-50/50 -mx-4 -mb-4 p-4 rounded-b-2xl">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Kredit Limit</span>
-                    <span className="font-extrabold text-slate-900 text-xs">{m.creditLimit ? formatCurrency(m.creditLimit) : 'Unlimited'}</span>
-                  </div>
-                  <div>
-                    {m.isArchived ? (
-                        <span className="inline-flex items-center px-2 py-0.5 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-extrabold uppercase tracking-wider border border-slate-250">TERARSIP</span>
-                    ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-extrabold uppercase tracking-wider border border-emerald-100">AKTIF</span>
                     )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          {mitras.length === 0 && (
-            <div className="p-10 text-center text-slate-400 font-bold">Belum ada mitra terdaftar. Silakan daftarkan akun dengan role 'Mitra' terlebih dahulu.</div>
-          )}
-        </div>
-
-        {/* Desktop View */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-left text-[13px] text-slate-600">
-            <thead className="bg-slate-50 border-b border-slate-200/80 text-slate-900 font-extrabold text-[11px] uppercase tracking-wider">
-              <tr>
-                <th className="px-6 py-4">Nama Mitra</th>
-                <th className="px-6 py-4">Kontak User HP</th>
-                <th className="px-6 py-4">Batas Kredit</th>
-                <th className="px-6 py-4 text-right">Status Partner</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 font-bold">
-              {mitras.map(m => {
-                const mitraUser = users.find(u => u.id === m.userId);
-                return (
-                  <tr 
-                    key={m.id} 
-                    onClick={() => setSelectedMitra(m)}
-                    className={`hover:bg-slate-50/70 transition-colors duration-200 cursor-pointer ${m.isArchived ? 'opacity-50' : ''}`}
-                  >
-                    <td className="px-6 py-4 font-extrabold text-slate-900">
-                      <div className="flex items-center gap-3">
-                        {m.logoUrl ? (
-                           <img src={m.logoUrl} alt="" className="w-8 h-8 rounded-lg object-cover border border-slate-200 shadow-sm" />
-                        ) : (
-                           <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs border border-indigo-150">
-                             {m.name.charAt(0)}
-                           </div>
-                        )}
-                        {m.name}
+                    <div className="min-w-0 space-y-0.5">
+                      <h3 className="font-bold text-white text-[13px] leading-tight truncate group-hover:text-blue-400 transition-colors uppercase">{m.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold text-slate-600 font-mono tabular-nums tracking-wider uppercase opacity-70">HP: {mitraUser?.phone || '-'}</span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 font-mono font-medium text-slate-400">{mitraUser?.phone || '-'}</td>
-                    <td className="px-6 py-4">
-                      <span className="font-extrabold text-slate-900">
-                        {m.creditLimit ? formatCurrency(m.creditLimit) : 'No Limit / Unlimited'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 flex-shrink-0">
+                    <div className="flex flex-col items-end gap-1">
                       {m.isArchived ? (
-                         <span className="inline-flex items-center px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-extrabold uppercase border border-slate-200">TERARSIP</span>
+                         <span className="px-1.5 py-0.5 bg-slate-900 text-slate-500 rounded text-[7px] font-bold uppercase border border-slate-800 tracking-wider">Arsip</span>
                       ) : (
-                         <span className="inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-extrabold uppercase border border-emerald-100">AKTIF</span>
+                         <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[7px] font-bold uppercase border border-blue-500/20 tracking-wider">Aktif</span>
                       )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <span className="text-[9px] font-bold text-slate-500 tabular-nums lowercase italic opacity-60 group-hover:text-amber-500 transition-colors leading-none">{stats.totalOrders} items</span>
+                    </div>
+                    <div className="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-600 group-hover:bg-blue-600 group-hover:text-white transition-all transform group-hover:translate-x-0.5 shadow-lg">
+                       <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+
+          {/* Desktop View - Table */}
+          <div className="hidden md:block bg-white/5 rounded-2xl shadow-xl border border-white/5 overflow-hidden backdrop-blur-xl">
+            <table className="w-full text-left">
+              <thead className="bg-slate-950/40 border-b border-white/5 text-slate-500 font-bold text-[8px] uppercase tracking-widest">
+                <tr>
+                  <th className="px-5 py-3.5">Partner Profile</th>
+                  <th className="px-5 py-3.5">Total Sales</th>
+                  <th className="px-5 py-3.5 text-center">Vol</th>
+                  <th className="px-5 py-3.5">Saldo Piutang</th>
+                  <th className="px-5 py-3.5">Limit Kredit</th>
+                  <th className="px-5 py-3.5 text-right">Status Hubungan</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5 font-medium text-[12px]">
+                {mitras.map(m => {
+                  const mitraUser = users.find(u => u.id === m.userId);
+                  const stats = getMitraStats(m.id);
+                  return (
+                    <tr 
+                      key={m.id} 
+                      onClick={() => setSelectedMitra(m)}
+                      className={`hover:bg-blue-500/[0.02] transition-colors duration-200 cursor-pointer group ${m.isArchived ? 'opacity-30' : ''}`}
+                    >
+                      <td className="px-5 py-2.5">
+                        <div className="flex items-center gap-3">
+                          {m.logoUrl ? (
+                             <img src={m.logoUrl} alt="" className="w-8 h-8 rounded-lg object-cover border border-white/5 shadow-2xl" />
+                          ) : (
+                             <div className="w-8 h-8 rounded-lg bg-slate-900 text-slate-500 flex items-center justify-center font-bold text-xs border border-slate-800 transition-colors group-hover:border-blue-500/30 group-hover:text-blue-400">
+                               {m.name.charAt(0)}
+                             </div>
+                          )}
+                          <div className="space-y-0">
+                            <div className="text-white font-bold tracking-tight group-hover:text-blue-300 transition-colors uppercase text-[12px]">{m.name}</div>
+                            <div className="text-[9px] font-mono font-bold text-slate-600 tracking-wider truncate uppercase opacity-60">HP: {mitraUser?.phone || '-'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-2.5 text-blue-400 font-bold tabular-nums tracking-tighter text-[13px] italic">{formatCurrency(stats.totalSales)}</td>
+                      <td className="px-5 py-2.5 text-center text-slate-500 font-bold tabular-nums opacity-60 italic">{stats.totalOrders} <span className="text-[8px] uppercase tracking-widest ml-0.5">items</span></td>
+                      <td className={`px-5 py-2.5 font-black tabular-nums text-[13px] tracking-tight ${stats.saldoPiutang > 0 ? 'text-red-500' : 'text-emerald-400 opacity-60'}`}>
+                        {formatCurrency(stats.saldoPiutang)}
+                      </td>
+                      <td className="px-5 py-2.5 text-slate-300 font-bold tabular-nums text-[12px]">
+                        {m.creditLimit ? (
+                           <span className="text-amber-500/80">{formatCurrency(m.creditLimit)}</span>
+                        ) : (
+                           <span className="text-slate-600 italic font-medium opacity-50 tracking-widest uppercase text-[9px]">Unlimited</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-2.5 text-right">
+                        {m.isArchived ? (
+                           <span className="inline-flex items-center px-1.5 py-0.5 bg-slate-900 text-slate-500 rounded text-[7px] font-bold uppercase border border-slate-800 tracking-wider">Arsip</span>
+                        ) : (
+                           <span className="inline-flex items-center px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-md text-[8px] font-bold uppercase border border-blue-500/20 tracking-wider">Aktif Partner</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       <AnimatePresence>
         {selectedMitra && (
@@ -256,6 +292,7 @@ export default function Mitras() {
             onDelete={() => handleDelete(selectedMitra.id)}
             onUpdateLimit={handleUpdateLimit}
             mitraUser={users.find(u => u.id === selectedMitra.userId)}
+            stats={getMitraStats(selectedMitra.id)}
           />
         )}
       </AnimatePresence>
@@ -271,7 +308,8 @@ function MitraDetailPanel({
   onToggleArchive,
   onDelete,
   onUpdateLimit,
-  mitraUser
+  mitraUser,
+  stats
 }: {
   mitra: Mitra,
   currentUserId: string,
@@ -280,7 +318,8 @@ function MitraDetailPanel({
   onToggleArchive: () => void,
   onDelete: () => void,
   onUpdateLimit: (id: string, limit: string) => void,
-  mitraUser?: any
+  mitraUser?: any,
+  stats: { totalOrders: number, totalSales: number, saldoPiutang: number }
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(mitra.name);
@@ -303,83 +342,115 @@ function MitraDetailPanel({
         animate={{ x: 0 }}
         exit={{ x: '100vw' }}
         transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-        className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col"
+        className="bg-slate-950 w-full max-w-md h-full shadow-2xl flex flex-col border-l border-white/5"
       >
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
-          <h2 className="text-lg font-black text-slate-900 tracking-tight">Detail Info Mitra</h2>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-50 transition-all cursor-pointer">
-            <X className="w-5 h-5" />
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+          <h2 className="text-[16px] font-black text-white tracking-tight">Detail Info Mitra</h2>
+          <button onClick={onClose} className="p-1.5 text-slate-500 hover:text-white rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+            <X className="w-4.5 h-4.5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-5">
           {!isEditing ? (
-            <div className="space-y-8">
-               <div className="flex items-start gap-4">
-                 <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex-shrink-0 flex items-center justify-center p-1">
+            <div className="space-y-5">
+               <div className="flex items-center gap-4">
+                 <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 flex items-center justify-center p-1 relative shadow-sm">
                     {mitra.logoUrl ? (
                        <img src={mitra.logoUrl} alt={mitra.name} className="w-full h-full object-cover rounded-xl" />
                     ) : (
-                       <div className="w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-600 font-extrabold text-2xl uppercase rounded-xl">
+                       <div className="w-full h-full flex items-center justify-center bg-blue-500/10 text-blue-400 font-extrabold text-xl uppercase rounded-xl">
                          {mitra.name.charAt(0)}
                        </div>
                     )}
                  </div>
-                 <div className="pt-1.5 flex-1">
-                   <h3 className="text-lg font-black text-slate-900 leading-tight mb-1.5">{mitra.name}</h3>
-                   <div>
+                 <div className="flex-1">
+                   <h3 className="text-lg font-black text-white leading-tight mb-1 uppercase tracking-tight">{mitra.name}</h3>
+                   <div className="flex items-center gap-2">
                      {mitra.isArchived ? (
-                         <span className="inline-flex items-center px-2 py-0.5 bg-slate-100 text-slate-600 border border-slate-250 rounded-lg text-[10px] font-extrabold uppercase select-none">TERARSIP</span>
-                      ) : (
-                         <span className="inline-flex items-center px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[10px] font-extrabold uppercase select-none">AKTIF</span>
-                      )}
+                          <span className="inline-flex items-center px-1.5 py-0.5 bg-white/5 text-slate-500 border border-white/5 rounded text-[8px] font-extrabold uppercase select-none tracking-wider">Terarsip</span>
+                       ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[8px] font-extrabold uppercase select-none tracking-wider animate-pulse">Partner Aktif</span>
+                       )}
                    </div>
                  </div>
                </div>
                
-               <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/80 col-span-2">
-                     <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">User Akun Mitra</p>
-                     <p className="text-xs font-black text-slate-900">{mitraUser?.name || '-'}</p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 flex flex-col justify-center">
+                     <div className="flex items-center gap-1.5 mb-0.5">
+                        <Award className="w-2.5 h-2.5 text-emerald-500" />
+                        <p className="text-[8px] font-extrabold text-emerald-500/70 uppercase tracking-widest">Total Sales</p>
+                     </div>
+                     <p className="text-[13px] font-black text-emerald-400 tabular-nums">{formatCurrency(stats.totalSales)}</p>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/80 col-span-2">
-                     <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Nomor HP</p>
-                     <p className="text-xs font-mono font-bold text-slate-750">{mitraUser?.phone || '-'}</p>
+                  <div className="p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 flex flex-col justify-center">
+                     <div className="flex items-center gap-1.5 mb-0.5">
+                        <Sparkles className="w-2.5 h-2.5 text-blue-500" />
+                        <p className="text-[8px] font-extrabold text-blue-500/70 uppercase tracking-widest">Order Vol</p>
+                     </div>
+                     <p className="text-[13px] font-black text-blue-400 tabular-nums">{stats.totalOrders} <span className="text-[9px] font-bold opacity-60">items</span></p>
+                    </div>
+
+                  <div className="col-span-2 p-3 bg-red-500/5 rounded-xl border border-red-500/10 flex flex-col justify-center">
+                     <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                           <AlertCircle className="w-2.5 h-2.5 text-red-500" />
+                           <p className="text-[8px] font-extrabold text-red-500/70 uppercase tracking-widest leading-none mt-0.5">Saldo Piutang (Receivables)</p>
+                        </div>
+                        <p className={`text-[12px] font-black tabular-nums transition-colors ${stats.saldoPiutang > 0 ? 'text-red-500' : 'text-emerald-500 opacity-60'}`}>
+                           {formatCurrency(stats.saldoPiutang)}
+                        </p>
+                     </div>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-150 col-span-2">
-                     <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2.5">Batas Angsuran Kredit (Credit Limit)</p>
+
+                  <div className="col-span-2 p-3 bg-white/5 rounded-xl border border-white/5 flex flex-col gap-2.5">
+                     <div className="flex justify-between items-start">
+                        <div>
+                           <p className="text-[8px] font-extrabold text-slate-500 uppercase tracking-widest mb-0.5">Akun Penanggung Jawab</p>
+                           <p className="text-[11px] font-bold text-white uppercase">{mitraUser?.name || '-'}</p>
+                        </div>
+                        <div className="text-right">
+                           <p className="text-[8px] font-extrabold text-slate-500 uppercase tracking-widest mb-0.5">Kontak WhatsApp</p>
+                           <p className="text-[11px] font-mono font-bold text-slate-400 tracking-tight">{mitraUser?.phone || '-'}</p>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="p-3 bg-white/5 rounded-xl border border-white/5 col-span-2">
+                     <p className="text-[8px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Limit Kredit Dinamis (Hutang Maks)</p>
                      <LimitEditor defaultValue={mitra.creditLimit} onSave={(val) => onUpdateLimit(mitra.id, val)} />
                   </div>
                </div>
 
-               <div className="space-y-4 pt-2">
-                 <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Opsi Operasi</h4>
-                 <div className="grid grid-cols-2 gap-3 text-xs font-bold">
-                    <button onClick={() => setIsEditing(true)} className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all cursor-pointer active:scale-95">
-                      <Edit2 className="w-4 h-4" /> Edit Detail
+               <div className="space-y-2.5 pt-1">
+                 <h4 className="text-[9px] font-extrabold text-slate-600 uppercase tracking-widest border-b border-white/5 pb-1">Kontrol Akses & Profil</h4>
+                 <div className="grid grid-cols-2 gap-2 text-[10px] font-bold">
+                    <button onClick={() => setIsEditing(true)} className="flex items-center justify-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-all cursor-pointer active:scale-95 border border-white/5">
+                      <Edit2 className="w-3 h-3" /> Edit Profil
                     </button>
-                    <button onClick={onToggleArchive} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all cursor-pointer active:scale-95 ${mitra.isArchived ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700' : 'bg-orange-50 hover:bg-orange-100 text-orange-700'}`}>
-                      <Archive className="w-4 h-4" />
-                      {mitra.isArchived ? 'Buka Arsip' : 'Arsipkan'}
+                    <button onClick={onToggleArchive} className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition-all cursor-pointer active:scale-95 border ${mitra.isArchived ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border-orange-500/20'}`}>
+                      <Archive className="w-3 h-3" />
+                      {mitra.isArchived ? 'Open Access' : 'Restricted'}
                     </button>
-                    <button onClick={onDelete} className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition-all cursor-pointer active:scale-95 font-extrabold">
-                      <Trash2 className="w-4 h-4" /> Hapus Mitra
+                    <button onClick={onDelete} className="col-span-2 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-all cursor-pointer active:scale-95 font-extrabold uppercase tracking-wider border border-red-500/20">
+                      <Trash2 className="w-3 h-3" /> Delete Partner Record
                     </button>
                  </div>
                </div>
             </div>
           ) : (
-             <form onSubmit={handleSubmit} className="space-y-4 font-bold text-xs sm:text-sm">
+             <form onSubmit={handleSubmit} className="space-y-3.5 font-bold text-[13px]">
                 <div>
-                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nama Perusahaan / Mitra</label>
-                   <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all text-xs" />
+                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Nama Perusahaan / Mitra</label>
+                   <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-3 py-2.5 border border-white/5 bg-white/5 focus:bg-white/10 text-white rounded-lg outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all text-[12px]" />
                 </div>
-                <div>
+                <div className="dark">
                    <FileUpload value={logoUrl} onChange={setLogoUrl} label="Logo Perusahaan / Profil" accept="image/*" />
                 </div>
-                <div className="pt-6 flex justify-end gap-3 text-xs">
-                   <button type="button" onClick={() => setIsEditing(false)} className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold transition-all cursor-pointer">Batal</button>
-                   <button type="submit" className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold transition-all cursor-pointer active:scale-95">Simpan Perubahan</button>
+                <div className="pt-4 flex justify-end gap-2.5 text-[11px]">
+                   <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-400 rounded-xl font-bold transition-all cursor-pointer">Batal</button>
+                   <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all cursor-pointer active:scale-95">Simpan Perubahan</button>
                 </div>
              </form>
           )}
@@ -392,24 +463,24 @@ function MitraDetailPanel({
 function LimitEditor({ defaultValue, onSave }: { defaultValue: number | null, onSave: (val: string) => void }) {
   const [val, setVal] = useState(defaultValue ? defaultValue.toString() : '');
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-1 font-bold text-xs">
+    <div className="flex items-center gap-2 pt-0.5">
         <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">Rp</span>
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600">Rp</span>
           <input 
              type="text" 
              value={new Intl.NumberFormat('id-ID').format(parseInt(val.replace(/\D/g, '')) || 0)}
-             placeholder="Tanpa Batas Limit (Unlimited)"
+             placeholder="No Limit (Unlimited)"
              onChange={(e) => setVal(e.target.value.replace(/\D/g, ''))}
-             className="pl-8 pr-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 text-right w-full bg-white font-extrabold text-slate-850"
+             className="pl-7 pr-3 py-2 border border-white/10 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-right w-full bg-white/5 font-bold text-white text-[11px] placeholder:text-slate-600 placeholder:italic"
           />
         </div>
         <button 
-          onClick={() => onSave(val)} 
-          className="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer" 
-          title="Save Limit"
+           onClick={() => onSave(val)} 
+           className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer text-[10px] font-bold" 
+           title="Save Limit"
         >
-           <Save className="w-4 h-4" /> Simpan
+           <Save className="w-3 h-3" /> Save
         </button>
     </div>
   );
-}export {};
+}

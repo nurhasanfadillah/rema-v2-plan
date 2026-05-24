@@ -4,12 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/db';
 import { normalizePhone } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Lock, Phone, ArrowRight, ShieldCheck, Eye, EyeOff, LayoutPanelLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function Login() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -72,90 +73,175 @@ export default function Login() {
       navigate('/', { replace: true });
       login(users[userIndex]);
       setIsLoading(false);
-    }, 400); // add subtle feedback timing
+    }, 800); // slightly longer for improved perceived security
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-radial from-slate-900 via-slate-950 to-black text-slate-100 font-sans p-4 relative overflow-hidden">
-      {/* Decorative ambient gradients */}
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-600/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="max-w-md w-full"
-      >
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-lg shadow-blue-500/20 mb-4 ring-4 ring-blue-500/10">
-            <ShieldCheck className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">
-            REMA<span className="text-blue-500">.</span>
-          </h1>
-          <p className="text-slate-400 text-sm mt-2">Sistem Informasi Manajemen Produksi & Finance</p>
-          <p className="text-[11px] font-mono text-slate-500 uppercase tracking-widest mt-1">PT. Redone Berkah Mandiri Utama</p>
+    <div className="min-h-screen w-full flex bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30">
+      {/* Left Panel: Hero Visual (Desktop Only) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 items-center justify-center overflow-hidden border-r border-white/5">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/src/assets/images/login_hero_abstract_1779588166325.png" 
+            alt="Workspace Background" 
+            className="w-full h-full object-cover opacity-60 scale-105"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-950/40 to-transparent" />
+        </div>
+        
+        <div className="relative z-10 p-16 max-w-xl">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <LayoutPanelLeft className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-4xl font-black tracking-tighter text-white font-display">
+                REMA<span className="text-blue-500">-V2</span>
+              </h1>
+            </div>
+            
+            <h2 className="text-5xl font-bold font-display leading-[1.1] text-white mb-6">
+              Platform Manajemen Produksi <span className="text-blue-500/80">Generasi Terbaru</span>.
+            </h2>
+            <p className="text-lg text-slate-400 leading-relaxed font-medium">
+              Kelola ekosistem produksi dan alur keuangan bisnis Anda dalam satu workspace yang terintegrasi, aman, dan efisien.
+            </p>
+            
+            <div className="mt-12 flex items-center gap-6 text-[11px] font-mono uppercase tracking-[0.2em] text-slate-500 font-medium">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Sistem Online
+              </div>
+              <div>Build v2.1.0 (LTS)</div>
+              <div>PT. Redone Berkah Mandiri</div>
+            </div>
+          </motion.div>
         </div>
 
-        <div className="bg-slate-900/50 border border-slate-800/80 rounded-3xl p-8 backdrop-blur-xl shadow-2xl relative">
-          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
-          
-          <h2 className="text-lg font-semibold text-white mb-6">Silakan Masuk ke Akun Anda</h2>
+        {/* Ambient glows */}
+        <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-blue-600/20 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-600/10 blur-[100px] rounded-full pointer-events-none" />
+      </div>
+
+      {/* Right Panel: Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-20 bg-slate-950 relative">
+        {/* Background elements for mobile */}
+        <div className="lg:hidden absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-blue-600/10 blur-[80px] rounded-full" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-indigo-600/10 blur-[80px] rounded-full" />
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-sm relative z-10"
+        >
+          {/* Logo only for mobile */}
+          <div className="lg:hidden text-center mb-10">
+            <h1 className="text-3xl font-black tracking-tighter text-white font-display">
+              REMA<span className="text-blue-500">-V2</span>
+            </h1>
+            <p className="text-slate-500 text-[12px] mt-2 font-medium">Manajemen Produksi & Finance</p>
+          </div>
+
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold text-white tracking-tight font-display mb-2">Selamat Datang Kembali</h2>
+            <p className="text-[13px] text-slate-500 font-medium">Masukkan kredensial Anda untuk mengakses sistem.</p>
+          </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Nomor Telepon</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Nomor Telepon</label>
               <div className="relative group">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-400 transition-colors" />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors duration-300">
+                  <Phone strokeWidth={2.5} className="w-full h-full" />
+                </div>
                 <input 
                   type="tel"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-slate-950/40 border border-slate-800 hover:border-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition text-sm text-white placeholder-slate-500 font-medium"
-                  placeholder="Contoh: 081234567890"
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-900 border border-slate-800 hover:border-slate-700 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 rounded-2xl outline-none transition-all duration-300 text-[13px] text-white placeholder:text-slate-700 font-medium tabular-nums shadow-sm"
+                  placeholder="0812XXXXXXXX"
                   required
                 />
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Kata Sandi</label>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center ml-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Kata Sandi</label>
+                <button type="button" className="text-[10px] text-blue-500/70 hover:text-blue-500 font-bold transition-colors">Lupa sandi?</button>
               </div>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-400 transition-colors" />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors duration-300">
+                  <Lock strokeWidth={2.5} className="w-full h-full" />
+                </div>
                 <input 
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-slate-950/40 border border-slate-800 hover:border-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition text-sm text-white placeholder-slate-500 font-medium"
+                  className="w-full pl-12 pr-12 py-3.5 bg-slate-900 border border-slate-800 hover:border-slate-700 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 rounded-2xl outline-none transition-all duration-300 text-[13px] text-white placeholder:text-slate-700 font-medium shadow-sm font-mono tracking-tight"
                   placeholder="••••••••"
                   required
                 />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-0.5 text-slate-600 hover:text-slate-400 transition-colors rounded-lg outline-none focus:ring-2 focus:ring-slate-700"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white font-semibold py-3.5 px-4 rounded-2xl transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 active:scale-[0.98] cursor-pointer mt-4"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group shadow-xl shadow-blue-600/10 active:scale-[0.98] mt-8 text-[13px] border border-blue-400/20"
             >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  Masuk Sistem <ArrowRight className="w-4 h-4" />
-                </>
-              )}
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div 
+                    key="loader"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" 
+                  />
+                ) : (
+                  <motion.div 
+                    key="content"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="flex items-center gap-2"
+                  >
+                    Masuk ke Workspace <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </button>
           </form>
-        </div>
 
-        <p className="text-center text-xs text-slate-400/70 mt-8">
-          Fase Pengembangan v2.1 • Keamanan Enkripsi Lokal
-        </p>
-      </motion.div>
+          <div className="mt-12 pt-8 border-t border-white/5 flex flex-col items-center gap-4 text-[10px] text-slate-600 font-medium text-center">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
+              Sesi terenkripsi secara end-to-end
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="hover:text-slate-400 transition-colors cursor-pointer">Syarat & Ketentuan</span>
+              <div className="w-1 h-1 rounded-full bg-slate-800" />
+              <span className="hover:text-slate-400 transition-colors cursor-pointer">Kebijakan Privasi</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

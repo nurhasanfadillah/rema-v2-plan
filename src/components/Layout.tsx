@@ -1,21 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, HelpCircle, ChevronRight, Undo2 } from 'lucide-react';
+import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, HelpCircle, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
+
+import RunningOrders from './RunningOrders';
 
 export default function Layout() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Reset editing state and form when profile drawer opens
+  useEffect(() => {
+    if (profileOpen && user) {
+      setEditName(user.name);
+      setEditPhone(user.phone || '');
+      setIsEditing(false);
+    }
+  }, [profileOpen, user]);
 
   // Close mobile drawer when route changes
   useEffect(() => {
     setMobileOpen(false);
+    setProfileOpen(false);
   }, [location.pathname]);
 
   if (!user) return null;
+
+  const handleUpdateProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim()) return;
+
+    updateUser({
+      ...user,
+      name: editName,
+      phone: editPhone
+    });
+    setIsEditing(false);
+  };
 
   const links = [
     { to: '/', icon: <LayoutDashboard />, label: 'Dashboard', roles: ['admin', 'staff', 'operational', 'mitra'] },
@@ -27,6 +57,8 @@ export default function Layout() {
     { to: '/cancellations', icon: <Undo2 />, label: 'Pembatalan & Retur', roles: ['admin', 'staff', 'mitra'] },
     { to: '/queue', icon: <Receipt />, label: 'Antrian Produksi', roles: ['admin', 'staff', 'operational', 'mitra'] },
     { to: '/finance', icon: <Wallet />, label: 'Keuangan', roles: ['admin', 'mitra'] },
+    { to: '/reports', icon: <BarChart3 />, label: 'Laporan', roles: ['admin', 'mitra', 'staff'] },
+    { to: '/audit-logs', icon: <ClipboardList />, label: 'Audit Logs', roles: ['admin', 'staff'] },
   ];
 
   const visibleLinks = links.filter(l => l.roles.includes(user.role));
@@ -34,15 +66,12 @@ export default function Layout() {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-slate-950 text-slate-300 w-64 flex-shrink-0 border-r border-slate-900 relative">
       <div className="pt-8 pb-6 px-6 relative flex flex-col items-start">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-md shadow-blue-500/10 flex items-center justify-center font-bold text-white text-base">
-            R
-          </div>
+        <div className="flex items-center gap-3 group px-1">
           <div>
-            <h2 className="font-sans text-lg font-extrabold tracking-tight text-white flex items-center">
-              REMA<span className="text-blue-500">.</span>
+            <h2 className="font-display text-lg font-black tracking-tighter text-white flex items-center leading-none">
+              REMA<span className="text-blue-500">-V2</span>
             </h2>
-            <p className="text-[9px] font-mono text-slate-500 tracking-wider font-semibold uppercase">Workspace v2.1</p>
+            <p className="text-[8px] font-mono text-slate-500 tracking-widest font-bold uppercase mt-1">Workspace v2.1</p>
           </div>
         </div>
       </div>
@@ -79,66 +108,14 @@ export default function Layout() {
         ))}
       </div>
 
-      <div className="p-4 border-t border-slate-900 bg-slate-950">
-        <div className="mb-4 px-3 py-3 rounded-2xl bg-slate-900/40 border border-slate-900/60 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-sm flex items-center justify-center flex-shrink-0">
-            {user.name.charAt(0).toUpperCase()}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[13px] font-bold text-slate-100 truncate leading-tight">{user.name}</div>
-            <div className="text-[10px] text-slate-500 capitalize font-mono mt-0.5 tracking-wider">{user.role}</div>
-          </div>
-        </div>
-        <button 
-          onClick={logout}
-          className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-red-500/5 hover:bg-red-500/10 text-red-400 hover:text-red-300 transition-all duration-200 font-semibold text-[13px] border border-red-500/10 active:scale-[0.98] cursor-pointer"
-        >
-          <LogOut className="w-4 h-4" />
-          Keluar Sesi
-        </button>
+      <div className="p-4 border-t border-slate-900 bg-slate-950 min-h-[80px]">
+        {/* Footer biarkan kosong sesuai permintaan */}
       </div>
     </div>
   );
 
-  // Dynamic premium bottom tabs for mobile navigation
-  const getBottomTabs = () => {
-    switch (user.role) {
-      case 'mitra':
-        return [
-          { to: '/', icon: <LayoutDashboard className="w-5 h-5 transition-all" />, label: 'Home' },
-          { to: '/products', icon: <Package className="w-5 h-5 transition-all" />, label: 'Katalog' },
-          { to: '/orders/drafts', icon: <ShoppingCart className="w-5 h-5 transition-all" />, label: 'Draft' },
-          { to: '/orders', icon: <ListOrdered className="w-5 h-5 transition-all" />, label: 'Pesanan' },
-        ];
-      case 'admin':
-        return [
-          { to: '/', icon: <LayoutDashboard className="w-5 h-5 transition-all" />, label: 'Home' },
-          { to: '/orders', icon: <ListOrdered className="w-5 h-5 transition-all" />, label: 'Pesanan' },
-          { to: '/queue', icon: <Receipt className="w-5 h-5 transition-all" />, label: 'Antrian' },
-          { to: '/finance', icon: <Wallet className="w-5 h-5 transition-all" />, label: 'Keuangan' },
-        ];
-      case 'staff':
-        return [
-          { to: '/', icon: <LayoutDashboard className="w-5 h-5 transition-all" />, label: 'Home' },
-          { to: '/orders', icon: <ListOrdered className="w-5 h-5 transition-all" />, label: 'Pesanan' },
-          { to: '/queue', icon: <Receipt className="w-5 h-5 transition-all" />, label: 'Antrian' },
-          { to: '/cancellations', icon: <Undo2 className="w-5 h-5 transition-all" />, label: 'Retur' },
-        ];
-      case 'operational':
-        return [
-          { to: '/', icon: <LayoutDashboard className="w-5 h-5 transition-all" />, label: 'Home' },
-          { to: '/orders', icon: <ListOrdered className="w-5 h-5 transition-all" />, label: 'Pesanan' },
-          { to: '/queue', icon: <Receipt className="w-5 h-5 transition-all" />, label: 'Antrian' },
-        ];
-      default:
-        return [
-          { to: '/', icon: <LayoutDashboard className="w-5 h-5 transition-all" />, label: 'Home' },
-        ];
-    }
-  };
-
   return (
-    <div className="flex h-[100dvh] w-full bg-slate-950 font-sans overflow-hidden text-slate-100 relative">
+    <div className="flex h-screen w-full bg-slate-950 font-sans overflow-hidden text-slate-100 relative fixed inset-0">
       {/* Decorative ambient gradients */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-600/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/5 blur-[120px] pointer-events-none" />
@@ -178,80 +155,174 @@ export default function Layout() {
         )}
       </AnimatePresence>
 
+      {/* Profile Sidebar Drawer */}
+      <AnimatePresence>
+        {profileOpen && (
+          <div className="fixed inset-0 z-50 flex justify-end items-start p-6 pt-20">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="fixed inset-0 bg-slate-950/40 backdrop-blur-[2px]" 
+              onClick={() => setProfileOpen(false)} 
+            />
+            <motion.div 
+              initial={{ opacity: 0, y: -20, x: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, x: 20, scale: 0.95 }}
+              transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+              className="relative w-80 max-w-[90vw] bg-slate-900 border border-slate-800 shadow-2xl rounded-3xl overflow-hidden shadow-blue-500/5"
+            >
+              <div className="p-5 border-b border-slate-800 bg-slate-900/50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Akun Saya</h3>
+                  <button 
+                    className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" 
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-extrabold text-xl flex items-center justify-center shadow-lg shadow-blue-500/5">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-base font-bold text-white truncate leading-tight mb-1">{user.name}</div>
+                    <div className="px-2 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-[9px] text-blue-400 capitalize font-mono tracking-wider font-bold inline-block">
+                      {user.role}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-2 space-y-1">
+                {isEditing ? (
+                  <form onSubmit={handleUpdateProfile} className="p-3 space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Lengkap</label>
+                      <input 
+                        type="text" 
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        placeholder="Masukkan nama..."
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nomor Telepon</label>
+                      <input 
+                        type="tel" 
+                        value={editPhone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        placeholder="628xxxxxx"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button 
+                        type="button"
+                        onClick={() => setIsEditing(false)}
+                        className="flex-1 px-3 py-2 rounded-xl border border-slate-800 text-slate-400 text-[12px] font-bold hover:bg-slate-800 transition-colors"
+                      >
+                        Batal
+                      </button>
+                      <button 
+                        type="submit"
+                        className="flex-1 px-3 py-2 rounded-xl bg-blue-600 text-white text-[12px] font-bold hover:bg-blue-500 shadow-lg shadow-blue-600/10 transition-colors"
+                      >
+                        Simpan
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => setIsEditing(true)}
+                      className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-500/10 transition-colors">
+                          <UserSquare2 className="w-4.5 h-4.5" />
+                        </div>
+                        <span className="text-[13px] font-bold">Edit Profil</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-600" />
+                    </button>
+
+                    <button 
+                      onClick={() => navigate('/change-password')}
+                      className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-amber-400 group-hover:bg-amber-500/10 transition-colors">
+                          <KeyRound className="w-4.5 h-4.5" />
+                        </div>
+                        <span className="text-[13px] font-bold">Ganti Password</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-600" />
+                    </button>
+
+                    <div className="pt-2 px-3 pb-3">
+                      <button 
+                        onClick={logout}
+                        className="w-full flex items-center justify-center gap-2.5 px-3.5 py-3 rounded-2xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all duration-300 font-bold text-[13px] active:scale-[0.98] cursor-pointer"
+                      >
+                        <LogOut className="w-4.5 h-4.5" />
+                        Keluar Sesi
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-0">
         
         {/* Universal Glass Header */}
-        <header className="sticky top-0 bg-slate-950/60 backdrop-blur-xl border-b border-slate-900/60 px-5 py-4 flex items-center justify-between z-40">
-          <div className="flex items-center gap-3">
+        <header className="sticky top-0 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-3.5 flex items-center justify-between z-40">
+          <div className="flex items-center gap-4">
             <button 
               onClick={() => setMobileOpen(true)} 
-              className="lg:hidden p-2 -ml-1 text-slate-300 bg-slate-900/50 hover:bg-slate-900 hover:text-white rounded-xl active:scale-95 transition-all"
+              className="lg:hidden p-2 -ml-1 text-slate-400 bg-slate-900/50 hover:bg-slate-900 hover:text-white rounded-xl active:scale-95 transition-all outline-none"
             >
               <Menu className="w-5 h-5"/>
             </button>
-            <div className="flex items-center gap-2">
-              <span className="hidden lg:inline-flex px-2 py-0.5 text-[10px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-md uppercase tracking-wider">
-                Produksi & Finance
-              </span>
-              <span className="lg:hidden font-extrabold tracking-tight text-white text-base">
-                REMA<span className="text-blue-500">.</span>
+            <div className="flex items-center gap-3">
+              <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 text-[10px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-lg uppercase tracking-[0.08em]">
+                <Activity className="w-3 h-3" />
+                <span>Operational Panel</span>
+              </div>
+              <span className="lg:hidden font-display font-black tracking-tighter text-white text-xl leading-none">
+                REMA<span className="text-blue-500">-V2</span>
               </span>
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
-             <div className="hidden md:flex flex-col items-end text-right">
-                <span className="text-xs font-bold text-slate-200">{user.name}</span>
-                <span className="text-[10px] text-slate-500 capitalize font-mono mt-0.5">{user.role}</span>
-             </div>
-             <div className="w-8 h-8 rounded-full bg-blue-500/10 hover:bg-blue-500/20 flex items-center justify-center border border-blue-500/20 text-blue-400 font-bold text-xs shadow-inner cursor-pointer transition-colors">
+          <div className="flex items-center gap-4">
+             <div 
+               onClick={() => setProfileOpen(true)}
+               className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-blue-400 font-bold text-lg shadow-inner cursor-pointer hover:bg-slate-800 hover:border-slate-700 transition-all active:scale-95 group overflow-hidden relative"
+             >
+               <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-colors" />
                {user.name.charAt(0).toUpperCase()}
              </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto no-scrollbar scroll-smooth bg-transparent">
-          <div className="max-w-6xl mx-auto p-3.5 sm:p-4 md:p-6 lg:p-8 pb-32 lg:pb-8">
+        <RunningOrders />
+
+        <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar scroll-smooth bg-transparent">
+          <div className="max-w-6xl mx-auto p-3.5 sm:p-4 md:p-6 lg:p-8 pb-10 lg:pb-8">
             <Outlet />
           </div>
         </main>
-      </div>
-
-      {/* Mobile Sticky Floating Bottom Navigation Bar */}
-      <div 
-        className="lg:hidden fixed bottom-3 left-4 right-4 z-40 bg-slate-950/80 backdrop-blur-xl border border-slate-900 rounded-2xl flex items-center justify-around py-1.5 px-2 shadow-[0_12px_40px_rgba(0,0,0,0.8)]"
-        style={{ paddingBottom: 'calc(4px + env(safe-area-inset-bottom, 0px))' }}
-      >
-        {getBottomTabs().map((tab) => (
-          <NavLink
-            key={tab.to}
-            to={tab.to}
-            className={({ isActive }) => cn(
-              "flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl transition-all duration-300 text-center select-none min-h-[44px]",
-              isActive 
-                ? "text-blue-400 font-black scale-102" 
-                : "text-slate-400 hover:text-slate-100 font-semibold"
-            )}
-          >
-            {({ isActive }) => (
-              <>
-                <div className={cn("transition-all duration-300", isActive ? "scale-110 text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "text-slate-400")}>
-                  {tab.icon}
-                </div>
-                <span className="text-[9px] mt-1 tracking-tight font-medium leading-none">{tab.label}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
-        {/* The More Button to open the sidebar */}
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-slate-400 hover:text-slate-100 transition-all duration-300 text-center select-none min-h-[44px]"
-        >
-          <Menu className="w-5 h-5 text-slate-400 transition-all active:scale-90" />
-          <span className="text-[9px] mt-1 tracking-tight font-medium leading-none">Lainnya</span>
-        </button>
       </div>
     </div>
   );

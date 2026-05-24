@@ -30,7 +30,7 @@ export interface Product {
   isArchived: boolean;
 }
 
-export type OrderStatus = 'draft' | 'waiting_confirmation' | 'confirmed' | 'processing' | 'printing' | 'pressing' | 'packing' | 'shipped' | 'returned' | 'cancelled';
+export type OrderStatus = 'draft' | 'waiting_confirmation' | 'confirmed' | 'processing' | 'pressing' | 'packing' | 'shipped' | 'returned' | 'cancelled';
 
 export interface OrderItem {
   id: string;
@@ -39,6 +39,7 @@ export interface OrderItem {
   priceSnapshot: number;
   qty: number;
   isCustomLogo: boolean;
+  dtfStatus?: 'belum_cetak' | 'sudah_cetak';
   previewUrl?: string;
   designUrl?: string;
   previewUrls?: string[];
@@ -78,6 +79,9 @@ export interface LedgerEntry {
   description: string;
   createdAt: number;
   referenceId?: string; // orderId if applicable
+  attachmentUrl?: string; // For payment proof
+  paymentMethod?: string;
+  referenceNumber?: string;
 }
 
 export type RequestStatus = 'submitted' | 'reviewed' | 'approved' | 'rejected' | 'resolved' | 'cancelled';

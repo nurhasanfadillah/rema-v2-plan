@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/db';
 import { formatCurrency } from '../lib/utils';
-import { Package, ShoppingCart, Activity, AlertCircle, Wallet, Users, LayoutDashboard, Sparkles, TrendingUp } from 'lucide-react';
+import { Package, ShoppingCart, Activity, AlertCircle, Wallet, Users, LayoutDashboard, TrendingUp, Calendar } from 'lucide-react';
 import { motion } from 'motion/react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -29,6 +30,60 @@ export default function Dashboard() {
     .reduce((a, b) => a + b.nominal, 0);
 
   const pendingConfirmation = orders.filter(o => o.status === 'waiting_confirmation').length;
+
+  const [chartPeriod, setChartPeriod] = useState<'this_month' | 'this_week' | 'this_year'>('this_month');
+
+  const chartData = useMemo(() => {
+    const now = new Date();
+    const targetOrders = user?.role === 'mitra' ? myOrders : orders;
+    
+    let data: any[] = [];
+    
+    if (chartPeriod === 'this_month') {
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const daysData = Array.from({ length: daysInMonth }, (_, i) => ({
+        name: `${i + 1}`,
+        pesanan: 0
+      }));
+      
+      targetOrders.forEach(o => {
+        const d = new Date(o.createdAt);
+        if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
+          const dayIdx = d.getDate() - 1;
+          daysData[dayIdx].pesanan += 1;
+        }
+      });
+      data = daysData;
+    } else if (chartPeriod === 'this_week') {
+      const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+      const weekData = days.map(d => ({ name: d, pesanan: 0 }));
+      
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay());
+      startOfWeek.setHours(0,0,0,0);
+      
+      targetOrders.forEach(o => {
+        const d = new Date(o.createdAt);
+        if (d >= startOfWeek) {
+          weekData[d.getDay()].pesanan += 1;
+        }
+      });
+      data = weekData;
+    } else if (chartPeriod === 'this_year') {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+      const yearData = months.map(m => ({ name: m, pesanan: 0 }));
+      
+      targetOrders.forEach(o => {
+        const d = new Date(o.createdAt);
+        if (d.getFullYear() === now.getFullYear()) {
+           yearData[d.getMonth()].pesanan += 1;
+        }
+      });
+      data = yearData;
+    }
+    
+    return data;
+  }, [orders, myOrders, chartPeriod, user]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -61,22 +116,13 @@ export default function Dashboard() {
         <div className="absolute bottom-[-30%] left-[20%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[80px] pointer-events-none" />
         
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full text-[11px] font-bold tracking-wider uppercase">
-              <Sparkles className="w-3.5 h-3.5" /> Selamat Datang Kembali
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tighter tabular-nums">
               Halo, {user.name} <span className="inline-block animate-bounce origin-bottom">👋</span>
             </h1>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl font-medium">
+            <p className="text-slate-400 text-[11px] sm:text-xs leading-relaxed max-w-xl font-medium tracking-wide">
               Akses panel untuk memonitor produksi pesanan, mengelola keuangan, dan melihat statistik performa operasional REMA v2.1 Anda.
             </p>
-          </div>
-          <div className="flex-shrink-0 bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md self-start md:self-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Peran Akun</span>
-            <span className="px-2.5 py-1 bg-blue-600 text-white font-extrabold uppercase tracking-widest text-[11px] rounded-lg shadow-sm">
-              {user.role}
-            </span>
           </div>
         </div>
       </motion.div>
@@ -84,94 +130,99 @@ export default function Dashboard() {
       {user.role === 'mitra' && isNearLimit && (
         <motion.div 
           variants={itemVariants}
-          className="bg-red-50/80 text-red-700 p-5 rounded-3xl flex items-start gap-4 border border-red-200 shadow-sm backdrop-blur-sm"
+          className="bg-red-50/80 text-red-700 p-4 rounded-2xl flex items-start gap-4 border border-red-200 shadow-sm backdrop-blur-sm"
         >
-          <div className="bg-red-100 p-2.5 rounded-2xl flex-shrink-0 mt-0.5 shadow-inner">
+          <div className="bg-red-100 p-2 rounded-xl flex-shrink-0 mt-0.5 shadow-inner">
             <AlertCircle className="w-5 h-5 text-red-600" />
           </div>
           <div>
-            <h3 className="font-extrabold text-red-800 tracking-tight text-sm">Pemberitahuan: Limit Kredit Hampir Habis</h3>
-            <p className="text-xs sm:text-sm font-semibold mt-1 opacity-90 leading-relaxed">
-              Tagihan berjalan Anda saat ini adalah <span className="text-red-900 font-extrabold">{formatCurrency(mySaldo)}</span> yang mendominasi batas maksimal limit kredit Anda sebesar <span className="text-red-900 font-extrabold">{formatCurrency(creditLimit!)}</span>. Harap segera lakukan pelunasan agar proses pesanan berikutnya tetap lancar.
+            <h3 className="font-bold text-red-800 tracking-tight text-[13px]">Pemberitahuan: Limit Kredit Hampir Habis</h3>
+            <p className="text-[11px] sm:text-xs font-medium mt-1 opacity-90 leading-normal">
+              Tagihan berjalan Anda saat ini adalah <span className="text-red-900 font-bold tabular-nums">{formatCurrency(mySaldo)}</span> yang mendominasi batas maksimal limit kredit Anda sebesar <span className="text-red-900 font-bold tabular-nums">{formatCurrency(creditLimit!)}</span>. Harap segera lakukan pelunasan agar proses pesanan berikutnya tetap lancar.
             </p>
           </div>
         </motion.div>
       )}
 
-      {/* Stats Cards Section */}
+      {/* Orders Chart Section */}
       <motion.div 
         variants={itemVariants}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5"
+        className="bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04),0_8px_20px_-8px_rgba(0,0,0,0.02)] border border-slate-200/60 p-6 lg:p-7"
       >
-        {user.role === 'mitra' ? (
-          <>
-            <StatCard title="Tagihan Berjalan" value={formatCurrency(mySaldo)} sub={creditLimit ? `Limit: ${formatCurrency(creditLimit)}` : 'Sisa Limit: Unlimited'} icon={<Wallet />} color="blue" />
-            <StatCard title="Pesanan Aktif" value={`${activeOrders.length} Pesanan`} sub="Sedang diproses produksi" icon={<Activity />} color="amber" />
-            <StatCard title="Total Pesanan" value={`${myOrders.length} Order`} sub="Keseluruhan riwayat" icon={<Package />} color="emerald" />
-            <StatCard title="Draft Tersimpan" value={`${myOrders.filter(o => o.status === 'draft').length} Draft`} sub="Belum diajukan ke admin" icon={<ShoppingCart />} color="purple" />
-          </>
-        ) : (
-          <>
-            <StatCard title="Menunggu Konfirmasi" value={pendingConfirmation.toString()} sub="Butuh verifikasi admin" icon={<Activity />} color="red" />
-            <StatCard title="Total Order Aktif" value={orders.filter(o => !['draft','shipped','returned','cancelled'].includes(o.status)).length.toString()} sub="Pesanan di antrian produksi" icon={<ShoppingCart />} color="amber" />
-            {user.role === 'admin' ? (
-              <StatCard title="Total Tagihan Beredar" value={formatCurrency(totalOmzet)} sub="Total debit dari semua mitra" icon={<Wallet />} color="emerald" />
-            ) : (
-              <StatCard title="Daftar Antrian Utama" value={orders.filter(o => ['processing', 'printing', 'pressing', 'packing'].includes(o.status)).length.toString()} sub="Pesanan sedang diproduksi" icon={<TrendingUp />} color="emerald" />
-            )}
-            <StatCard title="Mitra Terdaftar" value={`${mitras.filter(m => !m.isArchived).length} Mitra`} sub="Partner aktif saat ini" icon={<Users />} color="blue" />
-          </>
-        )}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-2.5">
+            <div className="w-1 h-5 bg-indigo-600 rounded-full" />
+            <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-800">
+              Grafik Pesanan Masuk
+            </h2>
+          </div>
+          
+          <select 
+            value={chartPeriod}
+            onChange={(e) => setChartPeriod(e.target.value as any)}
+            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 appearance-none cursor-pointer"
+          >
+            <option value="this_week">Minggu Ini</option>
+            <option value="this_month">Bulan Ini</option>
+            <option value="this_year">Tahun Ini</option>
+          </select>
+        </div>
+
+        <div className="h-[280px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fontSize: 12, fill: '#64748B' }} 
+                dy={10}
+              />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fontSize: 12, fill: '#64748B' }} 
+              />
+              <Tooltip 
+                cursor={{ fill: '#F1F5F9' }}
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 15px -3px rgba(0,0,0,0.1)' }}
+              />
+              <Line 
+                type="monotone"
+                dataKey="pesanan" 
+                stroke="#4F46E5" 
+                strokeWidth={3}
+                activeDot={{ r: 6, fill: '#4F46E5' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </motion.div>
 
       {/* Main Info Box */}
       <motion.div 
         variants={itemVariants}
-        className="bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04),0_8px_20px_-8px_rgba(0,0,0,0.02)] border border-slate-200/60 p-6 lg:p-8"
+        className="bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04),0_8px_20px_-8px_rgba(0,0,0,0.02)] border border-slate-200/60 p-6 lg:p-7"
       >
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
-          <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">Spesifikasi Sistem REMA v2.1</h2>
+        <div className="flex items-center gap-2.5 mb-5">
+          <div className="w-1 h-5 bg-blue-600 rounded-full" />
+          <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900">Spesifikasi Sistem REMA v2.1</h2>
         </div>
-        <div className="bg-slate-50/70 rounded-2xl p-5 text-slate-600 text-[13px] leading-relaxed border border-slate-100/80">
-          <p className="font-medium text-slate-700">
+        <div className="bg-slate-50 rounded-2xl p-5 text-slate-600 text-[12px] leading-relaxed border border-slate-100">
+          <p className="font-medium">
             Sistem Informasi Manajemen Produksi & Finance (REMA) saat ini dikonfigurasi menggunakan basis data lokal terenkripsi di sisi klien. Desain antarmuka telah ditingkatkan dengan standar premium Enterprise untuk performa prima di perangkat mobile maupun desktop.
           </p>
-          <div className="mt-4 pt-4 border-t border-slate-200/50 flex flex-wrap gap-4 text-xs font-semibold text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> File Sesi Terkendali
+          <div className="mt-4 pt-4 border-t border-slate-200/50 flex flex-wrap gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <span className="flex items-center gap-2 text-slate-600">
+               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> File Sesi Terkendali
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-blue-500" /> Enkripsi Sisi Klien Aktif
-            </span>
+            <span className="flex items-center gap-2 text-slate-600">
+               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Enkripsi Sisi Klien Aktif
+             </span>
           </div>
         </div>
       </motion.div>
     </motion.div>
-  );
-}
-
-function StatCard({ title, value, sub, icon, color = "blue" }: { title: string, value: string, sub?: string, icon: React.ReactNode, color?: string }) {
-  const bgColors: Record<string, string> = {
-    blue: 'bg-blue-50 border-blue-100 text-blue-600 shadow-blue-500/5',
-    emerald: 'bg-emerald-50 border-emerald-100 text-emerald-600 shadow-emerald-500/5',
-    amber: 'bg-amber-50 border-amber-100 text-amber-600 shadow-amber-500/5',
-    red: 'bg-red-50 border-red-100 text-red-600 shadow-red-500/5',
-    purple: 'bg-purple-50 border-purple-100 text-purple-600 shadow-purple-500/5'
-  };
-  
-  return (
-    <div className="bg-white p-3.5 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/70 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03),0_8px_16px_-8px_rgba(0,0,0,0.01)] flex flex-col justify-between hover:shadow-lg hover:border-slate-300 hover:translate-y-[-2px] transition-all duration-300">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center border shadow-inner ${bgColors[color]}`}>
-          {React.cloneElement(icon as React.ReactElement, { className: "w-4 h-4 sm:w-5 sm:h-5" })}
-        </div>
-      </div>
-      <div>
-        <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 line-clamp-1">{title}</p>
-        <p className="text-base sm:text-2xl font-black tracking-tight text-slate-900 leading-tight truncate">{value}</p>
-        {sub && <p className="text-[9px] sm:text-[11px] font-semibold text-slate-400 mt-1 sm:mt-2 flex items-center gap-1.5 line-clamp-2 leading-tight">{sub}</p>}
-      </div>
-    </div>
   );
 }

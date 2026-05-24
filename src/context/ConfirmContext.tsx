@@ -6,6 +6,7 @@ type ConfirmOptions = {
   confirmText?: string;
   cancelText?: string;
   type?: 'danger' | 'warning' | 'info';
+  showCancel?: boolean;
 };
 
 type ConfirmContextType = {
@@ -32,6 +33,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         type: 'danger', 
         confirmText: 'Konfirmasi',
         cancelText: 'Batal',
+        showCancel: true,
         ...opts
     });
     setIsOpen(true);
@@ -60,18 +62,20 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
                 {options.title}
               </h3>
-              <p className="text-slate-600 text-sm">
+              <p className="text-slate-600 text-sm whitespace-pre-line">
                 {options.message}
               </p>
             </div>
             <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
-                autoFocus
-              >
-                {options.cancelText}
-              </button>
+              {options.showCancel && (
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+                  autoFocus
+                >
+                  {options.cancelText}
+                </button>
+              )}
               <button
                 onClick={handleConfirm}
                 className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
@@ -81,6 +85,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                     ? 'bg-amber-600 hover:bg-amber-700'
                     : 'bg-blue-600 hover:bg-blue-700'
                 }`}
+                autoFocus={!options.showCancel}
               >
                 {options.confirmText}
               </button>

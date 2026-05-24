@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
+import { useConfirm } from '../../context/ConfirmContext';
 import { db } from '../../lib/db';
 import { Product, OrderItem, Order } from '../../types';
 import { formatCurrency, generateOrderNumber } from '../../lib/utils';
@@ -12,6 +13,7 @@ import { motion } from 'motion/react';
 
 export default function CreateOrder() {
   const { user } = useAuth();
+  const { confirm } = useConfirm();
   const navigate = useNavigate();
   const { id } = useParams();
   const products = db.getProducts().filter(p => !p.isArchived);
@@ -61,7 +63,7 @@ export default function CreateOrder() {
         return <div className="p-8 text-center text-red-500 font-bold font-sans">Akses Ditolak: Pesanan yang telah diproses tidak dapat diubah oleh Mitra.</div>;
       }
     } else if (user.role === 'admin' || user.role === 'staff') {
-      const prePackingStatuses = ['draft', 'waiting_confirmation', 'confirmed', 'processing', 'printing', 'pressing'];
+      const prePackingStatuses = ['draft', 'waiting_confirmation', 'confirmed', 'processing', 'pressing'];
       if (!prePackingStatuses.includes(existingOrder.status)) {
         return <div className="p-8 text-center text-red-500 font-bold font-sans">Akses Ditolak: Pesanan sudah masuk tahap packing/pengiriman sehingga tidak dapat diubah lagi.</div>;
       }
@@ -88,6 +90,7 @@ export default function CreateOrder() {
         priceSnapshot: products[0].price,
         qty: 1,
         isCustomLogo: isCustom,
+        dtfStatus: isCustom ? 'belum_cetak' : undefined,
         designNotes: isCustom ? 'Pesanan custom logo' : 'Pesanan polos',
         previewUrls: [],
         designUrls: []
@@ -115,7 +118,7 @@ export default function CreateOrder() {
 
   const handleRemoveItem = (id: string) => setItems(items.filter(i => i.id !== id));
 
-  const handleSave = (isSubmit: boolean) => {
+  const handleSave = async (isSubmit: boolean) => {
     if (items.length === 0) {
       toast.error('Tambahkan minimal 1 item produk.');
       return;
@@ -191,6 +194,15 @@ export default function CreateOrder() {
       db.addAuditLog({ userId: user.id, action: 'ORDER_UPDATED', details: `Mengubah detail pesanan #${order.orderNumber}` });
       toast.success('Pesanan berhasil diperbarui');
     } else {
+      if (isSubmit) {
+        const isConfirmed = await confirm({
+          title: 'Konfirmasi Ajukan Pesanan',
+          message: `Apakah Anda yakin ingin mengajukan pesanan dengan total ${totalQty} pcs ini? Setelah diajukan, pesanan akan masuk ke tahap verifikasi admin.`,
+          confirmText: 'Ya, Ajukan',
+          type: 'info'
+        });
+        if (!isConfirmed) return;
+      }
       db.saveOrders([order, ...db.getOrders()]);
       db.addAuditLog({ userId: user.id, action: isSubmit ? 'ORDER_SUBMITTED' : 'ORDER_DRAFTED', details: `Order ${order.orderNumber}` });
       toast.success(isSubmit ? 'Pesanan berhasil diajukan untuk verifikasi' : 'Draft pesanan disimpan di list lokal');

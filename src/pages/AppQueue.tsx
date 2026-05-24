@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/db';
 import { formatDate } from '../lib/utils';
-import { Package, Clock, ShieldCheck, Cpu, LayoutGrid, CheckSquare, Layers } from 'lucide-react';
+import { Package, Clock, ShieldCheck, LayoutGrid, CheckSquare, Layers } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function AppQueue() {
@@ -11,7 +11,7 @@ export default function AppQueue() {
   if (!user) return null;
 
   // Filter queue from Dikonfirmasi up to Packing
-  const inQueueStatuses = ['confirmed', 'processing', 'printing', 'pressing', 'packing'];
+  const inQueueStatuses = ['confirmed', 'processing', 'pressing', 'packing'];
   const orders = db.getOrders().filter(o => inQueueStatuses.includes(o.status));
   const mitras = db.getMitras();
   const activeMitra = mitras.find(m => m.userId === user.id);
@@ -20,7 +20,6 @@ export default function AppQueue() {
     const specs: Record<string, { bg: string, text: string, border: string, label: string }> = {
       confirmed: { bg: 'bg-blue-50 border-blue-100', text: 'text-blue-700 border-blue-250', border: 'border-blue-200/60', label: 'Dikonfirmasi' },
       processing: { bg: 'bg-purple-50 border-purple-100', text: 'text-purple-700', border: 'border-purple-200/60', label: 'Diproses' },
-      printing: { bg: 'bg-indigo-50 border-indigo-100', text: 'text-indigo-700 border-indigo-200/60', border: 'border-indigo-200/60', label: 'Cetak DTF' },
       pressing: { bg: 'bg-rose-50 border-rose-100', text: 'text-rose-700 border-rose-200/60', border: 'border-rose-200/60', label: 'Press Sablon' },
       packing: { bg: 'bg-orange-50 border-orange-100', text: 'text-orange-700 border-orange-200/60', border: 'border-orange-200/60', label: 'Packing' },
     };
@@ -37,12 +36,37 @@ export default function AppQueue() {
   
   const sortedOrders = orders.sort((a,b) => a.createdAt - b.createdAt);
 
-  // Pipeline count summary calculations to look highly professional
-  const confirmedCount = sortedOrders.filter(o => o.status === 'confirmed').length;
-  const processingCount = sortedOrders.filter(o => o.status === 'processing').length;
-  const dtfCount = sortedOrders.filter(o => o.status === 'printing').length;
-  const pressCount = sortedOrders.filter(o => o.status === 'pressing').length;
-  const packingCount = sortedOrders.filter(o => o.status === 'packing').length;
+  // Pipeline summary data
+  const pipelineStats = [
+    { 
+      label: 'KONFIRMASI', 
+      count: sortedOrders.filter(o => o.status === 'confirmed').length,
+      qty: sortedOrders.filter(o => o.status === 'confirmed').reduce((sum, o) => sum + o.totalQty, 0),
+      color: 'text-blue-650',
+      icon: <CheckSquare className="w-5 h-5" />
+    },
+    { 
+      label: 'PROSES PRODUKSI', 
+      count: sortedOrders.filter(o => o.status === 'processing').length,
+      qty: sortedOrders.filter(o => o.status === 'processing').reduce((sum, o) => sum + o.totalQty, 0),
+      color: 'text-purple-650',
+      icon: <Clock className="w-5 h-5" />
+    },
+    { 
+      label: 'PRESS SABLON', 
+      count: sortedOrders.filter(o => o.status === 'pressing').length,
+      qty: sortedOrders.filter(o => o.status === 'pressing').reduce((sum, o) => sum + o.totalQty, 0),
+      color: 'text-pink-650',
+      icon: <Layers className="w-5 h-5" />
+    },
+    { 
+      label: 'PACKING & SHIP', 
+      count: sortedOrders.filter(o => o.status === 'packing').length,
+      qty: sortedOrders.filter(o => o.status === 'packing').reduce((sum, o) => sum + o.totalQty, 0),
+      color: 'text-orange-650',
+      icon: <Package className="w-5 h-5" />
+    }
+  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -59,43 +83,56 @@ export default function AppQueue() {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="space-y-6 lg:space-y-8"
+      className="space-y-4 lg:space-y-5"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-0.5 w-max mb-1.5">
-              <Cpu className="w-3.5 h-3.5 animate-spin" /> Live Factory Pipeline
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">Aliran Produksi Berjalan</h1>
-            <p className="text-[13px] text-slate-500 mt-0.5 font-semibold">Pantau timeline perakitan dan proses produksi secara real-time.</p>
+            <h1 className="text-xl font-black tracking-tight text-slate-900 leading-none underline decoration-indigo-500/30 decoration-4 underline-offset-8">Antrian Produksi</h1>
+            <p className="hidden sm:block text-[11px] text-slate-500 mt-2.5 font-bold uppercase tracking-widest opacity-80">Manufacturing Core Pipeline</p>
+          </div>
+          
+          <div className="flex items-center gap-3 bg-slate-50/50 p-1.5 rounded-2xl border border-slate-200/60 font-mono">
+             <div className="px-3 py-1 text-center">
+                <span className="block text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Queue</span>
+                <span className="text-sm font-black text-slate-900">{sortedOrders.length}</span>
+             </div>
+             <div className="w-px h-6 bg-slate-200/50" />
+             <div className="px-3 py-1 text-center">
+                <span className="block text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Volume</span>
+                <span className="text-sm font-black text-indigo-650">{sortedOrders.reduce((sum, o) => sum + o.totalQty, 0)}</span>
+             </div>
           </div>
       </div>
 
-      {/* Steps quick pipeline monitor widgets */}
+      {/* Enhanced Pipeline Statistics Cards - Ultra Compact Dark */}
       <motion.div 
-        variants={itemVariants} 
-        className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-center"
+        variants={itemVariants}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5"
       >
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/75 shadow-sm">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Dikonfirmasi</span>
-          <span className="text-xl sm:text-2xl font-black text-blue-650">{confirmedCount}</span>
-        </div>
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/75 shadow-sm">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Diproses</span>
-          <span className="text-xl sm:text-2xl font-black text-purple-650">{processingCount}</span>
-        </div>
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/75 shadow-sm">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Cetak DTF</span>
-          <span className="text-xl sm:text-2xl font-black text-indigo-650">{dtfCount}</span>
-        </div>
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/75 shadow-sm">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Press Sablon</span>
-          <span className="text-xl sm:text-2xl font-black text-pink-650">{pressCount}</span>
-        </div>
+        {pipelineStats.map((stat, i) => (
+          <div key={i} className="p-2.5 rounded-xl border flex items-center gap-3 transition-all active:scale-[0.98] bg-slate-950 border-slate-800 shadow-xl shadow-black/20 group">
+            <div className={`p-2 rounded-lg bg-white/5 border border-white/10 ${stat.color} group-hover:scale-105 transition-transform shrink-0`}>
+              {stat.icon}
+            </div>
+            <div className="flex flex-col min-w-0">
+               <span className="block text-[8px] font-black text-slate-500 uppercase tracking-[0.18em] leading-none mb-1.5 truncate">
+                 {stat.label}
+               </span>
+               <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-black text-white leading-none tracking-tight">
+                    {stat.qty}
+                  </span>
+                  <span className={`text-[9px] font-bold ${stat.color} uppercase opacity-80`}>
+                    ({stat.count})
+                  </span>
+               </div>
+            </div>
+          </div>
+        ))}
       </motion.div>
 
-      {/* Mobile view (< md) */}
-      <div className="md:hidden space-y-4">
+      {/* Mobile view (< md) - Compact Cards */}
+      <div className="md:hidden space-y-2">
         {sortedOrders.map(o => {
           const isMine = user.role === 'admin' || user.role === 'staff' || user.role === 'operational' || o.mitraId === activeMitra?.id;
           const mitraName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
@@ -104,77 +141,97 @@ export default function AppQueue() {
             <motion.div 
               variants={itemVariants}
               key={o.id} 
-              className={`rounded-2xl border p-4 shadow-sm relative transition ${
-                isMine ? 'bg-white border-slate-200/60 hover:border-slate-350' : 'bg-slate-50/50 border-slate-100 opacity-80'
+              className={`rounded-xl border p-2.5 shadow-sm relative transition-all active:scale-[0.99] ${
+                isMine ? 'bg-white border-slate-200' : 'bg-slate-50/50 border-slate-100 opacity-80'
               }`}
             >
-              {!isMine && <div className="absolute inset-0 z-10" />}
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="font-mono font-black text-slate-900 text-sm">{o.orderNumber}</h3>
-                  <div className="flex items-center text-xs text-slate-500 gap-1.5 mt-1.5 font-bold">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    {formatDate(o.createdAt)}
-                  </div>
+              <div className="flex justify-between items-center mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  {isMine && <div className="w-1 h-2.5 rounded-full bg-blue-500" />}
+                  <h3 className="font-mono font-black text-slate-900 text-[12px] tracking-tight">{o.orderNumber}</h3>
                 </div>
                 <div>{getStatusBadge(o.status)}</div>
               </div>
-              <div className="flex items-center justify-between mt-4 pt-3.5 border-t border-slate-100 bg-slate-50/50 -mx-4 -mb-4 p-4 rounded-b-2xl">
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Mitra Partner</span>
-                  <span className="text-xs font-extrabold text-slate-900 mt-0.5">{!isMine ? '***' : mitraName}</span>
+              
+              <div className="grid grid-cols-2 gap-1.5 text-[10px] border-t border-slate-50 pt-2">
+                <div className="flex items-center gap-1 text-slate-500 font-bold uppercase tracking-tight">
+                  <Clock className="w-2.5 h-2.5 text-slate-350" />
+                  <span className="truncate">{formatDate(o.createdAt).split(' ')[0]}</span>
                 </div>
-                <div className="flex flex-col text-right">
-                  <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Total Pesanan</span>
-                  <span className="text-xs font-black text-indigo-600 mt-0.5">{o.totalQty} pcs</span>
+                <div className="flex items-center gap-1 justify-end text-slate-900 font-extrabold text-[10px]">
+                  <Layers className="w-2.5 h-2.5 text-slate-350" />
+                  <span className="truncate">{!isMine ? '***' : mitraName.split(' ')[0]}</span>
+                </div>
+                <div className="col-span-2 flex items-center justify-between mt-0.5 bg-slate-50/80 rounded px-1.5 py-0.5">
+                   <span className="text-[8px] text-slate-400 font-black uppercase">Volume</span>
+                   <span className="text-[10px] font-black text-indigo-600">{o.totalQty} pcs</span>
                 </div>
               </div>
             </motion.div>
           );
         })}
         {sortedOrders.length === 0 && (
-          <motion.div variants={itemVariants} className="bg-white border-2 border-dashed text-center p-10 rounded-2xl">
-             <Package className="w-12 h-12 mx-auto text-slate-350 mb-3"/>
-             <p className="text-slate-800 font-bold text-sm">Antrian produksi kosong.</p>
+          <motion.div variants={itemVariants} className="bg-white border text-center py-8 rounded-xl">
+             <Package className="w-8 h-8 mx-auto text-slate-300 mb-2"/>
+             <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Antrian Kosong</p>
           </motion.div>
         )}
       </div>
 
-      {/* Desktop view (>= md) */}
+      {/* Desktop view (>= md) - Efficient Table */}
       <motion.div 
         variants={itemVariants}
-        className="hidden md:block bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03),0_8px_20px_-8px_rgba(0,0,0,0.01)] border border-slate-200/60 overflow-hidden"
+        className="hidden md:block bg-white rounded-2xl shadow-[0_1px_4px_rgba(0,0,0,0.02)] border border-slate-200/80 overflow-hidden"
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] text-slate-600">
-            <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-900 font-extrabold text-[11px] uppercase tracking-wider">
+          <table className="w-full text-left text-[11px] text-slate-600 border-collapse">
+            <thead className="bg-slate-50/50 border-b border-slate-100 text-slate-400 font-extrabold text-[9px] uppercase tracking-[0.12em]">
               <tr>
-                <th className="px-6 py-4">Masuk Antrian</th>
-                <th className="px-6 py-4">Nomor Pesanan</th>
-                <th className="px-6 py-4">Nama Mitra</th>
-                <th className="px-6 py-4 text-center">Format Qty</th>
-                <th className="px-6 py-4 text-right">Status Pos</th>
+                <th className="pl-4 pr-2 py-2 w-32 font-black">Waktu Masuk</th>
+                <th className="px-2 py-2 w-24 font-black">Ref ID</th>
+                <th className="px-2 py-2 font-black">Mitra Partner</th>
+                <th className="px-2 py-2 w-20 text-center font-black">Volume</th>
+                <th className="pl-2 pr-4 py-2 w-36 text-right font-black">Progress Pos</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100/90 font-bold">
+            <tbody className="divide-y divide-slate-50 font-bold">
               {sortedOrders.map(o => {
                 const isMine = user.role === 'admin' || user.role === 'staff' || user.role === 'operational' || o.mitraId === activeMitra?.id;
                 const mitraName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
+                
+                // Color strip based on status
+                const statusColor = {
+                  confirmed: 'border-l-blue-400',
+                  processing: 'border-l-purple-400',
+                  pressing: 'border-l-rose-400',
+                  packing: 'border-l-orange-400'
+                }[o.status as string] || 'border-l-transparent';
+
                 return (
-                  <tr key={o.id} className={`transition-colors duration-150 ${isMine ? 'hover:bg-slate-50/70' : 'bg-slate-50/30 opacity-70'}`}>
-                    <td className="px-6 py-4 text-slate-400 font-medium">{formatDate(o.createdAt)}</td>
-                    <td className="px-6 py-4 font-mono font-black text-slate-900">{o.orderNumber}</td>
-                    <td className="px-6 py-4 font-extrabold text-slate-900">{!isMine ? '***' : mitraName}</td>
-                    <td className="px-6 py-4 font-black text-center text-slate-800">{o.totalQty} pcs</td>
-                    <td className="px-6 py-4 text-right">{getStatusBadge(o.status)}</td>
+                  <tr key={o.id} className={`group transition-all duration-150 border-l-2 ${statusColor} ${isMine ? 'hover:bg-slate-50/50' : 'bg-slate-50/30 opacity-75'}`}>
+                    <td className="pl-4 pr-2 py-1.5 text-slate-400 font-mono text-[10px]">{formatDate(o.createdAt)}</td>
+                    <td className="px-2 py-1.5">
+                      <span className="font-mono font-black text-slate-900 bg-slate-100/50 px-1.5 py-0.5 rounded text-[10px] tracking-tight">{o.orderNumber}</span>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <div className="flex items-center gap-1.5">
+                        {isMine && <CheckSquare className="w-2.5 h-2.5 text-blue-500" />}
+                        <span className="font-extrabold text-slate-900 text-[11px] truncate max-w-[180px]">{!isMine ? '***' : mitraName}</span>
+                      </div>
+                    </td>
+                    <td className="px-2 py-1.5 text-center">
+                      <span className="text-[11px] font-black text-slate-700">{o.totalQty}</span>
+                      <span className="ml-0.5 text-[8px] text-slate-400 font-extrabold uppercase">pcs</span>
+                    </td>
+                    <td className="pl-2 pr-4 py-1.5 text-right flex justify-end transform scale-[0.85] origin-right">{getStatusBadge(o.status)}</td>
                   </tr>
                 );
               })}
               {sortedOrders.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-bold">
-                    <ShieldCheck className="w-10 h-10 text-emerald-500 mx-auto mb-3 animate-pulse" />
-                    Antrian produksi kosong. Semua pesanan telah selesai dikirim!
+                  <td colSpan={5} className="px-6 py-16 text-center text-slate-400">
+                    <ShieldCheck className="w-8 h-8 text-emerald-400 mx-auto mb-3 opacity-50" />
+                    <p className="font-extrabold text-[11px] uppercase tracking-widest">Seluruh Produksi Selesai</p>
                   </td>
                 </tr>
               )}
