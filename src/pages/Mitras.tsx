@@ -1,22 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useConfirm } from '../context/ConfirmContext';
-import { db } from '../lib/db';
-import { Mitra } from '../types';
+import { api } from '../lib/api';
+import { Mitra, User, Order, LedgerEntry } from '../types';
 import { formatCurrency } from '../lib/utils';
 import { Save, Edit2, Archive, Trash2, X, Sparkles, AlertCircle, Award, ChevronRight } from 'lucide-react';
 import { FileUpload } from '../components/FileUpload';
 import { motion, AnimatePresence } from 'motion/react';
 
+type SafeUser = Omit<User, 'passwordHash'>;
+
 export default function Mitras() {
   const { user } = useAuth();
   const { confirm } = useConfirm();
-  const [mitras, setMitras] = useState<Mitra[]>(db.getMitras());
+  const [mitras, setMitras] = useState<Mitra[]>([]);
   const [selectedMitra, setSelectedMitra] = useState<Mitra | null>(null);
-  const users = db.getUsers();
-  const orders = db.getOrders();
-  const ledgers = db.getLedgers();
+  const [users, setUsers] = useState<SafeUser[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      api.mitras.list(),
+      api.users.list(),
+      api.orders.list(),
+      api.ledgers.list(),
+    ]).then(([m, u, o, l]) => {
+      setMitras(m);
+      setUsers(u);
+      setOrders(o);
+      setLedgerEntries(l);
+    }).catch(() => toast.error('Gagal memuat data mitra'));
+  }, []);
 
   if (user?.role !== 'admin') return <div className="p-8 text-center text-red-500 font-bold">Akses Ditolak</div>;
 
@@ -24,30 +40,28 @@ export default function Mitras() {
     const mitraOrders = orders.filter(o => o.mitraId === mitraId && o.status !== 'cancelled');
     const totalOrders = mitraOrders.length;
     const totalSales = mitraOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-    
-    const mitraLedgers = ledgers.filter(l => l.mitraId === mitraId);
+
+    const mitraLedgers = ledgerEntries.filter(l => l.mitraId === mitraId);
     const saldoPiutang = mitraLedgers.reduce((acc, curr) => acc + (curr.direction === 'debit' ? curr.nominal : -curr.nominal), 0);
-    
+
     return { totalOrders, totalSales, saldoPiutang };
   };
 
-  const handleUpdateLimit = (mitraId: string, newLimit: string) => {
+  const handleUpdateLimit = async (mitraId: string, newLimit: string) => {
     let limitVal: number | null = parseInt(newLimit.replace(/\D/g, ''));
-    if (isNaN(limitVal) || limitVal === 0) limitVal = null; // 0 or empty = unlimitted
-    
-    // Check if limit unchanged
+    if (isNaN(limitVal) || limitVal === 0) limitVal = null;
+
     const oldMitra = mitras.find(m => m.id === mitraId);
     if (!oldMitra || oldMitra.creditLimit === limitVal) return;
 
-    const newMitras = [...mitras];
-    const idx = newMitras.findIndex(m => m.id === mitraId);
-    if (idx !== -1) {
-      newMitras[idx] = { ...newMitras[idx], creditLimit: limitVal };
-      db.saveMitras(newMitras);
-      db.addAuditLog({ userId: user.id, action: 'UPDATE_LIMIT', details: `Mitra ${mitraId} limit updated to ${limitVal}` });
-      setMitras(newMitras);
-      setSelectedMitra(newMitras[idx]);
+    try {
+      const updated = await api.mitras.update(mitraId, { creditLimit: limitVal });
+      await api.auditLogs.create({ userId: user.id, action: 'UPDATE_LIMIT', details: `Mitra ${mitraId} limit updated to ${limitVal}` });
+      setMitras(prev => prev.map(m => m.id === mitraId ? updated : m));
+      setSelectedMitra(updated);
       toast.success('Limit kredit berhasil diperbarui');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal memperbarui limit');
     }
   };
 
@@ -58,77 +72,55 @@ export default function Mitras() {
       confirmText: currentArchive ? 'Buka Arsip' : 'Arsipkan',
       type: currentArchive ? 'info' : 'warning'
     });
-    
+
     if (!isConfirmed) return;
 
-    const newMitras = [...mitras];
-    const idx = newMitras.findIndex(m => m.id === mitraId);
-    if (idx !== -1) {
-      newMitras[idx] = { ...newMitras[idx], isArchived: !currentArchive };
-      db.saveMitras(newMitras);
-      db.addAuditLog({ userId: user.id, action: currentArchive ? 'MITRA_UNARCHIVED' : 'MITRA_ARCHIVED', details: `Mitra ${mitraId}` });
-      setMitras(newMitras);
-      setSelectedMitra(newMitras[idx]);
+    try {
+      const updated = await api.mitras.update(mitraId, { isArchived: !currentArchive });
+      await api.auditLogs.create({ userId: user.id, action: currentArchive ? 'MITRA_UNARCHIVED' : 'MITRA_ARCHIVED', details: `Mitra ${mitraId}` });
+      setMitras(prev => prev.map(m => m.id === mitraId ? updated : m));
+      setSelectedMitra(updated);
       toast.success(currentArchive ? 'Arsip mitra berhasil dibuka' : 'Mitra berhasil diarsipkan');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal mengubah status arsip');
     }
   };
 
   const handleDelete = async (id: string) => {
-    // Validation
-    const orders = db.getOrders();
-    const ledgers = db.getLedgers();
-    const requests = db.getRequests();
-    
-    const targetMitra = mitras.find(m => m.id === id);
-    const isUsedInOrders = orders.some(o => o.mitraId === id);
-    const isUsedInLedger = ledgers.some(l => l.mitraId === id);
-    const isUsedInRequests = requests.some(r => r.mitraId === id);
-
-    if (isUsedInOrders || isUsedInLedger || isUsedInRequests) {
-      toast.error("Tidak dapat menghapus mitra ini karena sudah memiliki data pesanan, riwayat saldo, atau pengajuan (request).");
-      return;
-    }
-
     const isConfirmed = await confirm({
       title: 'Hapus Mitra Secara Permanen',
       message: 'Apakah Anda yakin ingin menghapus mitra ini secara permanen?',
       confirmText: 'Ya, Hapus Permanen',
       type: 'danger'
     });
-    
+
     if (!isConfirmed) return;
 
-    if (targetMitra) {
-      const allUsers = db.getUsers();
-      const linkedUser = allUsers.find(u => u.id === targetMitra.userId);
-      if (linkedUser) {
-        db.saveUsers(allUsers.filter(u => u.id !== linkedUser.id));
-      }
+    try {
+      await api.mitras.remove(id);
+      await api.auditLogs.create({ userId: user.id, action: 'MITRA_DELETED', details: `Mitra ${id}` });
+      setMitras(prev => prev.filter(m => m.id !== id));
+      setSelectedMitra(null);
+      toast.success('Mitra berhasil dihapus');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menghapus mitra');
     }
-
-    const newMitras = mitras.filter(m => m.id !== id);
-    db.saveMitras(newMitras);
-    db.addAuditLog({ userId: user.id, action: 'MITRA_DELETED', details: `Mitra ${id}` });
-    setMitras(newMitras);
-    setSelectedMitra(null);
-    toast.success('Mitra berhasil dihapus');
   };
 
-  const handleSave = (mitraToSave: Mitra) => {
+  const handleSave = async (mitraToSave: Mitra) => {
     if (!mitraToSave.name.trim()) {
       toast.error("Nama mitra tidak boleh kosong.");
       return;
     }
-    
-    const newMitras = [...mitras];
-    const idx = newMitras.findIndex(m => m.id === mitraToSave.id);
-    if (idx !== -1) {
-      newMitras[idx] = { ...mitraToSave };
-      db.saveMitras(newMitras);
-      db.addAuditLog({ userId: user.id, action: 'MITRA_UPDATED', details: `Mitra ${mitraToSave.id}` });
-      setMitras(newMitras);
-      setSelectedMitra(newMitras[idx]);
+
+    try {
+      const updated = await api.mitras.update(mitraToSave.id, { name: mitraToSave.name, logoUrl: mitraToSave.logoUrl });
+      await api.auditLogs.create({ userId: user.id, action: 'MITRA_UPDATED', details: `Mitra ${mitraToSave.id}` });
+      setMitras(prev => prev.map(m => m.id === mitraToSave.id ? updated : m));
+      setSelectedMitra(updated);
       toast.success('Data mitra berhasil diperbarui');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menyimpan data mitra');
     }
   };
 
@@ -143,7 +135,7 @@ export default function Mitras() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -167,7 +159,7 @@ export default function Mitras() {
       ) : (
         <div className="space-y-4">
           {/* Mobile View - Cards */}
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             className="md:hidden grid grid-cols-1 gap-2.5"
           >
@@ -175,7 +167,7 @@ export default function Mitras() {
               const mitraUser = users.find(u => u.id === m.userId);
               const stats = getMitraStats(m.id);
               return (
-                <motion.div 
+                <motion.div
                   key={m.id}
                   variants={itemVariants}
                   onClick={() => setSelectedMitra(m)}
@@ -233,8 +225,8 @@ export default function Mitras() {
                   const mitraUser = users.find(u => u.id === m.userId);
                   const stats = getMitraStats(m.id);
                   return (
-                    <tr 
-                      key={m.id} 
+                    <tr
+                      key={m.id}
                       onClick={() => setSelectedMitra(m)}
                       className={`hover:bg-blue-500/[0.02] transition-colors duration-200 cursor-pointer group ${m.isArchived ? 'opacity-30' : ''}`}
                     >
@@ -283,11 +275,11 @@ export default function Mitras() {
 
       <AnimatePresence>
         {selectedMitra && (
-          <MitraDetailPanel 
-            mitra={selectedMitra} 
+          <MitraDetailPanel
+            mitra={selectedMitra}
             currentUserId={user.id}
-            onClose={() => setSelectedMitra(null)} 
-            onSave={handleSave} 
+            onClose={() => setSelectedMitra(null)}
+            onSave={handleSave}
             onToggleArchive={() => handleToggleArchive(selectedMitra.id, selectedMitra.isArchived)}
             onDelete={() => handleDelete(selectedMitra.id)}
             onUpdateLimit={handleUpdateLimit}
@@ -337,7 +329,7 @@ function MitraDetailPanel({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/40 backdrop-blur-sm">
-      <motion.div 
+      <motion.div
         initial={{ x: '100vw' }}
         animate={{ x: 0 }}
         exit={{ x: '100vw' }}
@@ -375,7 +367,7 @@ function MitraDetailPanel({
                    </div>
                  </div>
                </div>
-               
+
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 flex flex-col justify-center">
                      <div className="flex items-center gap-1.5 mb-0.5">
@@ -466,17 +458,17 @@ function LimitEditor({ defaultValue, onSave }: { defaultValue: number | null, on
     <div className="flex items-center gap-2 pt-0.5">
         <div className="relative flex-1">
           <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600">Rp</span>
-          <input 
-             type="text" 
+          <input
+             type="text"
              value={new Intl.NumberFormat('id-ID').format(parseInt(val.replace(/\D/g, '')) || 0)}
              placeholder="No Limit (Unlimited)"
              onChange={(e) => setVal(e.target.value.replace(/\D/g, ''))}
              className="pl-7 pr-3 py-2 border border-white/10 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-right w-full bg-white/5 font-bold text-white text-[11px] placeholder:text-slate-600 placeholder:italic"
           />
         </div>
-        <button 
-           onClick={() => onSave(val)} 
-           className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer text-[10px] font-bold" 
+        <button
+           onClick={() => onSave(val)}
+           className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer text-[10px] font-bold"
            title="Save Limit"
         >
            <Save className="w-3 h-3" /> Save

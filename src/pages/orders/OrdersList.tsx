@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
-import { db } from '../../lib/db';
+import { api } from '../../lib/api';
+import { Order, Mitra } from '../../types';
 import { formatDate, cn } from '../../lib/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Eye, Package, Calendar, User, LayoutList, Search, ArrowRight, FileSpreadsheet, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -10,12 +12,18 @@ export default function OrdersList() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const orders = db.getOrders();
-  const mitras = db.getMitras();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [mitras, setMitras] = useState<Mitra[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    Promise.all([api.orders.list(), api.mitras.list()])
+      .then(([o, m]) => { setOrders(o); setMitras(m); })
+      .catch(() => toast.error('Gagal memuat data pesanan'));
+  }, []);
 
   if (!user) return null;
 
@@ -51,16 +59,17 @@ export default function OrdersList() {
   }
 
   // Status Filter
-  const statusStats = displayOrders.reduce((acc, order) => {
-    if (!acc[order.status]) {
-      acc[order.status] = { orders: 0, qty: 0 };
-    }
-    acc[order.status].orders += 1;
-    acc[order.status].qty += (order.totalQty || 0);
-    return acc;
-  }, {} as Record<string, { orders: number; qty: number }>);
+  const statusStats: Record<string, { orders: number; qty: number }> = displayOrders.reduce(
+    (acc: Record<string, { orders: number; qty: number }>, order) => {
+      if (!acc[order.status]) acc[order.status] = { orders: 0, qty: 0 };
+      acc[order.status]!.orders += 1;
+      acc[order.status]!.qty += (order.totalQty || 0);
+      return acc;
+    },
+    {}
+  );
 
-  const totalStats = Object.values(statusStats).reduce((acc, curr) => {
+  const totalStats = (Object.values(statusStats) as { orders: number; qty: number }[]).reduce((acc, curr) => {
     acc.orders += curr.orders;
     acc.qty += curr.qty;
     return acc;

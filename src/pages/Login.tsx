@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-import { db } from '../lib/db';
-import { normalizePhone } from '../lib/utils';
+import { api } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Phone, ArrowRight, ShieldCheck, Eye, EyeOff, LayoutPanelLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -15,65 +14,20 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    setTimeout(() => {
-      const users = db.getUsers();
-      const normalized = normalizePhone(phone);
-      const userIndex = users.findIndex(u => u.phone === normalized);
-      
-      if (userIndex === -1) {
-        toast.error('Pengguna tidak ditemukan atau kata sandi salah.');
-        setIsLoading(false);
-        return;
-      }
-
-      const user = users[userIndex];
-      
-      if (!user.isActive) {
-        toast.error('Akun dinonaktifkan.');
-        setIsLoading(false);
-        return;
-      }
-
-      const unbanTime = user.lockedUntil || 0;
-      if (Date.now() < unbanTime) {
-        const waitMins = Math.ceil((unbanTime - Date.now()) / 60000);
-        toast.error(`Akun terkunci. Coba lagi dalam ${waitMins} menit.`);
-        setIsLoading(false);
-        return;
-      }
-
-      if (user.passwordHash !== password) {
-        const attempts = (user.failedLoginAttempts || 0) + 1;
-        let lockedUntil = user.lockedUntil;
-        
-        if (attempts >= 5) {
-          lockedUntil = Date.now() + 15 * 60000; // 15 mins block
-          db.addAuditLog({ userId: user.id, action: 'LOGIN_LOCKED', details: 'Exceeded max attempts' });
-        } else {
-          db.addAuditLog({ userId: user.id, action: 'LOGIN_FAILED', details: `Attempt ${attempts}` });
-        }
-
-        users[userIndex] = { ...user, failedLoginAttempts: attempts, lockedUntil };
-        db.saveUsers(users);
-        toast.error('Kata sandi salah.');
-        setIsLoading(false);
-        return;
-      }
-
-      // Success
-      users[userIndex] = { ...user, failedLoginAttempts: 0, lockedUntil: undefined };
-      db.saveUsers(users);
-      db.addAuditLog({ userId: user.id, action: 'LOGIN_SUCCESS', details: 'Logged in' });
-      
+    try {
+      const { token, user } = await api.auth.login(phone, password);
+      api.auth.setToken(token);
+      login(user);
       toast.success('Berhasil masuk');
       navigate('/', { replace: true });
-      login(users[userIndex]);
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal masuk. Coba lagi.');
+    } finally {
       setIsLoading(false);
-    }, 800); // slightly longer for improved perceived security
+    }
   };
 
   return (

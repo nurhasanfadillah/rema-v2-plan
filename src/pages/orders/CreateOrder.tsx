@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirm } from '../../context/ConfirmContext';
-import { db } from '../../lib/db';
-import { Product, OrderItem, Order } from '../../types';
+import { api } from '../../lib/api';
+import { Product, OrderItem, Order, Mitra } from '../../types';
 import { formatCurrency, generateOrderNumber } from '../../lib/utils';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Trash2, Plus, Type, Globe, Package, ShoppingBag, Info, ShieldAlert, FileText, ArrowLeft } from 'lucide-react';
@@ -16,8 +16,12 @@ export default function CreateOrder() {
   const { confirm } = useConfirm();
   const navigate = useNavigate();
   const { id } = useParams();
-  const products = db.getProducts().filter(p => !p.isArchived);
-  
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [existingOrder, setExistingOrder] = useState<Order | undefined>(undefined);
+  const [myMitraRecord, setMyMitraRecord] = useState<Mitra | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+
   const [type, setType] = useState<'online' | 'offline'>('online');
   const [resiUrl, setResiUrl] = useState('');
   const [recipientName, setRecipientName] = useState('');
@@ -25,36 +29,47 @@ export default function CreateOrder() {
   const [recipientAddress, setRecipientAddress] = useState('');
   const [items, setItems] = useState<OrderItem[]>([]);
 
-  const existingOrder = id ? db.getOrders().find(o => o.id === id) : undefined;
-  const myMitraRecord = db.getMitras().find(m => m.userId === user?.id);
-
-  // Load existing order values if editing
-  React.useEffect(() => {
-    if (existingOrder) {
-      setType(existingOrder.type);
-      setResiUrl(existingOrder.resiUrl || '');
-      setRecipientName(existingOrder.recipientName || '');
-      setRecipientPhone(existingOrder.recipientPhone || '');
-      setRecipientAddress(existingOrder.recipientAddress || '');
-      setItems(existingOrder.items || []);
-    }
+  useEffect(() => {
+    Promise.all([
+      api.products.list(),
+      api.mitras.list(),
+      id ? api.orders.get(id) : Promise.resolve(undefined),
+    ]).then(([prods, mitras, order]) => {
+      setProducts((prods as Product[]).filter(p => !p.isArchived));
+      const myMitra = (mitras as Mitra[]).find(m => m.userId === user?.id);
+      setMyMitraRecord(myMitra);
+      if (order) {
+        const o = order as Order;
+        setExistingOrder(o);
+        setType(o.type);
+        setResiUrl(o.resiUrl || '');
+        setRecipientName(o.recipientName || '');
+        setRecipientPhone(o.recipientPhone || '');
+        setRecipientAddress(o.recipientAddress || '');
+        setItems(o.items || []);
+      }
+      setLoading(false);
+    }).catch(() => {
+      toast.error('Gagal memuat data pesanan');
+      setLoading(false);
+    });
   }, [id]);
 
-  // Authorization checks
   if (!user) return null;
+  if (loading) return <div className="p-8 text-center text-slate-400 font-semibold">Memuat data...</div>;
 
   if (id) {
     if (!existingOrder) {
       return <div className="p-8 text-center text-red-500 font-bold font-sans animate-pulse">Akses Ditolak: Pesanan tidak ditemukan.</div>;
     }
-    
+
     if (existingOrder.status === 'draft') {
-      const creatorUserId = existingOrder.creatorId || db.getMitras().find(m => m.id === existingOrder.mitraId)?.userId;
+      const creatorUserId = existingOrder.creatorId || myMitraRecord?.userId;
       if (creatorUserId !== user.id) {
         return <div className="p-8 text-center text-red-500 font-bold font-sans">Akses Ditolak: Pesanan draft hanya dapat diakses dan diedit oleh pembuat pesanan.</div>;
       }
     }
-    
+
     if (user.role === 'mitra') {
       if (existingOrder.mitraId !== myMitraRecord?.id) {
         return <div className="p-8 text-center text-red-500 font-bold font-sans">Akses Ditolak: Anda tidak memiliki akses ke pesanan ini.</div>;
@@ -82,7 +97,7 @@ export default function CreateOrder() {
       return;
     }
     setItems([
-      ...items, 
+      ...items,
       {
         id: crypto.randomUUID(),
         productId: products[0].id,
@@ -144,20 +159,21 @@ export default function CreateOrder() {
       return;
     }
 
-    const totalQty = items.reduce((a,b)=>a+b.qty, 0);
-    const totalAmount = items.reduce((a,b)=>a+(b.qty*b.priceSnapshot), 0);
+    const totalQty = items.reduce((a, b) => a + b.qty, 0);
+    const totalAmount = items.reduce((a, b) => a + (b.qty * b.priceSnapshot), 0);
     const hasCustomLogo = items.some(i => i.isCustomLogo);
 
-    // Limit check if submitting
-    // Limit check if submitting (only for Mitra role)
-    if (isSubmit && user.role === 'mitra' && myMitraRecord) {
-      if (myMitraRecord.creditLimit) {
-         const ledgers = db.getLedgers().filter(l => l.mitraId === myMitraRecord.id);
-         const saldo = ledgers.reduce((acc, curr) => acc + (curr.direction === 'debit' ? curr.nominal : -curr.nominal), 0);
-         if (saldo > myMitraRecord.creditLimit) {
-           toast.error(`Tagihan berjalan Anda saat ini: ${formatCurrency(saldo)}. Limit tagihan Anda: ${formatCurrency(myMitraRecord.creditLimit)}. Mohon lakukan pembayaran saldo terlebih dahulu.`);
-           return; // Prevent submit
-         }
+    if (isSubmit && user.role === 'mitra' && myMitraRecord?.creditLimit) {
+      try {
+        const ledgers = await api.ledgers.list(myMitraRecord.id);
+        const saldo = ledgers.reduce((acc, curr) => acc + (curr.direction === 'debit' ? curr.nominal : -curr.nominal), 0);
+        if (saldo > myMitraRecord.creditLimit) {
+          toast.error(`Tagihan berjalan Anda saat ini: ${formatCurrency(saldo)}. Limit tagihan Anda: ${formatCurrency(myMitraRecord.creditLimit)}. Mohon lakukan pembayaran saldo terlebih dahulu.`);
+          return;
+        }
+      } catch {
+        toast.error('Gagal memeriksa limit kredit');
+        return;
       }
     }
 
@@ -176,9 +192,9 @@ export default function CreateOrder() {
       recipientPhone,
       recipientAddress,
       items,
-      status: existingOrder 
-        ? (user.role === 'admin' || user.role === 'staff' 
-            ? existingOrder.status 
+      status: existingOrder
+        ? (user.role === 'admin' || user.role === 'staff'
+            ? existingOrder.status
             : (isSubmit ? 'waiting_confirmation' : 'draft'))
         : (isSubmit ? 'waiting_confirmation' : 'draft'),
       updatedAt: Date.now(),
@@ -187,35 +203,37 @@ export default function CreateOrder() {
       totalQty,
     };
 
-    if (existingOrder) {
-      const allOrders = db.getOrders();
-      const newOrders = allOrders.map(o => o.id === id ? order : o);
-      db.saveOrders(newOrders);
-      db.addAuditLog({ userId: user.id, action: 'ORDER_UPDATED', details: `Mengubah detail pesanan #${order.orderNumber}` });
-      toast.success('Pesanan berhasil diperbarui');
-    } else {
-      if (isSubmit) {
-        const isConfirmed = await confirm({
-          title: 'Konfirmasi Ajukan Pesanan',
-          message: `Apakah Anda yakin ingin mengajukan pesanan dengan total ${totalQty} pcs ini? Setelah diajukan, pesanan akan masuk ke tahap verifikasi admin.`,
-          confirmText: 'Ya, Ajukan',
-          type: 'info'
-        });
-        if (!isConfirmed) return;
+    try {
+      if (existingOrder) {
+        await api.orders.update(existingOrder.id, order);
+        await api.auditLogs.create({ userId: user.id, action: 'ORDER_UPDATED', details: `Mengubah detail pesanan #${order.orderNumber}` });
+        toast.success('Pesanan berhasil diperbarui');
+      } else {
+        if (isSubmit) {
+          const isConfirmed = await confirm({
+            title: 'Konfirmasi Ajukan Pesanan',
+            message: `Apakah Anda yakin ingin mengajukan pesanan dengan total ${totalQty} pcs ini? Setelah diajukan, pesanan akan masuk ke tahap verifikasi admin.`,
+            confirmText: 'Ya, Ajukan',
+            type: 'info'
+          });
+          if (!isConfirmed) return;
+        }
+        await api.orders.create(order);
+        await api.auditLogs.create({ userId: user.id, action: isSubmit ? 'ORDER_SUBMITTED' : 'ORDER_DRAFTED', details: `Order ${order.orderNumber}` });
+        toast.success(isSubmit ? 'Pesanan berhasil diajukan untuk verifikasi' : 'Draft pesanan disimpan');
       }
-      db.saveOrders([order, ...db.getOrders()]);
-      db.addAuditLog({ userId: user.id, action: isSubmit ? 'ORDER_SUBMITTED' : 'ORDER_DRAFTED', details: `Order ${order.orderNumber}` });
-      toast.success(isSubmit ? 'Pesanan berhasil diajukan untuk verifikasi' : 'Draft pesanan disimpan di list lokal');
+      navigate('/orders');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menyimpan pesanan');
     }
-    navigate('/orders');
   };
 
-  const currentTotal = items.reduce((a,b)=>a+(b.qty*b.priceSnapshot), 0);
+  const currentTotal = items.reduce((a, b) => a + (b.qty * b.priceSnapshot), 0);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 lg:space-y-8 animate-in fade-in duration-300">
       <div className="flex items-center gap-3">
-        <button 
+        <button
           onClick={() => navigate('/orders')}
           className="w-10 h-10 rounded-2xl bg-white border border-slate-200 text-slate-600 hover:text-slate-950 hover:bg-slate-50 flex items-center justify-center transition-all shadow-sm active:scale-95 cursor-pointer"
         >
@@ -238,7 +256,7 @@ export default function CreateOrder() {
             <span className="w-6 h-6 rounded-lg bg-blue-50 border border-blue-105 text-blue-600 font-extrabold text-xs flex items-center justify-center">1</span>
             <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">Informasi Distribusi & Pengiriman</h2>
           </div>
-          
+
           <div className="pt-1.5 flex flex-col md:flex-row md:items-center gap-4">
              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest md:w-28 shrink-0">Tipe</span>
              <div className="flex-1 flex gap-3">
@@ -260,7 +278,7 @@ export default function CreateOrder() {
                 </button>
              </div>
           </div>
-          
+
           {type === 'online' ? (
             <div className="pt-2">
                <FileUpload value={resiUrl} onChange={setResiUrl} label="Unggah Label Pengiriman PDF / File Resi Cetak (Wajib)" accept="*/*" />
@@ -293,35 +311,35 @@ export default function CreateOrder() {
               <span className="text-xs font-bold text-slate-400 uppercase tracking-widest md:w-28">Item</span>
             </div>
             <div className="flex-1 flex gap-3">
-               <button 
-                 type="button" 
-                 onClick={()=>handleAddItem(false)} 
+               <button
+                 type="button"
+                 onClick={()=>handleAddItem(false)}
                  className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer border border-slate-200"
                >
                   <Plus className="w-4 h-4"/> Polos
                </button>
-               <button 
-                 type="button" 
-                 onClick={()=>handleAddItem(true)} 
+               <button
+                 type="button"
+                 onClick={()=>handleAddItem(true)}
                  className="flex-1 py-2.5 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer border border-indigo-100"
                >
                   <Plus className="w-4 h-4"/> Custom
                </button>
             </div>
           </div>
-          
+
           <div className="space-y-4">
             {items.map((item, idx) => (
               <div key={item.id} className="p-4 sm:p-5 border border-slate-200/80 rounded-3xl bg-slate-50 shadow-sm space-y-4">
                  <div className="space-y-4">
                     <div>
-                       <SearchableProductSelect 
-                         products={products} 
-                         selectedId={item.productId} 
-                         onChange={val => handleUpdateItem(item.id, 'productId', val)} 
+                       <SearchableProductSelect
+                         products={products}
+                         selectedId={item.productId}
+                         onChange={val => handleUpdateItem(item.id, 'productId', val)}
                        />
                     </div>
-                    
+
                      <div className="flex items-center justify-between gap-4 pt-3 border-t border-slate-200/55">
                       <div className="flex items-center gap-4 border-0">
                         <input
@@ -382,8 +400,8 @@ export default function CreateOrder() {
            </div>
            <div className="flex gap-3 w-full md:w-auto text-xs">
               {(user.role === 'admin' || user.role === 'staff') && existingOrder ? (
-                <button 
-                  onClick={() => handleSave(true)} 
+                <button
+                  onClick={() => handleSave(true)}
                   className="px-6 py-3 bg-gradient-to-tr from-slate-900 to-slate-800 hover:from-slate-850 hover:to-slate-755 text-white font-black rounded-2xl shadow-md transition-all active:scale-95 cursor-pointer w-full md:w-auto"
                 >
                   Simpan Perubahan
@@ -416,7 +434,7 @@ function SearchableProductSelect({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const selectedProduct = products.find(p => p.id === selectedId) || products[0];
 
   const filteredProducts = products.filter(p =>

@@ -1,42 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useConfirm } from '../context/ConfirmContext';
-import { db } from '../lib/db';
-import { User, Role } from '../types';
+import { api } from '../lib/api';
+import { User, Mitra, Role } from '../types';
 import { normalizePhone } from '../lib/utils';
+
+type SafeUser = Omit<User, 'passwordHash'>;
 import { Plus, Edit2, Lock, Unlock, MailX, Trash2, X, AlertCircle, ShieldAlert, BadgeCheck, CheckCircle2, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Users() {
   const { user } = useAuth();
   const { confirm } = useConfirm();
-  const [users, setUsers] = useState<User[]>(db.getUsers());
+  const [users, setUsers] = useState<SafeUser[]>([]);
+  const [mitras, setMitras] = useState<Mitra[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  
+  const [selectedUser, setSelectedUser] = useState<SafeUser | null>(null);
+
+  useEffect(() => {
+    api.users.list().then(setUsers).catch(console.error);
+    api.mitras.list().then(setMitras).catch(console.error);
+  }, []);
+
   if (user?.role !== 'admin') return <div className="p-8 text-center text-red-500 font-bold">Akses Ditolak</div>;
 
   const handleToggleActive = async (targetId: string, currentStatus: boolean) => {
-    if (targetId === user.id) return; // Cant disable self
+    if (targetId === user.id) return;
     const isConfirmed = await confirm({
       title: currentStatus ? 'Nonaktifkan Pengguna' : 'Aktifkan Pengguna',
       message: `Apakah Anda yakin ingin ${currentStatus ? 'menonaktifkan' : 'mengaktifkan'} pengguna ini?`,
       confirmText: currentStatus ? 'Nonaktifkan' : 'Aktifkan',
       type: currentStatus ? 'danger' : 'info'
     });
-    
     if (!isConfirmed) return;
-
-    const newUsers = [...users];
-    const idx = newUsers.findIndex(u => u.id === targetId);
-    if (idx !== -1) {
-      newUsers[idx] = { ...newUsers[idx], isActive: !currentStatus };
-      db.saveUsers(newUsers);
-      db.addAuditLog({ userId: user.id, action: currentStatus ? 'USER_DISABLED' : 'USER_ENABLED', details: `Target: ${targetId}` });
-      setUsers(newUsers);
-      setSelectedUser(newUsers[idx]);
+    try {
+      const updated = await api.users.update(targetId, { isActive: !currentStatus });
+      await api.auditLogs.create({ userId: user.id, action: currentStatus ? 'USER_DISABLED' : 'USER_ENABLED', details: `Target: ${targetId}` });
+      setUsers(prev => prev.map(u => u.id === targetId ? updated : u));
+      setSelectedUser(updated);
       toast.success(`Pengguna berhasil di${currentStatus ? 'nonaktifkan' : 'aktifkan'}`);
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal mengubah status pengguna');
     }
   };
 
@@ -47,18 +52,15 @@ export default function Users() {
       confirmText: 'Buka Blokir',
       type: 'info'
     });
-    
     if (!isConfirmed) return;
-
-    const newUsers = [...users];
-    const idx = newUsers.findIndex(u => u.id === targetId);
-    if (idx !== -1) {
-      newUsers[idx] = { ...newUsers[idx], lockedUntil: undefined, failedLoginAttempts: 0 };
-      db.saveUsers(newUsers);
-      db.addAuditLog({ userId: user.id, action: 'USER_UNLOCKED', details: `Target: ${targetId}` });
-      setUsers(newUsers);
-      setSelectedUser(newUsers[idx]);
+    try {
+      const updated = await api.users.update(targetId, { lockedUntil: null, failedLoginAttempts: 0 });
+      await api.auditLogs.create({ userId: user.id, action: 'USER_UNLOCKED', details: `Target: ${targetId}` });
+      setUsers(prev => prev.map(u => u.id === targetId ? updated : u));
+      setSelectedUser(updated);
       toast.success('Blokir pengguna berhasil dibuka');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal membuka blokir');
     }
   };
 
@@ -69,47 +71,35 @@ export default function Users() {
       confirmText: 'Reset Password',
       type: 'warning'
     });
-
     if (!isConfirmed) return;
-    
-    const newUsers = [...users];
-    const idx = newUsers.findIndex(u => u.id === targetId);
-    if (idx !== -1) {
-      newUsers[idx] = { ...newUsers[idx], passwordHash: 'rema1234', mustChangePassword: true };
-      db.saveUsers(newUsers);
-      db.addAuditLog({ userId: user.id, action: 'PASSWORD_RESET_ADMIN', details: `Target: ${targetId}` });
-      setUsers(newUsers);
-      setSelectedUser(newUsers[idx]);
+    try {
+      const updated = await api.users.update(targetId, { newPassword: 'rema1234', mustChangePassword: true });
+      await api.auditLogs.create({ userId: user.id, action: 'PASSWORD_RESET_ADMIN', details: `Target: ${targetId}` });
+      setUsers(prev => prev.map(u => u.id === targetId ? updated : u));
+      setSelectedUser(updated);
       toast.success('Password pengguna berhasil direset');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal reset password');
     }
   };
 
-  const handleEditSave = (updatedUser: User) => {
+  const handleEditSave = async (updatedUser: SafeUser) => {
     const oldUser = users.find(u => u.id === updatedUser.id);
-    
-    if (oldUser && oldUser.role !== 'mitra' && updatedUser.role === 'mitra') {
-      const existingMitra = db.getMitras().find(m => m.userId === updatedUser.id);
-      if (!existingMitra) {
-        const newMitra = {
-          id: crypto.randomUUID(),
-          userId: updatedUser.id,
-          name: updatedUser.name,
-          creditLimit: null,
-          isArchived: false,
-        };
-        db.saveMitras([newMitra, ...db.getMitras()]);
+    try {
+      if (oldUser && oldUser.role !== 'mitra' && updatedUser.role === 'mitra') {
+        const existingMitra = mitras.find(m => m.userId === updatedUser.id);
+        if (!existingMitra) {
+          const created = await api.mitras.create({ id: crypto.randomUUID(), userId: updatedUser.id, name: updatedUser.name, creditLimit: undefined, isArchived: false } as Omit<Mitra, 'id'>);
+          setMitras(prev => [created, ...prev]);
+        }
       }
-    }
-
-    const newUsers = [...users];
-    const idx = newUsers.findIndex(u => u.id === updatedUser.id);
-    if (idx !== -1) {
-      newUsers[idx] = updatedUser;
-      db.saveUsers(newUsers);
-      db.addAuditLog({ userId: user.id, action: 'USER_UPDATED', details: `Target: ${updatedUser.id}` });
-      setUsers(newUsers);
-      setSelectedUser(updatedUser);
+      const updated = await api.users.update(updatedUser.id, updatedUser);
+      await api.auditLogs.create({ userId: user.id, action: 'USER_UPDATED', details: `Target: ${updatedUser.id}` });
+      setUsers(prev => prev.map(u => u.id === updatedUser.id ? updated : u));
+      setSelectedUser(updated);
       toast.success('Data pengguna berhasil diperbarui');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal memperbarui pengguna');
     }
   };
 
@@ -118,58 +108,23 @@ export default function Users() {
       toast.error("Anda tidak dapat menghapus akun Anda sendiri.");
       return;
     }
-
-    const targetUser = users.find(u => u.id === targetId);
-    if (!targetUser) return;
-
-    const auditLogs = db.getAuditLogs();
-    const hasAuditTrail = auditLogs.some(log => log.userId === targetId);
-    
-    if (hasAuditTrail) {
-      toast.error("Tidak dapat menghapus pengguna ini karena memiliki riwayat aktivitas di sistem. Silakan nonaktifkan saja.");
-      return;
-    }
-
-    if (targetUser.role === 'mitra') {
-      const mitras = db.getMitras();
-      const linkedMitra = mitras.find(m => m.userId === targetId);
-      if (linkedMitra) {
-        const orders = db.getOrders();
-        const ledgers = db.getLedgers();
-        const requests = db.getRequests();
-        const isUsedInOrders = orders.some(o => o.mitraId === linkedMitra.id);
-        const isUsedInLedger = ledgers.some(l => l.mitraId === linkedMitra.id);
-        const isUsedInRequests = requests.some(r => r.mitraId === linkedMitra.id);
-        if (isUsedInOrders || isUsedInLedger || isUsedInRequests) {
-          toast.error("Tidak dapat menghapus user ini karena entitas mitranya sudah memiliki pesanan, riwayat saldo, atau pengajuan (request).");
-          return;
-        }
-      }
-    }
-
     const isConfirmed = await confirm({
       title: 'Hapus Pengguna Secara Permanen',
       message: 'Apakah Anda yakin ingin menghapus pengguna ini secara permanen? Tindakan ini tidak dapat dibatalkan.',
       confirmText: 'Ya, Hapus Permanen',
       type: 'danger'
     });
-
     if (!isConfirmed) return;
-
-    if (targetUser.role === 'mitra') {
-      const mitras = db.getMitras();
-      const linkedMitra = mitras.find(m => m.userId === targetId);
-      if (linkedMitra) {
-        db.saveMitras(mitras.filter(m => m.id !== linkedMitra.id));
-      }
+    try {
+      await api.users.remove(targetId);
+      await api.auditLogs.create({ userId: user.id, action: 'USER_DELETED', details: `User ${targetId}` });
+      setUsers(prev => prev.filter(u => u.id !== targetId));
+      setMitras(prev => prev.filter(m => m.userId !== targetId));
+      setSelectedUser(null);
+      toast.success('Pengguna berhasil dihapus');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menghapus pengguna');
     }
-
-    const newUsers = users.filter(u => u.id !== targetId);
-    db.saveUsers(newUsers);
-    db.addAuditLog({ userId: user.id, action: 'USER_DELETED', details: `User ${targetId}` });
-    setUsers(newUsers);
-    setSelectedUser(null);
-    toast.success('Pengguna berhasil dihapus');
   };
 
   const containerVariants = {
@@ -315,14 +270,21 @@ export default function Users() {
         </div>
       )}
 
-      {isAddOpen && <AddUserModal onClose={() => setIsAddOpen(false)} onAdd={(newUser) => setUsers([newUser, ...users])} />}
-      
+      {isAddOpen && (
+        <AddUserModal
+          onClose={() => setIsAddOpen(false)}
+          onAdd={(newUser) => setUsers(prev => [newUser, ...prev])}
+          onAddMitra={(newMitra) => setMitras(prev => [newMitra, ...prev])}
+        />
+      )}
+
       <AnimatePresence>
         {selectedUser && (
-          <UserDetailPanel 
-            userTarget={selectedUser} 
+          <UserDetailPanel
+            userTarget={selectedUser}
             currentUserId={user.id}
-            onClose={() => setSelectedUser(null)} 
+            allUsers={users}
+            onClose={() => setSelectedUser(null)}
             onSave={handleEditSave}
             onToggleActive={() => handleToggleActive(selectedUser.id, selectedUser.isActive)}
             onUnlock={() => handleUnlock(selectedUser.id)}
@@ -335,20 +297,22 @@ export default function Users() {
   );
 }
 
-function UserDetailPanel({ 
-  userTarget, 
+function UserDetailPanel({
+  userTarget,
   currentUserId,
-  onClose, 
-  onSave, 
-  onToggleActive, 
-  onUnlock, 
-  onResetPassword, 
-  onDelete 
-}: { 
-  userTarget: User, 
+  allUsers,
+  onClose,
+  onSave,
+  onToggleActive,
+  onUnlock,
+  onResetPassword,
+  onDelete
+}: {
+  userTarget: SafeUser,
   currentUserId: string,
-  onClose: () => void, 
-  onSave: (u: User) => void,
+  allUsers: SafeUser[],
+  onClose: () => void,
+  onSave: (u: SafeUser) => void,
   onToggleActive: () => void,
   onUnlock: () => void,
   onResetPassword: () => void,
@@ -365,8 +329,8 @@ function UserDetailPanel({
     const p = normalizePhone(phone);
     
     if (p !== userTarget.phone) {
-      const existing = db.getUsers().find(u => u.phone === p);
-      if(existing) {
+      const existing = allUsers.find(u => u.phone === p && u.id !== userTarget.id);
+      if (existing) {
         setError('Nomor telepon sudah digunakan oleh akun lain.');
         return;
       }
@@ -488,50 +452,38 @@ function UserDetailPanel({
   );
 }
 
-function AddUserModal({ onClose, onAdd }: { onClose: () => void, onAdd: (user: User) => void }) {
+function AddUserModal({ onClose, onAdd, onAddMitra }: { onClose: () => void, onAdd: (user: SafeUser) => void, onAddMitra: (mitra: Mitra) => void }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<Role>('mitra');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const p = normalizePhone(phone);
-    
-    const existing = db.getUsers().find(u => u.phone === p);
-    if(existing) {
-      setError('Nomor telepon sudah terdaftar di sistem.');
-      return;
-    }
-
-    const newUser: User = {
-      id: crypto.randomUUID(),
-      name,
-      phone: p,
-      role,
-      passwordHash: 'rema1234',
-      isActive: true,
-      mustChangePassword: true,
-    };
-
-    const newUsers = [newUser, ...db.getUsers()];
-    db.saveUsers(newUsers);
-    
-    if (role === 'mitra') {
-      const newMitra = {
+    setError('');
+    try {
+      const created = await api.users.create({
         id: crypto.randomUUID(),
-        userId: newUser.id,
         name,
-        creditLimit: null,
-        isArchived: false,
-      };
-      db.saveMitras([newMitra, ...db.getMitras()]);
+        phone: p,
+        role,
+        password: 'rema1234',
+        isActive: true,
+        mustChangePassword: true,
+        failedLoginAttempts: 0,
+      });
+      if (role === 'mitra') {
+        const newMitra = await api.mitras.create({ id: crypto.randomUUID(), userId: created.id, name, creditLimit: undefined, isArchived: false } as Omit<Mitra, 'id'>);
+        onAddMitra(newMitra);
+      }
+      await api.auditLogs.create({ userId: 'system', action: 'USER_CREATED', details: `User ${name} created` });
+      onAdd(created);
+      onClose();
+      toast.success('Pengguna baru berhasil ditambahkan!');
+    } catch (err: any) {
+      setError(err.message || 'Gagal menambahkan pengguna');
     }
-
-    db.addAuditLog({ userId: 'system', action: 'USER_CREATED', details: `User ${name} created` });
-    onAdd(newUser);
-    onClose();
-    toast.success('Pengguna baru berhasil ditambahkan!');
   };
 
   return (

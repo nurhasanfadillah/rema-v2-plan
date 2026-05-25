@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-import { db } from '../lib/db';
+import { api } from '../lib/api';
 import { motion } from 'motion/react';
 import { Lock, LogOut, KeyRound, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,19 +13,12 @@ export default function ChangePassword() {
   const [oldPassword, setOldPassword] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!user) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Verify old password if not forced
-    if (!user.mustChangePassword) {
-      if (oldPassword !== user.passwordHash) {
-        toast.error('Kata sandi lama tidak sesuai.');
-        return;
-      }
-    }
 
     if (password.length < 8 || password.length > 64) {
       toast.error('Password must be between 8 and 64 characters.');
@@ -36,18 +29,21 @@ export default function ChangePassword() {
       return;
     }
 
-    const users = db.getUsers();
-    const idx = users.findIndex(u => u.id === user.id);
-    if (idx !== -1) {
-      users[idx] = { ...users[idx], passwordHash: password, mustChangePassword: false };
-      db.saveUsers(users);
-      updateUser(users[idx]);
-      db.addAuditLog({ userId: user.id, action: 'PASSWORD_CHANGED', details: user.mustChangePassword ? 'User changed password upon requirement' : 'User changed password voluntarily' });
+    setIsLoading(true);
+    try {
+      const body = isForced
+        ? { newPassword: password }
+        : { oldPassword, newPassword: password };
+      const updatedUser = await api.users.changePassword(user.id, body);
+      updateUser(updatedUser);
       toast.success('Password berhasil diperbarui');
-      
-      if (!user.mustChangePassword) {
+      if (!isForced) {
         navigate('/');
       }
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal memperbarui password.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -166,11 +162,12 @@ export default function ChangePassword() {
                   <LogOut className="w-4 h-4" /> Keluar
                 </button>
               )}
-              <button 
-                type="submit" 
-                className="flex-1 bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white font-semibold py-3.5 px-4 rounded-2xl transition shadow-lg shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex-1 bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white font-semibold py-3.5 px-4 rounded-2xl transition shadow-lg shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Simpan Perubahan
+                {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
               </button>
             </div>
           </form>

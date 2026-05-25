@@ -1,19 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { db } from '../lib/db';
+import { api } from '../lib/api';
+import { Order, Mitra } from '../types';
 import { formatDate } from '../lib/utils';
 import { Package, Clock, ShieldCheck, LayoutGrid, CheckSquare, Layers } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function AppQueue() {
   const { user } = useAuth();
-  
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [mitras, setMitras] = useState<Mitra[]>([]);
+
+  useEffect(() => {
+    api.orders.list().then(setAllOrders).catch(console.error);
+    api.mitras.list().then(setMitras).catch(console.error);
+  }, []);
+
   if (!user) return null;
 
   // Filter queue from Dikonfirmasi up to Packing
   const inQueueStatuses = ['confirmed', 'processing', 'pressing', 'packing'];
-  const orders = db.getOrders().filter(o => inQueueStatuses.includes(o.status));
-  const mitras = db.getMitras();
+  const orders = allOrders.filter(o => inQueueStatuses.includes(o.status));
   const activeMitra = mitras.find(m => m.userId === user.id);
 
   const getStatusBadge = (status: string) => {

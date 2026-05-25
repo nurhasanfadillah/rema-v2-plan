@@ -1,11 +1,17 @@
-import React, { useMemo } from 'react';
-import { db } from '../lib/db';
+import React, { useState, useEffect, useMemo } from 'react';
+import { api } from '../lib/api';
 import { motion } from 'motion/react';
 import { ShoppingBag } from 'lucide-react';
+import type { Order, Mitra } from '../types';
 
 export default function RunningOrders() {
-  const orders = db.getOrders();
-  const mitras = db.getMitras();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [mitras, setMitras] = useState<Mitra[]>([]);
+
+  useEffect(() => {
+    api.orders.list().then(setOrders).catch(console.error);
+    api.mitras.list().then(setMitras).catch(console.error);
+  }, []);
 
   const activeOrdersString = useMemo(() => {
     // Get latest 10 orders
@@ -29,7 +35,7 @@ export default function RunningOrders() {
         <ShoppingBag className="w-3.5 h-3.5 text-blue-400" />
         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Terbaru</span>
       </div>
-      
+
       <div className="flex-1 overflow-hidden relative group">
         <motion.div
           animate={{
@@ -46,10 +52,10 @@ export default function RunningOrders() {
           className="inline-block"
         >
           <span className="text-[11px] font-mono font-bold text-slate-300 tracking-wide uppercase px-4">
-            {activeOrdersString} 
+            {activeOrdersString}
           </span>
           <span className="text-[11px] font-mono font-bold text-slate-300 tracking-wide uppercase px-4">
-            {activeOrdersString} 
+            {activeOrdersString}
           </span>
         </motion.div>
       </div>

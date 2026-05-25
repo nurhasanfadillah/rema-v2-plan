@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { db } from '../lib/db';
+import { api } from '../lib/api';
 import { AuditLog, User } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
@@ -9,13 +9,12 @@ import { Search, Filter, ShieldAlert } from 'lucide-react';
 export default function AuditLogs() {
   const { user } = useAuth();
   const [logs, setLogs] = useState<AuditLog[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<Omit<User, 'passwordHash'>[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   useEffect(() => {
-    // For local dev, simulating fetching data
-    setLogs(db.getAuditLogs());
-    setUsers(db.getUsers());
+    api.auditLogs.list(1000).then(setLogs).catch(console.error);
+    api.users.list().then(setUsers).catch(console.error);
   }, []);
 
   // Strict role check

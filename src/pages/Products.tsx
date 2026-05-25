@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useConfirm } from '../context/ConfirmContext';
-import { db } from '../lib/db';
+import { api } from '../lib/api';
 import { Product } from '../types';
 import { formatCurrency } from '../lib/utils';
 import { Plus, Archive, Edit2, Trash2, X, Shirt, Award, AlertCircle, ShoppingBag } from 'lucide-react';
@@ -12,46 +12,41 @@ import { motion, AnimatePresence } from 'motion/react';
 export default function Products() {
   const { user } = useAuth();
   const { confirm } = useConfirm();
-  const [products, setProducts] = useState<Product[]>(db.getProducts());
+  const [products, setProducts] = useState<Product[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    api.products.list().then(setProducts).catch(console.error);
+  }, []);
 
   if (!user || !['admin', 'mitra'].includes(user.role)) return <div className="p-8 text-center text-red-500 font-bold">Akses Ditolak</div>;
 
   const handleArchive = async (id: string, currentArchive: boolean) => {
     if (user?.role !== 'admin') return;
-    
+
     const isConfirmed = await confirm({
       title: currentArchive ? 'Buka Arsip Produk' : 'Arsipkan Produk',
       message: currentArchive ? 'Buka arsip produk ini agar bisa dipesan kembali?' : 'Arsipkan produk ini? Ini akan menyembunyikannya dari pesanan baru.',
       confirmText: currentArchive ? 'Buka Arsip' : 'Arsipkan',
       type: currentArchive ? 'info' : 'warning'
     });
-    
+
     if (!isConfirmed) return;
 
-    const newProducts = [...products];
-    const idx = newProducts.findIndex(p => p.id === id);
-    if (idx !== -1) {
-      newProducts[idx] = { ...newProducts[idx], isArchived: !currentArchive };
-      db.saveProducts(newProducts);
-      db.addAuditLog({ userId: user.id, action: currentArchive ? 'PRODUCT_UNARCHIVED' : 'PRODUCT_ARCHIVED', details: `Product ${id}` });
-      setProducts(newProducts);
-      setSelectedProduct(newProducts[idx]);
+    try {
+      const updated = await api.products.update(id, { isArchived: !currentArchive });
+      await api.auditLogs.create({ userId: user.id, action: currentArchive ? 'PRODUCT_UNARCHIVED' : 'PRODUCT_ARCHIVED', details: `Product ${id}` });
+      setProducts(prev => prev.map(p => p.id === id ? updated : p));
+      setSelectedProduct(updated);
       toast.success(currentArchive ? 'Arsip produk berhasil dibuka' : 'Produk berhasil diarsipkan');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal mengubah status arsip');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (user?.role !== 'admin') return;
-    
-    // Validation
-    const orders = db.getOrders();
-    const isUsedInOrders = orders.some(o => o.items.some(i => i.productId === id));
-    if (isUsedInOrders) {
-      toast.error("Tidak dapat menghapus produk ini karena sudah digunakan dalam pesanan. Silakan arsipkan saja.");
-      return;
-    }
 
     const isConfirmed = await confirm({
       title: 'Hapus Produk',
@@ -62,34 +57,40 @@ export default function Products() {
 
     if (!isConfirmed) return;
 
-    const newProducts = products.filter(p => p.id !== id);
-    db.saveProducts(newProducts);
-    db.addAuditLog({ userId: user.id, action: 'PRODUCT_DELETED', details: `Product ${id}` });
-    setProducts(newProducts);
-    setSelectedProduct(null);
-    toast.success('Produk berhasil dihapus');
+    try {
+      await api.products.remove(id);
+      await api.auditLogs.create({ userId: user.id, action: 'PRODUCT_DELETED', details: `Product ${id}` });
+      setProducts(prev => prev.filter(p => p.id !== id));
+      setSelectedProduct(null);
+      toast.success('Produk berhasil dihapus');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menghapus produk');
+    }
   };
 
-  const handleSave = (prod: Product) => {
+  const handleSave = async (prod: Product) => {
     if (prod.price <= 0 || !prod.name.trim()) {
       toast.error("Nama produk harus diisi dan harga harus lebih dari 0.");
       return;
     }
-    let newProducts = [...products];
-    const idx = newProducts.findIndex(p => p.id === prod.id);
-    if (idx !== -1) {
-       newProducts[idx] = { ...prod };
-       db.addAuditLog({ userId: user!.id, action: 'PRODUCT_UPDATED', details: `Product ${prod.id}` });
-       toast.success('Produk berhasil diperbarui');
-       setSelectedProduct(prod);
-    } else {
-       newProducts.unshift(prod);
-       db.addAuditLog({ userId: user!.id, action: 'PRODUCT_CREATED', details: `Product ${prod.id}` });
-       toast.success('Produk berhasil ditambahkan');
+    try {
+      const isExisting = products.some(p => p.id === prod.id);
+      if (isExisting) {
+        const updated = await api.products.update(prod.id, prod);
+        await api.auditLogs.create({ userId: user!.id, action: 'PRODUCT_UPDATED', details: `Product ${prod.id}` });
+        setProducts(prev => prev.map(p => p.id === prod.id ? updated : p));
+        setSelectedProduct(updated);
+        toast.success('Produk berhasil diperbarui');
+      } else {
+        const created = await api.products.create(prod);
+        await api.auditLogs.create({ userId: user!.id, action: 'PRODUCT_CREATED', details: `Product ${created.id}` });
+        setProducts(prev => [created, ...prev]);
+        toast.success('Produk berhasil ditambahkan');
+      }
+      setIsAddOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menyimpan produk');
     }
-    db.saveProducts(newProducts);
-    setProducts(newProducts);
-    setIsAddOpen(false);
   };
 
   const containerVariants = {

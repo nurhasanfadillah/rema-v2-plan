@@ -1,38 +1,40 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../types';
+import { api } from '../lib/api';
+import type { User } from '../types';
+
+type SafeUser = Omit<User, 'passwordHash'>;
 
 interface AuthContextType {
-  user: User | null;
-  login: (user: User) => void;
+  user: SafeUser | null;
+  login: (user: SafeUser) => void;
   logout: () => void;
-  updateUser: (user: User) => void;
+  updateUser: (user: SafeUser) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SafeUser | null>(null);
 
   useEffect(() => {
-    const sUser = localStorage.getItem('rema_user');
-    if (sUser) {
-      setUser(JSON.parse(sUser));
-    }
+    const token = api.auth.getToken();
+    if (!token) return;
+    api.auth.me()
+      .then(({ user: u }) => setUser(u))
+      .catch(() => api.auth.clearToken());
   }, []);
 
-  const login = (u: User) => {
+  const login = (u: SafeUser) => {
     setUser(u);
-    localStorage.setItem('rema_user', JSON.stringify(u));
   };
 
   const logout = () => {
+    api.auth.clearToken();
     setUser(null);
-    localStorage.removeItem('rema_user');
   };
 
-  const updateUser = (u: User) => {
+  const updateUser = (u: SafeUser) => {
     setUser(u);
-    localStorage.setItem('rema_user', JSON.stringify(u));
   };
 
   return (

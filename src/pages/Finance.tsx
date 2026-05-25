@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useConfirm } from '../context/ConfirmContext';
-import { db } from '../lib/db';
+import { api } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
-import { LedgerEntry } from '../types';
+import { LedgerEntry, Mitra, Order } from '../types';
 import { Plus, Wallet, FileText, ArrowDownLeft, ArrowUpRight, TrendingDown, BookOpen, Clock, Calendar, Info, Filter, ChevronDown, ChevronUp, Trash2, Edit2, X, Download, ExternalLink, Image as ImageIcon, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileUpload } from '../components/FileUpload';
@@ -12,9 +12,9 @@ import { FileUpload } from '../components/FileUpload';
 export default function Finance() {
   const { user } = useAuth();
   const { confirm } = useConfirm();
-  const mitras = db.getMitras();
-  const [ledgers, setLedgers] = useState(db.getLedgers());
-  const orders = db.getOrders();
+  const [mitras, setMitras] = useState<Mitra[]>([]);
+  const [ledgers, setLedgers] = useState<LedgerEntry[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   const [showFilters, setShowFilters] = useState(false);
   const [dateRange, setDateRange] = useState({
@@ -25,10 +25,25 @@ export default function Finance() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  const [selectedMitraId, setSelectedMitraId] = useState<string>('all');
+
+  useEffect(() => {
+    Promise.all([
+      api.mitras.list(),
+      api.ledgers.list(),
+      api.orders.list(),
+    ]).then(([m, l, o]) => {
+      setMitras(m);
+      setLedgers(l);
+      setOrders(o);
+      if (user?.role === 'mitra') {
+        const active = m.find(mt => mt.userId === user.id);
+        if (active) setSelectedMitraId(active.id);
+      }
+    }).catch(() => toast.error('Gagal memuat data keuangan'));
+  }, [user]);
+
   const activeMitra = mitras.find(m => m.userId === user?.id);
-  const [selectedMitraId, setSelectedMitraId] = useState<string>(
-    user?.role === 'mitra' ? (activeMitra?.id || '') : 'all'
-  );
 
   const handleMitraChange = (id: string) => {
     setSelectedMitraId(id);
@@ -49,10 +64,21 @@ export default function Finance() {
       type: 'danger'
     });
     if (!isConfirmed) return;
-    const newLedgers = ledgers.filter(l => l.id !== id);
-    db.saveLedgers(newLedgers);
-    setLedgers(newLedgers);
-    toast.success('Transaksi berhasil dihapus');
+    try {
+      await api.ledgers.remove(id);
+      setLedgers(prev => prev.filter(l => l.id !== id));
+      toast.success('Transaksi berhasil dihapus');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menghapus transaksi');
+    }
+  };
+
+  const handleLedgerSaved = (entry: LedgerEntry, isEdit: boolean) => {
+    if (isEdit) {
+      setLedgers(prev => prev.map(l => l.id === entry.id ? entry : l));
+    } else {
+      setLedgers(prev => [entry, ...prev]);
+    }
   };
 
   let displayLedgers = ledgers;
@@ -96,10 +122,6 @@ export default function Finance() {
      }
   }
 
-  const handleRefreshLedgers = () => {
-    setLedgers(db.getLedgers());
-  };
-  
   const sortedLedgers = displayLedgers.sort((a,b) => b.createdAt - a.createdAt);
 
   const totalItems = sortedLedgers.length;
@@ -124,7 +146,7 @@ export default function Finance() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -135,17 +157,17 @@ export default function Finance() {
            <h1 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 leading-tight">Keuangan & Tagihan Mitra</h1>
            <p className="text-[12px] text-slate-500 mt-0.5 font-semibold">Kelola aliran bayar, kredit retur, dan balance berjalan.</p>
         </div>
-        
+
         {user.role === 'admin' && (
            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-              <button 
+              <button
                 onClick={() => setIsPaymentOpen(true)}
                 className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl font-bold transition-all shadow-md shadow-emerald-500/10 flex justify-center items-center gap-1.5 active:scale-95 cursor-pointer text-[11px]"
               >
                 <Plus className="w-3.5 h-3.5" /> Input Bayar
               </button>
-              
-              <button 
+
+              <button
                 onClick={() => setIsChargeOpen(true)}
                 className="flex-1 sm:flex-none bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl font-bold transition-all shadow-md flex justify-center items-center gap-1.5 active:scale-95 cursor-pointer text-[11px]"
               >
@@ -157,8 +179,8 @@ export default function Finance() {
 
        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <motion.div 
-              variants={itemVariants} 
+            <motion.div
+              variants={itemVariants}
               className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/60 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.03),0_4px_12px_-8px_rgba(0,0,0,0.01)] flex flex-col justify-between"
             >
               <div className="flex items-center gap-3">
@@ -172,8 +194,8 @@ export default function Finance() {
               </div>
             </motion.div>
 
-            <motion.div 
-              variants={itemVariants} 
+            <motion.div
+              variants={itemVariants}
               className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/60 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.03),0_4px_12px_-8px_rgba(0,0,0,0.01)] flex flex-col justify-between"
             >
               <div className="flex items-center gap-3">
@@ -189,7 +211,7 @@ export default function Finance() {
           </div>
 
           {(dateRange.start || dateRange.end) && (
-            <motion.div 
+            <motion.div
               variants={itemVariants}
               className="grid grid-cols-2 gap-3 sm:gap-4"
             >
@@ -219,15 +241,15 @@ export default function Finance() {
       <div className="pt-1">
         <div className="flex justify-between items-center px-1 mb-2.5">
           <h3 className="font-extrabold text-slate-800 text-[13px] flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400" /> 
+            <Clock className="w-3.5 h-3.5 text-slate-400" />
             Riwayat Jurnal
           </h3>
           {user.role === 'admin' && (
-             <button 
+             <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`border px-2.5 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer text-[10px] ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
              >
-                <Filter className="w-3 h-3" /> 
+                <Filter className="w-3 h-3" />
                 Filter
                 {showFilters ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}
              </button>
@@ -254,8 +276,8 @@ export default function Finance() {
                 <div className="flex flex-wrap items-center gap-2 w-full">
                   <div className="flex items-center gap-1 flex-1 sm:flex-none">
                     <span className="text-[9px] font-bold text-slate-400 uppercase hidden sm:block">Mitra:</span>
-                    <select 
-                      value={selectedMitraId} 
+                    <select
+                      value={selectedMitraId}
                       onChange={e=>handleMitraChange(e.target.value)}
                       className="flex-1 sm:w-36 px-2 py-1 border border-slate-200 rounded-lg bg-white font-extrabold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all text-[10px]"
                     >
@@ -271,7 +293,7 @@ export default function Finance() {
                     <div className="flex items-center gap-1 flex-1">
                       <div className="relative flex-1 sm:flex-none">
                         <Calendar className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-slate-400" />
-                        <input 
+                        <input
                           type="date"
                           value={dateRange.start}
                           onChange={e => {
@@ -284,7 +306,7 @@ export default function Finance() {
                       <span className="text-[8px] font-bold text-slate-400 uppercase hidden sm:block">ke</span>
                       <div className="relative flex-1 sm:flex-none">
                         <Calendar className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-slate-400" />
-                        <input 
+                        <input
                           type="date"
                           value={dateRange.end}
                           onChange={e => {
@@ -297,7 +319,7 @@ export default function Finance() {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => {
                       setSelectedMitraId('all');
                       setDateRange({ start: '', end: '' });
@@ -319,9 +341,9 @@ export default function Finance() {
           const isDebit = l.direction === 'debit';
           const mName = mitras.find(m => m.id === l.mitraId)?.name || 'Unknown';
           return (
-            <motion.div 
+            <motion.div
               variants={itemVariants}
-              key={l.id} 
+              key={l.id}
               onClick={() => setSelectedLedger(l)}
               className="bg-white rounded-xl border border-slate-200/60 p-3 shadow-xs relative cursor-pointer hover:border-blue-300 transition-all"
             >
@@ -356,7 +378,7 @@ export default function Finance() {
       </div>
 
       {/* Desktop view (>= md) */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="hidden md:block bg-white rounded-2xl shadow-[0_2px_8px_-4px_rgba(0,0,0,0.03),0_4px_12px_-8px_rgba(0,0,0,0.01)] border border-slate-200/60 overflow-hidden"
       >
@@ -377,8 +399,8 @@ export default function Finance() {
                 const isDebit = l.direction === 'debit';
                 const mName = mitras.find(m => m.id === l.mitraId)?.name || 'Unknown';
                 return (
-                  <tr 
-                    key={l.id} 
+                  <tr
+                    key={l.id}
                     className="hover:bg-slate-50/70 transition-colors duration-200 cursor-pointer"
                     onClick={() => setSelectedLedger(l)}
                   >
@@ -409,8 +431,8 @@ export default function Finance() {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm mt-4">
           <div className="flex items-center gap-3 order-2 sm:order-1">
             <span className="text-[11px] font-bold text-slate-500">Tampilkan</span>
-            <select 
-              value={itemsPerPage} 
+            <select
+              value={itemsPerPage}
               onChange={(e) => {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
@@ -441,7 +463,7 @@ export default function Finance() {
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            
+
             <div className="flex items-center gap-1 px-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(page => {
@@ -488,29 +510,31 @@ export default function Finance() {
       )}
     </div>
 
-      {isPaymentOpen && <PaymentModal onClose={()=>setIsPaymentOpen(false)} onSave={handleRefreshLedgers} formattedNominal={formattedNominal} />}
-      {isChargeOpen && <ChargeModal onClose={()=>setIsChargeOpen(false)} onSave={handleRefreshLedgers} formattedNominal={formattedNominal} />}
-      
+      {isPaymentOpen && <PaymentModal onClose={()=>setIsPaymentOpen(false)} onSave={handleLedgerSaved} formattedNominal={formattedNominal} mitras={mitras} />}
+      {isChargeOpen && <ChargeModal onClose={()=>setIsChargeOpen(false)} onSave={handleLedgerSaved} formattedNominal={formattedNominal} mitras={mitras} />}
+
       {editingLedger && (
-         editingLedger.source === 'payment' 
-           ? <PaymentModal 
-               editData={editingLedger} 
-               onClose={()=>setEditingLedger(null)} 
-               onSave={handleRefreshLedgers} 
-               formattedNominal={formattedNominal} 
+         editingLedger.source === 'payment'
+           ? <PaymentModal
+               editData={editingLedger}
+               onClose={()=>setEditingLedger(null)}
+               onSave={handleLedgerSaved}
+               formattedNominal={formattedNominal}
+               mitras={mitras}
              />
-           : <ChargeModal 
-               editData={editingLedger} 
-               onClose={()=>setEditingLedger(null)} 
-               onSave={handleRefreshLedgers} 
-               formattedNominal={formattedNominal} 
+           : <ChargeModal
+               editData={editingLedger}
+               onClose={()=>setEditingLedger(null)}
+               onSave={handleLedgerSaved}
+               formattedNominal={formattedNominal}
+               mitras={mitras}
              />
       )}
 
       {selectedLedger && (
-        <TransactionDetailModal 
-          ledger={selectedLedger} 
-          onClose={() => setSelectedLedger(null)} 
+        <TransactionDetailModal
+          ledger={selectedLedger}
+          onClose={() => setSelectedLedger(null)}
           onEdit={(l) => {
             setSelectedLedger(null);
             setEditingLedger(l);
@@ -520,15 +544,22 @@ export default function Finance() {
             handleDeleteLedger(id);
           }}
           isAdmin={user.role === 'admin'}
+          mitras={mitras}
         />
       )}
     </motion.div>
   );
 }
 
-function PaymentModal({ onClose, onSave, formattedNominal, editData }: { onClose: () => void, onSave: () => void, formattedNominal: (v: string) => string, editData?: LedgerEntry }) {
+function PaymentModal({ onClose, onSave, formattedNominal, editData, mitras }: {
+  onClose: () => void,
+  onSave: (entry: LedgerEntry, isEdit: boolean) => void,
+  formattedNominal: (v: string) => string,
+  editData?: LedgerEntry,
+  mitras: Mitra[]
+}) {
   const { confirm } = useConfirm();
-  const [mitra, setMitra] = useState(editData?.mitraId || db.getMitras()[0]?.id || '');
+  const [mitra, setMitra] = useState(editData?.mitraId || mitras[0]?.id || '');
   const [nominalDisplay, setNominalDisplay] = useState(editData ? formattedNominal(editData.nominal.toString()) : '');
   const [method, setMethod] = useState(editData?.paymentMethod || 'transfer');
   const [ref, setRef] = useState(editData?.referenceNumber || '');
@@ -550,39 +581,39 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData }: { onClose
     });
     if (!isConfirmed) return;
 
-    const ledgers = db.getLedgers();
-    if (editData) {
-      const updatedLedgers = ledgers.map(l => l.id === editData.id ? {
-        ...l,
-        mitraId: mitra,
-        nominal: cleanNum,
-        description: `Pembayaran ${method.toUpperCase()} - Ref: ${ref}`,
-        paymentMethod: method,
-        referenceNumber: ref,
-        attachmentUrl: attachment
-      } : l);
-      db.saveLedgers(updatedLedgers);
-      db.addAuditLog({ userId: 'admin', action: 'PAYMENT_EDITED', details: `ID: ${editData.id}, Nominal: ${cleanNum}` });
-      toast.success('Pembayaran berhasil diperbarui!');
-    } else {
-      const entry: LedgerEntry = {
-        id: crypto.randomUUID(),
-        mitraId: mitra,
-        source: 'payment',
-        direction: 'credit',
-        nominal: cleanNum,
-        description: `Pembayaran ${method.toUpperCase()} - Ref: ${ref}`,
-        createdAt: Date.now(),
-        paymentMethod: method,
-        referenceNumber: ref,
-        attachmentUrl: attachment
-      };
-      db.saveLedgers([entry, ...ledgers]);
-      db.addAuditLog({ userId: 'admin', action: 'PAYMENT_ADDED', details: `Nominal: ${entry.nominal}` });
-      toast.success('Pembayaran berhasil ditambahkan!');
+    try {
+      if (editData) {
+        const updated = await api.ledgers.update(editData.id, {
+          mitraId: mitra,
+          nominal: cleanNum,
+          description: `Pembayaran ${method.toUpperCase()} - Ref: ${ref}`,
+          paymentMethod: method,
+          referenceNumber: ref,
+          attachmentUrl: attachment,
+        });
+        await api.auditLogs.create({ userId: 'admin', action: 'PAYMENT_EDITED', details: `ID: ${editData.id}, Nominal: ${cleanNum}` });
+        toast.success('Pembayaran berhasil diperbarui!');
+        onSave(updated, true);
+      } else {
+        const entry = await api.ledgers.create({
+          mitraId: mitra,
+          source: 'payment',
+          direction: 'credit',
+          nominal: cleanNum,
+          description: `Pembayaran ${method.toUpperCase()} - Ref: ${ref}`,
+          createdAt: Date.now(),
+          paymentMethod: method,
+          referenceNumber: ref,
+          attachmentUrl: attachment,
+        });
+        await api.auditLogs.create({ userId: 'admin', action: 'PAYMENT_ADDED', details: `Nominal: ${entry.nominal}` });
+        toast.success('Pembayaran berhasil ditambahkan!');
+        onSave(entry, false);
+      }
+      onClose();
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menyimpan pembayaran');
     }
-    onSave();
-    onClose();
   };
 
   return (
@@ -595,20 +626,20 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData }: { onClose
           <div>
              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Mitra Partner</label>
              <select required value={mitra} onChange={e=>setMitra(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
-                {db.getMitras().map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
+                {mitras.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
              </select>
           </div>
           <div>
              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Setoran (Rp)</label>
              <div className="relative">
                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[11px]">Rp</span>
-               <input 
-                 required 
-                 type="text" 
-                 value={nominalDisplay} 
-                 onChange={e=>setNominalDisplay(formattedNominal(e.target.value))} 
-                 className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-extrabold text-slate-800 text-[13px]" 
-                 placeholder="0" 
+               <input
+                 required
+                 type="text"
+                 value={nominalDisplay}
+                 onChange={e=>setNominalDisplay(formattedNominal(e.target.value))}
+                 className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-extrabold text-slate-800 text-[13px]"
+                 placeholder="0"
                />
              </div>
           </div>
@@ -627,7 +658,7 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData }: { onClose
           </div>
           <div>
              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Bukti Transaksi (Opsional)</label>
-             <FileUpload 
+             <FileUpload
                 onChange={url => setAttachment(url)}
                 value={attachment}
                 label="Klik/Drop Bukti Bayar"
@@ -643,9 +674,15 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData }: { onClose
   );
 }
 
-function ChargeModal({ onClose, onSave, formattedNominal, editData }: { onClose: () => void, onSave: () => void, formattedNominal: (v: string) => string, editData?: LedgerEntry }) {
+function ChargeModal({ onClose, onSave, formattedNominal, editData, mitras }: {
+  onClose: () => void,
+  onSave: (entry: LedgerEntry, isEdit: boolean) => void,
+  formattedNominal: (v: string) => string,
+  editData?: LedgerEntry,
+  mitras: Mitra[]
+}) {
   const { confirm } = useConfirm();
-  const [mitra, setMitra] = useState(editData?.mitraId || db.getMitras()[0]?.id || '');
+  const [mitra, setMitra] = useState(editData?.mitraId || mitras[0]?.id || '');
   const [nominalDisplay, setNominalDisplay] = useState(editData ? formattedNominal(editData.nominal.toString()) : '');
   const [desc, setDesc] = useState(editData?.description || '');
 
@@ -665,33 +702,33 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData }: { onClose:
     });
     if (!isConfirmed) return;
 
-    const ledgers = db.getLedgers();
-    if (editData) {
-      const updatedLedgers = ledgers.map(l => l.id === editData.id ? {
-        ...l,
-        mitraId: mitra,
-        nominal: cleanNum,
-        description: desc
-      } : l);
-      db.saveLedgers(updatedLedgers);
-      db.addAuditLog({ userId: 'admin', action: 'MANUAL_CHARGE_EDITED', details: `ID: ${editData.id}, Nominal: ${cleanNum}` });
-      toast.success('Manual charge berhasil diperbarui!');
-    } else {
-      const entry: LedgerEntry = {
-        id: crypto.randomUUID(),
-        mitraId: mitra,
-        source: 'manual',
-        direction: 'debit',
-        nominal: cleanNum,
-        description: desc,
-        createdAt: Date.now()
-      };
-      db.saveLedgers([entry, ...ledgers]);
-      db.addAuditLog({ userId: 'admin', action: 'MANUAL_CHARGE_ADDED', details: `Nominal: ${entry.nominal}` });
-      toast.success('Manual charge (debit) berhasil ditambahkan!');
+    try {
+      if (editData) {
+        const updated = await api.ledgers.update(editData.id, {
+          mitraId: mitra,
+          nominal: cleanNum,
+          description: desc,
+        });
+        await api.auditLogs.create({ userId: 'admin', action: 'MANUAL_CHARGE_EDITED', details: `ID: ${editData.id}, Nominal: ${cleanNum}` });
+        toast.success('Manual charge berhasil diperbarui!');
+        onSave(updated, true);
+      } else {
+        const entry = await api.ledgers.create({
+          mitraId: mitra,
+          source: 'manual',
+          direction: 'debit',
+          nominal: cleanNum,
+          description: desc,
+          createdAt: Date.now(),
+        });
+        await api.auditLogs.create({ userId: 'admin', action: 'MANUAL_CHARGE_ADDED', details: `Nominal: ${entry.nominal}` });
+        toast.success('Manual charge (debit) berhasil ditambahkan!');
+        onSave(entry, false);
+      }
+      onClose();
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menyimpan tagihan');
     }
-    onSave();
-    onClose();
   };
 
   return (
@@ -704,20 +741,20 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData }: { onClose:
           <div>
              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Mitra Partner</label>
              <select required value={mitra} onChange={e=>setMitra(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
-                {db.getMitras().map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
+                {mitras.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
              </select>
           </div>
           <div>
              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Penambahan Tagihan (Rp)</label>
              <div className="relative">
                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[11px]">Rp</span>
-               <input 
-                 required 
-                 type="text" 
-                 value={nominalDisplay} 
-                 onChange={e=>setNominalDisplay(formattedNominal(e.target.value))} 
-                 className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-extrabold text-slate-800 text-[13px]" 
-                 placeholder="0" 
+               <input
+                 required
+                 type="text"
+                 value={nominalDisplay}
+                 onChange={e=>setNominalDisplay(formattedNominal(e.target.value))}
+                 className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-extrabold text-slate-800 text-[13px]"
+                 placeholder="0"
                />
              </div>
           </div>
@@ -735,9 +772,15 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData }: { onClose:
   );
 }
 
-function TransactionDetailModal({ ledger, onClose, onEdit, onDelete, isAdmin }: { ledger: LedgerEntry, onClose: () => void, onEdit: (l: LedgerEntry) => void, onDelete: (id: string) => void, isAdmin: boolean }) {
+function TransactionDetailModal({ ledger, onClose, onEdit, onDelete, isAdmin, mitras }: {
+  ledger: LedgerEntry,
+  onClose: () => void,
+  onEdit: (l: LedgerEntry) => void,
+  onDelete: (id: string) => void,
+  isAdmin: boolean,
+  mitras: Mitra[]
+}) {
   const isDebit = ledger.direction === 'debit';
-  const mitras = db.getMitras();
   const mName = mitras.find(m => m.id === ledger.mitraId)?.name || 'Unknown';
   const isManual = ledger.source === 'manual' || ledger.source === 'payment';
 
@@ -790,9 +833,9 @@ function TransactionDetailModal({ ledger, onClose, onEdit, onDelete, isAdmin }: 
                  <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1.5">Bukti Transaksi</span>
                  <div className="relative group cursor-pointer border rounded-xl overflow-hidden bg-slate-50 aspect-video flex items-center justify-center shadow-sm hover:border-blue-300 transition-all duration-300">
                     <img src={ledger.attachmentUrl} alt="Bukti Transaksi" className="max-w-full max-h-full object-contain" />
-                    <a 
-                      href={ledger.attachmentUrl} 
-                      target="_blank" 
+                    <a
+                      href={ledger.attachmentUrl}
+                      target="_blank"
                       rel="noreferrer"
                       className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/40 transition-all flex items-center justify-center"
                     >
@@ -804,13 +847,13 @@ function TransactionDetailModal({ ledger, onClose, onEdit, onDelete, isAdmin }: 
 
            {isAdmin && isManual && (
               <div className="flex gap-2.5 pt-1">
-                 <button 
+                 <button
                     onClick={() => onEdit(ledger)}
                     className="flex-1 bg-white border border-slate-200 text-slate-700 py-2 rounded-xl font-bold flex items-center justify-center gap-1.5 hover:bg-slate-50 transition-all text-[11px]"
                  >
                     <Edit2 className="w-3 h-3" /> Edit
                  </button>
-                 <button 
+                 <button
                     onClick={() => onDelete(ledger.id)}
                     className="flex-1 bg-red-50 border border-red-100 text-red-600 py-2 rounded-xl font-bold flex items-center justify-center gap-1.5 hover:bg-red-100 transition-all text-[11px]"
                  >

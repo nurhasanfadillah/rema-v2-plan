@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { db } from '../lib/db';
+import { api } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
-import { Order, OrderStatus, ActionRequest } from '../types';
+import { Order, OrderStatus, ActionRequest, Mitra } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useConfirm } from '../context/ConfirmContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  XOctagon, RefreshCw, AlertTriangle, CheckCircle, ArrowRight, Calendar, 
+import {
+  XOctagon, RefreshCw, AlertTriangle, CheckCircle, ArrowRight, Calendar,
   User, Trash2, FileText, CheckCircle2, ShoppingBag, Landmark, Activity
 } from 'lucide-react';
 
@@ -17,9 +17,23 @@ export default function CancellationsReturns() {
   const { confirm } = useConfirm();
   const navigate = useNavigate();
 
-  // Load database entities
-  const [orders, setOrders] = useState<Order[]>(db.getOrders());
-  const mitras = db.getMitras();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [mitras, setMitras] = useState<Mitra[]>([]);
+  const [requests, setRequests] = useState<ActionRequest[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      api.orders.list(),
+      api.mitras.list(),
+      api.requests.list(),
+    ]).then(([o, m, r]) => {
+      setOrders(o);
+      setMitras(m);
+      setRequests(r);
+    }).catch(() => toast.error('Gagal memuat data'));
+  }, [user]);
+
   const activeMitra = mitras.find(m => m.userId === user?.id);
 
   // Form states
@@ -43,10 +57,8 @@ export default function CancellationsReturns() {
     }
 
     if (type === 'cancellation') {
-      // Cancellation eligible: confirmed down to packing
       return pool.filter(o => ['confirmed', 'processing', 'pressing', 'packing'].includes(o.status));
     } else {
-      // Return eligible: only 'shipped' status
       return pool.filter(o => o.status === 'shipped');
     }
   };
@@ -80,7 +92,6 @@ export default function CancellationsReturns() {
     const isCancel = activeForm === 'cancellation';
     const newStatus: OrderStatus = isCancel ? 'cancelled' : 'returned';
 
-    // Access control check
     const allowedRoles = ['admin', 'staff', 'mitra'];
     if (!allowedRoles.includes(user.role)) {
       toast.error('Anda tidak memiliki izin untuk melakukan pembatalan atau retur.');
@@ -96,50 +107,50 @@ export default function CancellationsReturns() {
 
     if (!isConfirmed) return;
 
-    // Billing adjustments (Rollback/Delete original instead of reversal)
-    if (orderToProcess.isBilled) {
-      const allLedgers = db.getLedgers();
-      const filteredLedgers = allLedgers.filter(l => !(l.referenceId === orderToProcess.id && l.source === 'order'));
-      db.saveLedgers(filteredLedgers);
+    try {
+      // Rollback ledger billing jika pesanan sudah dibilling
+      if (orderToProcess.isBilled) {
+        await api.ledgers.removeByOrder(orderToProcess.id);
+      }
+
+      // Update order status
+      const updatedOrder = await api.orders.update(orderToProcess.id, {
+        status: newStatus,
+        isBilled: false,
+        updatedAt: Date.now(),
+      });
+
+      // Simpan action request log
+      const newRequest: Omit<ActionRequest, 'id'> = {
+        type: isCancel ? 'cancellation' : 'return',
+        orderId: orderToProcess.id,
+        mitraId: orderToProcess.mitraId,
+        reason: reason || (isCancel ? 'Pembatalan instan melalui form' : 'Retur instan melalui form'),
+        status: 'resolved',
+        creditAmount: orderToProcess.isBilled ? orderToProcess.totalAmount : undefined,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      const createdRequest = await api.requests.create(newRequest);
+
+      // Audit log
+      await api.auditLogs.create({
+        userId: user.id,
+        action: isCancel ? 'CANCEL_ORDER' : 'RETURN_ORDER',
+        details: `${isCancel ? 'Batal' : 'Retur'} pesanan ${orderToProcess.orderNumber} via form manajemen`,
+      });
+
+      // Update local state
+      setOrders(prev => prev.map(o => o.id === orderToProcess.id ? updatedOrder : o));
+      setRequests(prev => [createdRequest, ...prev]);
+
+      toast.success(`Pesanan #${orderToProcess.orderNumber} berhasil ${isCancel ? 'dibatalkan' : 'diretur'}.`);
+      setActiveForm(null);
+      setSelectedOrderId('');
+      setReason('');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal memproses permintaan');
     }
-
-    // Update order status
-    const updatedOrder: Order = {
-      ...orderToProcess,
-      status: newStatus,
-      isBilled: false, // reset billed status since we rolled back
-      updatedAt: Date.now()
-    };
-
-    const newOrders = orders.map(o => o.id === orderToProcess.id ? updatedOrder : o);
-    db.saveOrders(newOrders);
-    setOrders(newOrders);
-
-    // Save action request log in local DB
-    const newRequest: ActionRequest = {
-      id: crypto.randomUUID(),
-      type: isCancel ? 'cancellation' : 'return',
-      orderId: orderToProcess.id,
-      mitraId: orderToProcess.mitraId,
-      reason: reason || (isCancel ? 'Pembatalan instan melalui form' : 'Retur instan melalui form'),
-      status: 'resolved',
-      creditAmount: orderToProcess.isBilled ? orderToProcess.totalAmount : undefined,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    };
-    db.saveRequests([newRequest, ...db.getRequests()]);
-
-    // Save Audit Log
-    db.addAuditLog({
-      userId: user.id,
-      action: isCancel ? 'CANCEL_ORDER' : 'RETURN_ORDER',
-      details: `${isCancel ? 'Batal' : 'Retur'} pesanan ${orderToProcess.orderNumber} via form manajemen`
-    });
-
-    toast.success(`Pesanan #${orderToProcess.orderNumber} berhasil ${isCancel ? 'dibatalkan' : 'diretur'}.`);
-    setActiveForm(null);
-    setSelectedOrderId('');
-    setReason('');
   };
 
   const getStatusBadge = (status: string) => {
@@ -203,7 +214,7 @@ export default function CancellationsReturns() {
             <div className="bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-800 p-5 shadow-2xl relative overflow-hidden group">
               {/* Decorative accent */}
               <div className={`absolute top-0 left-0 w-1 h-full ${activeForm === 'cancellation' ? 'bg-red-500' : 'bg-purple-500'}`} />
-              
+
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeForm === 'cancellation' ? 'bg-red-500/10 text-red-500' : 'bg-purple-500/10 text-purple-400'}`}>
@@ -333,10 +344,10 @@ export default function CancellationsReturns() {
             <div className="lg:hidden p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {displayedOrders.map(o => {
                 const partnerName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
-                const reqLog = db.getRequests().find(r => r.orderId === o.id);
-                
+                const reqLog = requests.find(r => r.orderId === o.id);
+
                 return (
-                  <div 
+                  <div
                     key={o.id}
                     onClick={() => navigate(`/orders/${o.id}`)}
                     className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4 space-y-3 hover:border-slate-600 transition-colors cursor-pointer group"
@@ -345,7 +356,7 @@ export default function CancellationsReturns() {
                       <span className="font-mono text-xs font-black text-white">#{o.orderNumber}</span>
                       {getStatusBadge(o.status)}
                     </div>
-                    
+
                     <div className="space-y-1.5">
                       <div className="flex justify-between items-center text-[11px]">
                         <span className="text-slate-500">Mitra</span>
@@ -384,7 +395,7 @@ export default function CancellationsReturns() {
                 <tbody className="divide-y divide-slate-800">
                   {displayedOrders.map(o => {
                     const partnerName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
-                    const reqLog = db.getRequests().find(r => r.orderId === o.id);
+                    const reqLog = requests.find(r => r.orderId === o.id);
                     return (
                       <tr
                         key={o.id}

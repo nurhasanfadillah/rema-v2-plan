@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { db } from '../lib/db';
+import { api } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
+import type { Mitra, Product, LedgerEntry, Order } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { BarChart3, Receipt, FileText, Download, Filter, Calendar, Info, X } from 'lucide-react';
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
@@ -11,10 +12,17 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAx
 
 export default function Reports() {
   const { user } = useAuth();
-  const mitras = db.getMitras();
-  const products = db.getProducts();
-  const allLedgers = db.getLedgers();
-  const allOrders = db.getOrders();
+  const [mitras, setMitras] = useState<Mitra[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [allLedgers, setAllLedgers] = useState<LedgerEntry[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+
+  useEffect(() => {
+    api.mitras.list().then(setMitras).catch(console.error);
+    api.products.list().then(setProducts).catch(console.error);
+    api.ledgers.list().then(setAllLedgers).catch(console.error);
+    api.orders.list().then(setAllOrders).catch(console.error);
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'finance' | 'order'>(user?.role === 'staff' ? 'order' : 'finance');
   

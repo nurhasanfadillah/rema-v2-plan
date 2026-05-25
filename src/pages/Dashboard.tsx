@@ -1,19 +1,26 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { db } from '../lib/db';
+import { api } from '../lib/api';
 import { formatCurrency } from '../lib/utils';
 import { Package, ShoppingCart, Activity, AlertCircle, Wallet, Users, LayoutDashboard, TrendingUp, Calendar } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import type { Order, LedgerEntry, Mitra } from '../types';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  
-  if (!user) return null;
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ledgers, setLedgers] = useState<LedgerEntry[]>([]);
+  const [mitras, setMitras] = useState<Mitra[]>([]);
+  const [chartPeriod, setChartPeriod] = useState<'this_month' | 'this_week' | 'this_year'>('this_month');
 
-  const orders = db.getOrders();
-  const ledgers = db.getLedgers();
-  const mitras = db.getMitras();
+  useEffect(() => {
+    api.orders.list().then(setOrders).catch(console.error);
+    api.ledgers.list().then(setLedgers).catch(console.error);
+    api.mitras.list().then(setMitras).catch(console.error);
+  }, []);
+
+  if (!user) return null;
 
   // Metrics specifically for Mitra
   const myMitraRecord = mitras.find(m => m.userId === user.id);
@@ -31,21 +38,19 @@ export default function Dashboard() {
 
   const pendingConfirmation = orders.filter(o => o.status === 'waiting_confirmation').length;
 
-  const [chartPeriod, setChartPeriod] = useState<'this_month' | 'this_week' | 'this_year'>('this_month');
-
   const chartData = useMemo(() => {
     const now = new Date();
     const targetOrders = user?.role === 'mitra' ? myOrders : orders;
-    
+
     let data: any[] = [];
-    
+
     if (chartPeriod === 'this_month') {
       const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
       const daysData = Array.from({ length: daysInMonth }, (_, i) => ({
         name: `${i + 1}`,
         pesanan: 0
       }));
-      
+
       targetOrders.forEach(o => {
         const d = new Date(o.createdAt);
         if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
@@ -57,11 +62,11 @@ export default function Dashboard() {
     } else if (chartPeriod === 'this_week') {
       const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
       const weekData = days.map(d => ({ name: d, pesanan: 0 }));
-      
+
       const startOfWeek = new Date(now);
       startOfWeek.setDate(now.getDate() - now.getDay());
       startOfWeek.setHours(0,0,0,0);
-      
+
       targetOrders.forEach(o => {
         const d = new Date(o.createdAt);
         if (d >= startOfWeek) {
@@ -72,7 +77,7 @@ export default function Dashboard() {
     } else if (chartPeriod === 'this_year') {
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
       const yearData = months.map(m => ({ name: m, pesanan: 0 }));
-      
+
       targetOrders.forEach(o => {
         const d = new Date(o.createdAt);
         if (d.getFullYear() === now.getFullYear()) {
@@ -81,7 +86,7 @@ export default function Dashboard() {
       });
       data = yearData;
     }
-    
+
     return data;
   }, [orders, myOrders, chartPeriod, user]);
 
@@ -101,20 +106,20 @@ export default function Dashboard() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
       className="space-y-6 lg:space-y-8"
     >
       {/* Dynamic Greetings Banner */}
-      <motion.div 
-        variants={itemVariants} 
+      <motion.div
+        variants={itemVariants}
         className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-6 sm:p-8 shadow-xl text-white"
       >
         <div className="absolute top-[-40%] right-[-10%] w-[350px] h-[350px] rounded-full bg-blue-500/10 blur-[90px] pointer-events-none" />
         <div className="absolute bottom-[-30%] left-[20%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[80px] pointer-events-none" />
-        
+
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tighter tabular-nums">
@@ -128,7 +133,7 @@ export default function Dashboard() {
       </motion.div>
 
       {user.role === 'mitra' && isNearLimit && (
-        <motion.div 
+        <motion.div
           variants={itemVariants}
           className="bg-red-50/80 text-red-700 p-4 rounded-2xl flex items-start gap-4 border border-red-200 shadow-sm backdrop-blur-sm"
         >
@@ -145,7 +150,7 @@ export default function Dashboard() {
       )}
 
       {/* Orders Chart Section */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04),0_8px_20px_-8px_rgba(0,0,0,0.02)] border border-slate-200/60 p-6 lg:p-7"
       >
@@ -156,8 +161,8 @@ export default function Dashboard() {
               Grafik Pesanan Masuk
             </h2>
           </div>
-          
-          <select 
+
+          <select
             value={chartPeriod}
             onChange={(e) => setChartPeriod(e.target.value as any)}
             className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 appearance-none cursor-pointer"
@@ -172,26 +177,26 @@ export default function Dashboard() {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fontSize: 12, fill: '#64748B' }} 
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#64748B' }}
                 dy={10}
               />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fontSize: 12, fill: '#64748B' }} 
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#64748B' }}
               />
-              <Tooltip 
+              <Tooltip
                 cursor={{ fill: '#F1F5F9' }}
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 15px -3px rgba(0,0,0,0.1)' }}
               />
-              <Line 
+              <Line
                 type="monotone"
-                dataKey="pesanan" 
-                stroke="#4F46E5" 
+                dataKey="pesanan"
+                stroke="#4F46E5"
                 strokeWidth={3}
                 activeDot={{ r: 6, fill: '#4F46E5' }}
               />
@@ -201,7 +206,7 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Main Info Box */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04),0_8px_20px_-8px_rgba(0,0,0,0.02)] border border-slate-200/60 p-6 lg:p-7"
       >
