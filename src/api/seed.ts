@@ -7,14 +7,14 @@ async function seed() {
   await db.insert(users).values({
     id: 'admin_1',
     name: 'Super Admin',
-    phone: '62821133131665',
+    phone: '6282113133165',
     passwordHash,
     role: 'admin',
     isActive: true,
     mustChangePassword: true,
     failedLoginAttempts: 0,
   });
-  console.log('Admin user seeded: 62821133131665 / rema1234');
+  console.log('Admin user seeded: 6282113133165 / rema1234');
 }
 
 seed().catch(console.error);

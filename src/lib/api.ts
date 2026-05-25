@@ -106,4 +106,25 @@ export const api = {
     create: (data: Omit<AuditLog, 'id' | 'createdAt'>) =>
       request<AuditLog>('POST', '/audit-logs', data),
   },
+
+  upload: {
+    file: (file: File) => {
+      const token = getToken();
+      return fetch(`${BASE}/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': file.type,
+          'X-File-Name': file.name,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: file,
+      }).then(async res => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: res.statusText }));
+          throw new Error(err.error || res.statusText);
+        }
+        return res.json() as Promise<{ url: string }>;
+      });
+    },
+  },
 };

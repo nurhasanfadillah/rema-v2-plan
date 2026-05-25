@@ -1,17 +1,18 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, ShieldAlert, FileText, CheckCircle } from 'lucide-react';
-import { resizeImage } from '../lib/utils';
+import { Upload, X, FileText } from 'lucide-react';
+import { api } from '../lib/api';
 import { toast } from 'react-hot-toast';
 
 interface FileUploadProps {
   value: string;
-  onChange: (base64Url: string) => void;
+  onChange: (url: string) => void;
   accept?: string;
   label?: string;
 }
 
 export function FileUpload({ value, onChange, accept = "image/*", label = "Upload File" }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -25,27 +26,20 @@ export function FileUpload({ value, onChange, accept = "image/*", label = "Uploa
   };
 
   const processFile = async (file: File) => {
-    // optional limit size (e.g., 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Ukuran file terlalu besar. Batas maksimal file adalah 2MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Ukuran file terlalu besar. Batas maksimal adalah 10MB.');
       return;
     }
-    
-    if (file.type.startsWith('image/')) {
-        try {
-            const resized = await resizeImage(file, 800);
-            onChange(resized);
-            toast.success("Gambar berhasil diproses & dikompresi!");
-            return;
-        } catch(e) {}
+    setUploading(true);
+    try {
+      const { url } = await api.upload.file(file);
+      onChange(url);
+      toast.success('File berhasil diunggah!');
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal mengunggah file');
+    } finally {
+      setUploading(false);
     }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      onChange(reader.result as string || "");
-      toast.success("File berhasil diunggah!");
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -72,7 +66,8 @@ export function FileUpload({ value, onChange, accept = "image/*", label = "Uploa
     toast.success("Berkas dihapus");
   };
 
-  const isImage = typeof value === 'string' && value.startsWith('data:image/');
+  const isImage = typeof value === 'string' && value.length > 0 &&
+    (value.startsWith('data:image/') || /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(value));
 
   return (
     <div className="w-full">
@@ -90,9 +85,9 @@ export function FileUpload({ value, onChange, accept = "image/*", label = "Uploa
               <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Ready</span>
             </div>
           )}
-          <button 
-            type="button" 
-            onClick={handleRemove} 
+          <button
+            type="button"
+            onClick={handleRemove}
             className="absolute -top-2.5 -right-2.5 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full hover:scale-105 shadow-md active:scale-95 transition-all z-10 cursor-pointer"
             title="Hapus berkas"
           >
@@ -100,33 +95,38 @@ export function FileUpload({ value, onChange, accept = "image/*", label = "Uploa
           </button>
         </div>
       ) : (
-        <div 
+        <div
           className={`relative border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer min-h-[140px] group ${
-            dragActive 
-              ? 'border-blue-500 bg-blue-500/5' 
+            dragActive
+              ? 'border-blue-500 bg-blue-500/5'
               : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/50 hover:shadow-sm'
           }`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => !uploading && inputRef.current?.click()}
         >
+          {uploading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-2xl z-10">
+              <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
           <div className={`p-4 rounded-full mb-3 border transition-all duration-300 ${
-            dragActive 
-              ? 'bg-blue-100 border-blue-200 text-blue-600' 
+            dragActive
+              ? 'bg-blue-100 border-blue-200 text-blue-600'
               : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:text-slate-600 group-hover:bg-slate-100/80 group-hover:scale-105'
           }`}>
             <Upload className="w-5 h-5" />
           </div>
           <p className="text-sm text-slate-700 font-bold text-center">Tarik & Lepas File di Sini</p>
-          <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Bisa klik untuk memilih file di folder lokal komputer (Maksimal 2MB)</p>
-          <input 
+          <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Bisa klik untuk memilih file di folder lokal komputer (Maksimal 10MB)</p>
+          <input
             ref={inputRef}
-            type="file" 
+            type="file"
             accept={accept}
             onChange={handleChange}
-            className="hidden" 
+            className="hidden"
           />
         </div>
       )}

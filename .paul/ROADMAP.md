@@ -8,7 +8,7 @@ Migrasi arsitektur dari aplikasi client-side (localStorage) ke stack production-
 
 **v2.1 Production Migration** (v2.1.0)
 Status: In progress
-Phases: 2 of 4 complete (Phase 3 next)
+Phases: 3 of 4 complete (Phase 4 next)
 
 ## Phases
 
@@ -16,7 +16,7 @@ Phases: 2 of 4 complete (Phase 3 next)
 |-------|------|-------|--------|-----------|
 | 1 | Backend API + Drizzle Schema | 2 | ✅ Complete | 2026-05-24 |
 | 2 | Data Layer Migration | 8 | ✅ Complete | 2026-05-25 |
-| 3 | File Storage Migration ke R2 | TBD | Not started | - |
+| 3 | File Storage Migration ke R2 | 1 | ✅ Complete | 2026-05-25 |
 | 4 | Deploy ke Vercel | TBD | Not started | - |
 
 ## Phase Details
@@ -54,20 +54,20 @@ Phases: 2 of 4 complete (Phase 3 next)
 - [x] 02-07: Ledger API + removeByOrder endpoint
 - [x] 02-08: orders/* migration (OrdersList, CreateOrder, OrderDetail)
 
-### Phase 3: File Storage Migration ke R2
+### Phase 3: File Storage Migration ke R2 ✅ Complete
 
 **Goal:** Semua upload file (logo, foto produk, desain DTF, bukti resi, bukti bayar) tersimpan di R2, bukan base64 di localStorage
 **Depends on:** Phase 2 (data layer sudah via API)
-**Research:** Likely (R2 presigned URL vs proxy upload, @aws-sdk/client-s3)
+**Completed:** 2026-05-25
 
 **Scope:**
-- Setup R2 client dengan kredensial tersedia
-- Upload endpoint di API server
-- Replace FileUpload.tsx / MultiFileUpload.tsx untuk upload ke R2
-- Update fields: logoUrl, imageUrl, previewUrl, designUrl, resiUrl, attachmentUrl → R2 URLs
+- [x] Setup R2 client dengan kredensial tersedia
+- [x] Upload endpoint di API server (POST /api/upload)
+- [x] Replace FileUpload.tsx / MultiFileUpload.tsx untuk upload ke R2
+- [x] Custom domain storage.jisoi.net (r2.dev diblokir Biznet Indonesia)
 
 **Plans:**
-- Akan didefinisikan saat `/paul:plan`
+- [x] 03-01: R2 upload endpoint + FileUpload/MultiFileUpload migration
 
 ### Phase 4: Deploy ke Vercel
 
@@ -86,4 +86,4 @@ Phases: 2 of 4 complete (Phase 3 next)
 
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-25 — Phase 2 complete*
+*Last updated: 2026-05-25 — Phase 3 complete*

@@ -15,6 +15,7 @@ import ordersRouter from './routes/orders.ts';
 import ledgersRouter from './routes/ledgers.ts';
 import requestsRouter from './routes/requests.ts';
 import auditLogsRouter from './routes/audit-logs.ts';
+import uploadRouter from './routes/upload.ts';
 
 app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
@@ -25,5 +26,6 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/ledgers', ledgersRouter);
 app.use('/api/requests', requestsRouter);
 app.use('/api/audit-logs', auditLogsRouter);
+app.use('/api/upload', uploadRouter);
 
 export default app;
