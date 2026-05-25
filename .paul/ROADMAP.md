@@ -7,8 +7,9 @@ Migrasi arsitektur dari aplikasi client-side (localStorage) ke stack production-
 ## Current Milestone
 
 **v2.1 Production Migration** (v2.1.0)
-Status: In progress
-Phases: 3 of 4 complete (Phase 4 next)
+Status: ✅ Complete
+Phases: 4 of 4 complete
+Completed: 2026-05-25
 
 ## Phases
 
@@ -17,7 +18,7 @@ Phases: 3 of 4 complete (Phase 4 next)
 | 1 | Backend API + Drizzle Schema | 2 | ✅ Complete | 2026-05-24 |
 | 2 | Data Layer Migration | 8 | ✅ Complete | 2026-05-25 |
 | 3 | File Storage Migration ke R2 | 1 | ✅ Complete | 2026-05-25 |
-| 4 | Deploy ke Vercel | TBD | Not started | - |
+| 4 | Deploy ke Vercel | 1 | ✅ Complete | 2026-05-25 |
 
 ## Phase Details
 
@@ -36,23 +37,8 @@ Phases: 3 of 4 complete (Phase 4 next)
 **Depends on:** Phase 1 (API + schema siap)
 **Completed:** 2026-05-25
 
-**Scope:**
-- [x] Replace `db.getUsers/saveUsers` → API calls
-- [x] Replace `db.getMitras/saveMitras` → API calls
-- [x] Replace `db.getOrders/saveOrders` → API calls
-- [x] Replace `db.getLedgers/saveLedgers` → API calls
-- [x] Replace `db.getRequests/saveRequests` → API calls
-- [x] Auth middleware untuk semua roles
-
 **Plans:**
-- [x] 02-01: Auth + AuthContext migration
-- [x] 02-02: Users, Mitras, Products pages migration
-- [x] 02-03: Finance, Dashboard, Reports pages migration
-- [x] 02-04: AppQueue, AuditLogs, CancellationsReturns pages migration
-- [x] 02-05: RunningOrders component migration
-- [x] 02-06: Mitras API routes + ledger routes
-- [x] 02-07: Ledger API + removeByOrder endpoint
-- [x] 02-08: orders/* migration (OrdersList, CreateOrder, OrderDetail)
+- [x] 02-01 through 02-08: Semua pages, components, dan routes dimigrate ke Neon DB
 
 ### Phase 3: File Storage Migration ke R2 ✅ Complete
 
@@ -60,30 +46,20 @@ Phases: 3 of 4 complete (Phase 4 next)
 **Depends on:** Phase 2 (data layer sudah via API)
 **Completed:** 2026-05-25
 
-**Scope:**
-- [x] Setup R2 client dengan kredensial tersedia
-- [x] Upload endpoint di API server (POST /api/upload)
-- [x] Replace FileUpload.tsx / MultiFileUpload.tsx untuk upload ke R2
-- [x] Custom domain storage.jisoi.net (r2.dev diblokir Biznet Indonesia)
-
 **Plans:**
 - [x] 03-01: R2 upload endpoint + FileUpload/MultiFileUpload migration
 
-### Phase 4: Deploy ke Vercel
+### Phase 4: Deploy ke Vercel ✅ Complete
 
-**Goal:** Aplikasi live di Vercel dengan semua environment variables terkonfigurasi
+**Goal:** Aplikasi live di Vercel dengan custom domain redone.my.id dan semua environment variables terkonfigurasi
 **Depends on:** Phase 3 (semua fitur berjalan via API)
-**Research:** Likely (Vercel + Vite config, serverless API adapter)
-
-**Scope:**
-- vercel.json configuration
-- Environment variables di Vercel dashboard
-- Build pipeline frontend + API
-- Smoke test production
+**Completed:** 2026-05-25
 
 **Plans:**
-- Akan didefinisikan saat `/paul:plan`
+- [x] 04-01: vercel.json config + CORS + deploy + domain redone.my.id
+
+**Result:** https://redone.my.id — live, login berfungsi, data dari Neon DB, file upload ke R2
 
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-25 — Phase 3 complete*
+*Last updated: 2026-05-25 — v2.1 Production Migration COMPLETE*

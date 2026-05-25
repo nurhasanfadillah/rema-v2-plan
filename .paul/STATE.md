@@ -5,26 +5,26 @@
 See: .paul/PROJECT.md (updated 2026-05-25)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** Phase 4 — Deploy ke Vercel
+**Current focus:** v2.1 Production Migration — COMPLETE
 
 ## Current Position
 
 Milestone: v2.1 Production Migration
-Phase: 4 of 4 (Deploy ke Vercel) — Not started
-Plan: None yet
-Status: Phase 3 complete, ready to plan Phase 4
-Last activity: 2026-05-25 — Phase 3 complete (R2 file upload + storage.jisoi.net)
+Phase: 4 of 4 (Deploy ke Vercel) — Complete
+Plan: 04-01 complete
+Status: Milestone complete — semua 4 phase selesai
+Last activity: 2026-05-25 — Phase 4 complete, https://redone.my.id live
 
 Progress:
-- Milestone: [█████████░] 90%
-- Phase 4: [░░░░░░░░░░] 0%
+- Milestone: [██████████] 100%
+- Phase 4: [██████████] 100%
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Phase 3 complete — ready for Phase 4 PLAN]
+  ✓        ✓        ✓     [Loop complete — milestone selesai]
 ```
 
 ## Accumulated Context
@@ -32,22 +32,27 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ### Decisions
 | Decision | Phase | Impact |
 |----------|-------|--------|
-| Custom domain storage.jisoi.net untuk R2 public URL | Phase 3 | Vercel env vars harus pakai URL ini |
+| Custom domain storage.jisoi.net untuk R2 public URL | Phase 3 | Vercel env vars pakai URL ini |
 | Data lama (base64) tidak dimigrate | Phase 3 | Acceptable — data baru pakai R2 URL |
-| express.raw() per-route untuk upload | Phase 3 | Routes lain tidak terdampak |
+| CORS_ORIGIN multi-origin via comma-separated string | Phase 4 | Production + localhost bersamaan |
+| Cloudflare DNS proxy OFF untuk Vercel domain | Phase 4 | Vercel provision SSL cert sendiri |
 
-### Infrastructure (tersedia untuk Phase 4)
+### Git State
+Last commit: (see below — feat(04-deploy-vercel))
+Branch: main
+
+### Infrastructure (production aktif)
 - Neon DB: ep-twilight-mountain-aoaf3qy4-pooler.c-2.ap-southeast-1.aws.neon.tech
 - R2 bucket: rema-v2, public URL: https://storage.jisoi.net
-- Domain Cloudflare: jisoi.net (zone 8b62092ac598e7aed62adc1615955e7a)
-- Vercel token: vcp_6JAazQ46qnXx0U2UaJYWwNwuz68BwJzDKtDS47aSz4kGEvUfZ32RgU85
+- Vercel project: rema-v2-plan → https://redone.my.id (LIVE)
+- Domain: redone.my.id → 76.76.21.21 (Vercel, SSL aktif)
 
 ## Session Continuity
 
 Last session: 2026-05-25
-Stopped at: Phase 3 UNIFY complete
-Next action: Run /paul:plan untuk Phase 4 (Deploy ke Vercel)
-Resume file: .paul/phases/03-file-storage-r2/03-01-SUMMARY.md
+Stopped at: Milestone v2.1 complete — semua phase selesai
+Next action: Tidak ada phase berikutnya. Mulai milestone baru jika diperlukan.
+Resume file: .paul/ROADMAP.md
 
 ---
 *STATE.md — Updated after every significant action*

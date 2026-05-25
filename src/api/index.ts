@@ -3,7 +3,18 @@ import cors from 'cors';
 
 const app = express();
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map(o => o.trim());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+}));
 app.use(express.json());
 
 import healthRouter from './routes/health.ts';
