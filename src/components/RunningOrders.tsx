@@ -45,7 +45,7 @@ export default function RunningOrders() {
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: 40,
+              duration: 20,
               ease: "linear",
             },
           }}

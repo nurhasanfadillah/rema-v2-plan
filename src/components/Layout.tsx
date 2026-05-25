@@ -9,23 +9,11 @@ import { useNavigate } from 'react-router-dom';
 import RunningOrders from './RunningOrders';
 
 export default function Layout() {
-  const { user, logout, updateUser } = useAuth();
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState('');
-  const [editPhone, setEditPhone] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Reset editing state and form when profile drawer opens
-  useEffect(() => {
-    if (profileOpen && user) {
-      setEditName(user.name);
-      setEditPhone(user.phone || '');
-      setIsEditing(false);
-    }
-  }, [profileOpen, user]);
 
   // Close mobile drawer when route changes
   useEffect(() => {
@@ -34,18 +22,6 @@ export default function Layout() {
   }, [location.pathname]);
 
   if (!user) return null;
-
-  const handleUpdateProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editName.trim()) return;
-
-    updateUser({
-      ...user,
-      name: editName,
-      phone: editPhone
-    });
-    setIsEditing(false);
-  };
 
   const links = [
     { to: '/', icon: <LayoutDashboard />, label: 'Dashboard', roles: ['admin', 'staff', 'operational', 'mitra'] },
@@ -198,84 +174,28 @@ export default function Layout() {
               </div>
 
               <div className="p-2 space-y-1">
-                {isEditing ? (
-                  <form onSubmit={handleUpdateProfile} className="p-3 space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Lengkap</label>
-                      <input 
-                        type="text" 
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                        placeholder="Masukkan nama..."
-                        required
-                      />
+                <button
+                  onClick={() => navigate('/change-password')}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-amber-400 group-hover:bg-amber-500/10 transition-colors">
+                      <KeyRound className="w-4.5 h-4.5" />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nomor Telepon</label>
-                      <input 
-                        type="tel" 
-                        value={editPhone}
-                        onChange={(e) => setEditPhone(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                        placeholder="628xxxxxx"
-                      />
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      <button 
-                        type="button"
-                        onClick={() => setIsEditing(false)}
-                        className="flex-1 px-3 py-2 rounded-xl border border-slate-800 text-slate-400 text-[12px] font-bold hover:bg-slate-800 transition-colors"
-                      >
-                        Batal
-                      </button>
-                      <button 
-                        type="submit"
-                        className="flex-1 px-3 py-2 rounded-xl bg-blue-600 text-white text-[12px] font-bold hover:bg-blue-500 shadow-lg shadow-blue-600/10 transition-colors"
-                      >
-                        Simpan
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <>
-                    <button 
-                      onClick={() => setIsEditing(true)}
-                      className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-500/10 transition-colors">
-                          <UserSquare2 className="w-4.5 h-4.5" />
-                        </div>
-                        <span className="text-[13px] font-bold">Edit Profil</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-600" />
-                    </button>
+                    <span className="text-[13px] font-bold">Ganti Password</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-600" />
+                </button>
 
-                    <button 
-                      onClick={() => navigate('/change-password')}
-                      className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-amber-400 group-hover:bg-amber-500/10 transition-colors">
-                          <KeyRound className="w-4.5 h-4.5" />
-                        </div>
-                        <span className="text-[13px] font-bold">Ganti Password</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-600" />
-                    </button>
-
-                    <div className="pt-2 px-3 pb-3">
-                      <button 
-                        onClick={logout}
-                        className="w-full flex items-center justify-center gap-2.5 px-3.5 py-3 rounded-2xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all duration-300 font-bold text-[13px] active:scale-[0.98] cursor-pointer"
-                      >
-                        <LogOut className="w-4.5 h-4.5" />
-                        Keluar Sesi
-                      </button>
-                    </div>
-                  </>
-                )}
+                <div className="pt-2 px-3 pb-3">
+                  <button
+                    onClick={logout}
+                    className="w-full flex items-center justify-center gap-2.5 px-3.5 py-3 rounded-2xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all duration-300 font-bold text-[13px] active:scale-[0.98] cursor-pointer"
+                  >
+                    <LogOut className="w-4.5 h-4.5" />
+                    Keluar Sesi
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
