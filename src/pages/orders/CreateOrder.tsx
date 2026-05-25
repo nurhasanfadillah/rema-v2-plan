@@ -375,7 +375,7 @@ export default function CreateOrder() {
                          </div>
                          <div>
                             <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">Catatan Desain</label>
-                            <input required value={item.designNotes||''} onChange={e=>handleUpdateItem(item.id, 'designNotes', e.target.value)} className="w-full px-4 py-3 border rounded-xl outline-none text-xs bg-white font-semibold text-slate-700 border-slate-200" placeholder="Mis. Sisi depan dada tengah lebar 10cm, belakang polos" />
+                            <textarea required rows={3} value={item.designNotes||''} onChange={e=>handleUpdateItem(item.id, 'designNotes', e.target.value)} className="w-full px-4 py-3 border rounded-xl outline-none text-xs bg-white font-semibold text-slate-700 border-slate-200 resize-y" placeholder="Mis. Sisi depan dada tengah lebar 10cm, belakang polos" />
                          </div>
                        </div>
                     )}
