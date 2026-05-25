@@ -34,14 +34,15 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Migrasi data layer localStorage → Neon DB via API — Phase 2 (semua pages bebas db.*)
 - [x] Migrasi file storage localStorage base64 → Cloudflare R2 — Phase 3
 - [x] Deploy ke Vercel dengan custom domain redone.my.id — Phase 4
+- [x] PWA installability — install prompt, standalone mode, shell caching — Phase 7
 
 ### Active (In Progress)
 
-- (none — milestone complete)
+- (none — v2.2 PWA complete)
 
 ### Planned (Next)
 
-- (none — v2.1 Production Migration selesai)
+- (none — v2.2 PWA selesai)
 
 ### Out of Scope
 

@@ -6,10 +6,10 @@ Migrasi arsitektur dari aplikasi client-side (localStorage) ke stack production-
 
 ## Current Milestone
 
-**v2.1 Production Migration** (v2.1.0)
+**v2.2 PWA** (v2.2.0)
 Status: ✅ Complete
-Phases: 4 of 4 complete
-Completed: 2026-05-25
+Phases: 1 of 1 complete
+Completed: 2026-05-26
 
 ## Phases
 
@@ -20,6 +20,7 @@ Completed: 2026-05-25
 | 3 | File Storage Migration ke R2 | 1 | ✅ Complete | 2026-05-25 |
 | 4 | Deploy ke Vercel | 1 | ✅ Complete | 2026-05-25 |
 | 5 | UI Fixes | 1 | ✅ Complete | 2026-05-25 |
+| 7 | PWA Implementation | 1 | ✅ Complete | 2026-05-26 |
 
 ## Phase Details
 
@@ -61,6 +62,17 @@ Completed: 2026-05-25
 
 **Result:** https://redone.my.id — live, login berfungsi, data dari Neon DB, file upload ke R2
 
+### Phase 7: PWA Implementation ✅ Complete
+
+**Goal:** Tambah PWA installability ke https://redone.my.id — install prompt, standalone mode, shell caching
+**Depends on:** Phase 1-5 (app sudah live di production)
+**Completed:** 2026-05-26
+
+**Plans:**
+- [x] 07-01: vite-plugin-pwa + icons + manifest + service worker config
+
+**Result:** https://redone.my.id — PWA installable, standalone mode aktif, shell caching via Workbox
+
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-25 — v2.1 Production Migration COMPLETE*
+*Last updated: 2026-05-26 — v2.2 PWA COMPLETE*
