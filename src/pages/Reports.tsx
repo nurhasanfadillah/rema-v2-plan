@@ -379,7 +379,7 @@ export default function Reports() {
 
       {isExportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-in zoom-in-95">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-black text-lg text-slate-900">Konfirmasi Ekspor</h3>
               <button onClick={() => setIsExportModalOpen(false)} className="text-slate-400 hover:text-slate-900">

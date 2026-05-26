@@ -488,7 +488,7 @@ function AddUserModal({ onClose, onAdd, onAddMitra }: { onClose: () => void, onA
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 transition-all">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 transition-all max-h-[90vh] overflow-y-auto">
         <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5">➕ Daftarkan Akun Pengguna</h2>
         {error && <div className="bg-red-50 border border-red-150 text-red-650 p-3 rounded-xl text-[11px] flex items-start gap-2 mb-4"><AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {error}</div>}
         <form onSubmit={handleSubmit} className="space-y-3.5">

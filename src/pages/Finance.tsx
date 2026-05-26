@@ -733,7 +733,7 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData, mitras }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 transition-all">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 transition-all max-h-[90vh] overflow-y-auto">
         <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5 flex items-center gap-2">
           <span>📈</span> {editData ? 'Edit' : 'Input'} Tambahan Piutang
         </h2>
@@ -786,7 +786,7 @@ function TransactionDetailModal({ ledger, onClose, onEdit, onDelete, isAdmin, mi
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 sm:p-6 animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 sm:p-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-5">
            <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${isDebit ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>

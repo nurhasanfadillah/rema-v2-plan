@@ -358,7 +358,7 @@ function ProductModal({ product, onClose, onSave, formattedLabel }: { product: P
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 lg:p-8 animate-in slide-in-from-bottom-8">
+      <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 lg:p-8 animate-in slide-in-from-bottom-8 max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-black text-slate-900 mb-6">{product ? '📝 Ubah Detail Produk' : '📦 Tambah Kategori Produk'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4 font-bold text-xs sm:text-sm">
           <div>

@@ -6,9 +6,9 @@ Migrasi arsitektur dari aplikasi client-side (localStorage) ke stack production-
 
 ## Current Milestone
 
-**v2.3 UI Consistency** (v2.3.0)
-Status: ✅ Complete
-Phases: 1 of 1 complete
+**v2.4 E2E Testing** (v2.4.0)
+Status: 🔄 In progress
+Phases: 0 of 1 complete
 
 ## Phases
 
@@ -21,6 +21,7 @@ Phases: 1 of 1 complete
 | 5 | UI Fixes | 1 | ✅ Complete | 2026-05-25 |
 | 7 | PWA Implementation | 1 | ✅ Complete | 2026-05-26 |
 | 8 | UI Consistency | 3 | ✅ Complete | 2026-05-26 |
+| 9 | E2E Testing via MCP Playwright | 4 | 🔄 Planning | — |
 
 ## Phase Details
 
@@ -86,6 +87,18 @@ Phases: 1 of 1 complete
 
 **Result:** Semua 11 halaman menggunakan utility class system yang seragam (.page-header, .page-title, .btn-*, .card-sm, .label-xs)
 
+### Phase 9: E2E Testing via MCP Playwright 🔄 Planning
+
+**Goal:** Verifikasi fungsionalitas seluruh aplikasi via E2E testing menggunakan MCP Playwright — semua 14 halaman + edge cases
+**Depends on:** Phase 4 (app live di production)
+**Target:** https://redone.my.id
+
+**Plans:**
+- [ ] 09-01: Auth & Navigasi (login valid/invalid, sidebar, logout, deep link)
+- [ ] 09-02: Entity CRUD (Mitra, Produk, Users + upload file)
+- [ ] 09-03: Order Lifecycle (draft → shipped, cancel, return, bukti resi)
+- [ ] 09-04: Finance, AppQueue, Reports, AuditLogs, CancellationsReturns
+
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-26 — v2.3 UI Consistency milestone complete*
+*Last updated: 2026-05-26 — v2.4 E2E Testing phase added*
