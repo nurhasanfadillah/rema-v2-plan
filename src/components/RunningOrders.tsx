@@ -14,12 +14,12 @@ export default function RunningOrders() {
   }, []);
 
   const activeOrdersString = useMemo(() => {
-    // Get latest 10 orders
-    const latest = [...orders]
+    const confirmed = orders.filter(o => o.status === 'confirmed');
+    const latest = [...confirmed]
       .sort((a, b) => b.createdAt - a.createdAt)
       .slice(0, 10);
 
-    if (latest.length === 0) return "Belum ada pesanan terbaru...";
+    if (latest.length === 0) return "Belum ada pesanan terkonfirmasi...";
 
     return latest.map(order => {
       const mitra = mitras.find(m => m.id === order.mitraId);
@@ -45,7 +45,7 @@ export default function RunningOrders() {
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: 3,
+              duration: 5,
               ease: "linear",
             },
           }}

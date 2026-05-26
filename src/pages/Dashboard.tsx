@@ -40,7 +40,9 @@ export default function Dashboard() {
 
   const chartData = useMemo(() => {
     const now = new Date();
-    const targetOrders = user?.role === 'mitra' ? myOrders : orders;
+    const baseOrders = user?.role === 'mitra' ? myOrders : orders;
+    const EXCLUDED_STATUSES = ['draft', 'waiting_confirmation', 'cancelled', 'returned'];
+    const targetOrders = baseOrders.filter(o => !EXCLUDED_STATUSES.includes(o.status));
 
     let data: any[] = [];
 
@@ -89,6 +91,13 @@ export default function Dashboard() {
 
     return data;
   }, [orders, myOrders, chartPeriod, user]);
+
+  const recentConfirmedOrders = useMemo(() => {
+    return [...orders]
+      .filter(o => o.status === 'confirmed')
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, 10);
+  }, [orders]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -204,6 +213,47 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
       </motion.div>
+
+      {/* Recent Confirmed Orders Table (admin/staff only) */}
+      {user.role !== 'mitra' && (
+        <motion.div variants={itemVariants} className="card">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="w-1 h-5 bg-green-600 rounded-full" />
+            <h2 className="section-title">10 Order Dikonfirmasi Terakhir</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-left">
+                  <th className="pb-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Mitra</th>
+                  <th className="pb-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Qty</th>
+                  <th className="pb-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Jenis</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {recentConfirmedOrders.length === 0 ? (
+                  <tr><td colSpan={3} className="py-8 text-center text-slate-400 text-xs">Belum ada order dikonfirmasi</td></tr>
+                ) : (
+                  recentConfirmedOrders.map(order => {
+                    const mitra = mitras.find(m => m.id === order.mitraId);
+                    return (
+                      <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="py-3 text-slate-700 font-medium text-[13px]">{mitra?.name || 'Unknown'}</td>
+                        <td className="py-3 text-slate-600 text-center tabular-nums font-semibold">{order.totalQty}</td>
+                        <td className="py-3 text-center">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${order.type === 'online' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'}`}>
+                            {order.type === 'online' ? 'Online' : 'Offline'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      )}
 
       {/* Main Info Box */}
       <motion.div

@@ -13,7 +13,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Attribute | Value |
 |-----------|-------|
 | Type | Application |
-| Version | 2.4.0 |
+| Version | 2.5.0 |
 | Status | Production — Live di https://redone.my.id |
 | Last Updated | 2026-05-26 |
 
@@ -38,10 +38,11 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] UI Consistency — utility class system (@layer components) seragam di semua 11 halaman — Phase 8
 - [x] E2E Testing — 21/25 AC pass (84%), semua 14 halaman diuji via Chrome DevTools — Phase 9
 - [x] Upload file ke R2 berfungsi di Vercel production (express.raw() fix) — Phase 10
+- [x] UI fixes: running orders filter confirmed, grafik exclude non-aktif, tabel ringkas order confirmed — Phase 11
 
 ### Active (In Progress)
 
-- (none — v2.4 Upload Bug Fix complete)
+- (none — v2.5 UI Fixes complete)
 
 ### Planned (Next)
 
@@ -108,4 +109,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-26 after Phase 10 — v2.4 Upload Bug Fix complete*
+*Last updated: 2026-05-26 after Phase 11 — v2.5 UI Fixes complete*

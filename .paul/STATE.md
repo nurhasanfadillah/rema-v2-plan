@@ -5,26 +5,26 @@
 See: .paul/PROJECT.md (updated 2026-05-26)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** v2.4 — E2E Testing + Upload Bug Fix selesai, aplikasi production-ready penuh
+**Current focus:** v2.5 — UI Fixes selesai, aplikasi production-ready penuh
 
 ## Current Position
 
-Milestone: v2.4 E2E Testing — ✅ Complete
-Phase: 10 of 10 (Upload Bug Fix) — Complete
-Plan: 10-01 — loop closed
-Status: ✅ Milestone v2.4 Complete
-Last activity: 2026-05-26 — Phase 10 SELESAI: Upload R2 berfungsi di production
+Milestone: v2.5 UI Fixes — ✅ Complete
+Phase: 11 of 11 (UI Fixes) — Complete
+Plan: 11-01 — loop closed
+Status: ✅ Milestone v2.5 Complete
+Last activity: 2026-05-26 — Phase 11 SELESAI: UI fixes di RunningOrders + Dashboard
 
 Progress:
 - Milestone: [██████████] 100% ✅
-- Phase 10: [██████████] 100% ✅
+- Phase 11: [██████████] 100% ✅
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Phase 10 complete — milestone v2.4 closed]
+  ✓        ✓        ✓     [Phase 11 complete — milestone v2.5 closed]
 ```
 
 ## Accumulated Context
@@ -53,7 +53,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-05-26
-Stopped at: Milestone v2.4 complete — semua 10 phase selesai
+Stopped at: Plan 11-01 created
 Next action: Mulai milestone baru atau pause
 Resume file: .paul/ROADMAP.md
 

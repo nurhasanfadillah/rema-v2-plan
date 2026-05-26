@@ -6,9 +6,9 @@ Migrasi arsitektur dari aplikasi client-side (localStorage) ke stack production-
 
 ## Current Milestone
 
-**v2.4 E2E Testing** (v2.4.0)
+**v2.5 UI Fixes** (v2.5.0)
 Status: ✅ Complete
-Phases: 2 of 2 complete (Phase 9 + Phase 10)
+Phases: 1 of 1 complete (Phase 11)
 
 ## Phases
 
@@ -23,6 +23,7 @@ Phases: 2 of 2 complete (Phase 9 + Phase 10)
 | 8 | UI Consistency | 3 | ✅ Complete | 2026-05-26 |
 | 9 | E2E Testing via MCP Playwright | 4 | ✅ Complete | 2026-05-26 |
 | 10 | Upload Bug Fix | 1 | ✅ Complete | 2026-05-26 |
+| 11 | UI Fixes | 1 | ✅ Complete | 2026-05-26 |
 
 ## Phase Details
 
@@ -113,6 +114,15 @@ Phases: 2 of 2 complete (Phase 9 + Phase 10)
 
 **Result:** Upload ke R2 berfungsi penuh di production. Bug kritis P1 dari Phase 9 E2E testing resolved.
 
+### Phase 11: UI Fixes ✅ Complete
+
+**Goal:** Perbaiki 3 item UI: RunningOrders filter confirmed-only, grafik dashboard exclude status non-aktif, tambah tabel ringkas 10 order confirmed terakhir
+**Depends on:** Phase 9 (E2E testing revealed these issues)
+**Completed:** 2026-05-26
+
+**Plans:**
+- [x] 11-01: RunningOrders filter + Dashboard chart filter + tabel ringkas
+
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-26 — v2.4 E2E Testing phase added*
+*Last updated: 2026-05-26 — v2.5 UI Fixes complete*
