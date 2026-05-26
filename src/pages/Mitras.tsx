@@ -141,9 +141,9 @@ export default function Mitras() {
       animate="show"
       className="space-y-4"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="page-header">
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight leading-none">Manajemen Partner & Mitra</h1>
+          <h1 className="page-title">Manajemen Partner & Mitra</h1>
           <p className="text-[11px] text-slate-500 mt-1 font-medium opacity-80">Pantau limit kredit, identitas brand mitra, dan statistik performa partner.</p>
         </div>
       </div>

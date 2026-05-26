@@ -45,9 +45,9 @@ export default function AuditLogs() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-white flex items-center gap-2">
+          <h1 className="page-title flex items-center gap-2">
              Audit Logs
           </h1>
           <p className="text-sm font-medium text-slate-400 mt-1">
@@ -80,10 +80,10 @@ export default function AuditLogs() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-900/50">
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Waktu</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Pengguna</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Aksi</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Detail</th>
+                <th className="px-6 py-4 label-xs">Waktu</th>
+                <th className="px-6 py-4 label-xs">Pengguna</th>
+                <th className="px-6 py-4 label-xs">Aksi</th>
+                <th className="px-6 py-4 label-xs">Detail</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">

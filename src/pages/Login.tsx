@@ -111,7 +111,7 @@ export default function Login() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Nomor Telepon</label>
+              <label className="label-xs ml-1">Nomor Telepon</label>
               <div className="relative group">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors duration-300">
                   <Phone strokeWidth={2.5} className="w-full h-full" />
@@ -129,7 +129,7 @@ export default function Login() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Kata Sandi</label>
+                <label className="label-xs">Kata Sandi</label>
                 <button type="button" className="text-[10px] text-blue-500/70 hover:text-blue-500 font-bold transition-colors">Lupa sandi?</button>
               </div>
               <div className="relative group">
@@ -157,7 +157,7 @@ export default function Login() {
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group shadow-xl shadow-blue-600/10 active:scale-[0.98] mt-8 text-[13px] border border-blue-400/20"
+              className="btn-primary w-full py-4 mt-8"
             >
               <AnimatePresence mode="wait">
                 {isLoading ? (

@@ -13,9 +13,9 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Attribute | Value |
 |-----------|-------|
 | Type | Application |
-| Version | 2.1.0 |
+| Version | 2.3.0 |
 | Status | Production — Live di https://redone.my.id |
-| Last Updated | 2026-05-25 |
+| Last Updated | 2026-05-26 |
 
 ## Requirements
 
@@ -35,14 +35,15 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Migrasi file storage localStorage base64 → Cloudflare R2 — Phase 3
 - [x] Deploy ke Vercel dengan custom domain redone.my.id — Phase 4
 - [x] PWA installability — install prompt, standalone mode, shell caching — Phase 7
+- [x] UI Consistency — utility class system (@layer components) seragam di semua 11 halaman — Phase 8
 
 ### Active (In Progress)
 
-- (none — v2.2 PWA complete)
+- (none — v2.3 UI Consistency complete)
 
 ### Planned (Next)
 
-- (none — v2.2 PWA selesai)
+- (none)
 
 ### Out of Scope
 
@@ -104,4 +105,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-25 after Phase 4 — v2.1 Production Migration complete*
+*Last updated: 2026-05-26 after Phase 8 — v2.3 UI Consistency complete*

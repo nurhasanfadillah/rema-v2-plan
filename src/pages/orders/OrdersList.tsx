@@ -187,15 +187,15 @@ export default function OrdersList() {
       animate="show"
       className="space-y-6"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="page-header">
         <div className="space-y-0.5">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tighter text-white">{isDraftPage ? 'Draft Unit Pesanan' : 'Daftar Manajemen Pesanan'}</h1>
+          <h1 className="page-title">{isDraftPage ? 'Draft Unit Pesanan' : 'Daftar Manajemen Pesanan'}</h1>
           <p className="text-[12px] text-slate-500 font-medium tracking-wide italic opacity-80">{isDraftPage ? 'Lanjutkan pesanan yang belum selesai' : 'Kelola dan pantau pesanan Anda'}</p>
         </div>
         {user.role === 'mitra' && (
           <Link 
             to="/orders/create"
-            className="bg-slate-900 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all border border-slate-800 hover:border-blue-500 shadow-xl shadow-black/20 active:scale-[0.98] w-full sm:w-auto text-center group"
+            className="btn-primary w-full sm:w-auto group"
           >
             <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" /> Buat Pesanan Baru
           </Link>

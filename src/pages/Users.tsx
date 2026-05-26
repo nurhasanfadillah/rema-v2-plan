@@ -144,14 +144,14 @@ export default function Users() {
       animate="show"
       className="space-y-4"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="page-header">
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight leading-none">Otentikasi & Akun Pengguna</h1>
+          <h1 className="page-title">Otentikasi & Akun Pengguna</h1>
           <p className="text-[11px] text-slate-500 mt-1 font-medium opacity-80">Manajemen privilege, verifikasi kredensial, dan kontrol status hak akses.</p>
         </div>
         <button 
           onClick={() => setIsAddOpen(true)}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xl shadow-blue-600/10 active:scale-[0.98] cursor-pointer uppercase tracking-wider"
+          className="btn-primary text-[10px] uppercase tracking-wider"
         >
           <Plus className="w-3.5 h-3.5" /> Add User
         </button>
@@ -441,8 +441,8 @@ function UserDetailPanel({
                  </select>
               </div>
               <div className="pt-4 flex justify-end gap-2.5 text-[11px]">
-                 <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all cursor-pointer">Batal</button>
-                 <button type="submit" className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all cursor-pointer">Simpan Perubahan</button>
+                 <button type="button" onClick={() => setIsEditing(false)} className="btn-ghost">Batal</button>
+                 <button type="submit" className="btn-secondary">Simpan Perubahan</button>
               </div>
             </form>
           )}
@@ -510,8 +510,8 @@ function AddUserModal({ onClose, onAdd, onAddMitra }: { onClose: () => void, onA
              </select>
           </div>
           <div className="pt-4 flex justify-end gap-2.5 text-[11px]">
-             <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all cursor-pointer">Batal</button>
-             <button type="submit" className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all cursor-pointer active:scale-95">Simpan Data</button>
+             <button type="button" onClick={onClose} className="btn-ghost">Batal</button>
+             <button type="submit" className="btn-secondary">Simpan Data</button>
           </div>
         </form>
       </div>

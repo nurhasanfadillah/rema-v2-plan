@@ -53,7 +53,7 @@ export default function Layout() {
       </div>
 
       <div className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto no-scrollbar">
-        <p className="px-3 text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2">Main Menu</p>
+        <p className="label-xs px-3 mb-2">Main Menu</p>
         
         {visibleLinks.map(l => (
           <NavLink 
@@ -190,7 +190,7 @@ export default function Layout() {
                 <div className="pt-2 px-3 pb-3">
                   <button
                     onClick={logout}
-                    className="w-full flex items-center justify-center gap-2.5 px-3.5 py-3 rounded-2xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all duration-300 font-bold text-[13px] active:scale-[0.98] cursor-pointer"
+                    className="btn-danger w-full"
                   >
                     <LogOut className="w-4.5 h-4.5" />
                     Keluar Sesi

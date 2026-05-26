@@ -315,3 +315,91 @@ a, button, [role="button"] {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* --- COMPONENT UTILITY SYSTEM --- */
+/* Note: Tailwind v4 @apply tidak support sesama custom class — semua diperluas inline */
+@layer components {
+
+  /* === BUTTONS === */
+  /* Base shared properties (sebagai reference, tidak di-@apply) */
+  /* inline-flex items-center justify-center gap-2 rounded-xl font-bold
+     text-[13px] transition-all duration-200 active:scale-95
+     disabled:opacity-50 disabled:pointer-events-none */
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold
+           text-[13px] transition-all duration-200 active:scale-95
+           disabled:opacity-50 disabled:pointer-events-none
+           px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white
+           shadow-md;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold
+           text-[13px] transition-all duration-200 active:scale-95
+           disabled:opacity-50 disabled:pointer-events-none
+           px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200
+           border border-slate-700/60;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold
+           text-[13px] transition-all duration-200 active:scale-95
+           disabled:opacity-50 disabled:pointer-events-none
+           px-4 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-400
+           hover:text-white border border-red-500/20;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold
+           text-[13px] transition-all duration-200 active:scale-95
+           disabled:opacity-50 disabled:pointer-events-none
+           px-4 py-2.5 bg-transparent hover:bg-slate-800/60 text-slate-400
+           hover:text-white;
+  }
+  .btn-success {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold
+           text-[13px] transition-all duration-200 active:scale-95
+           disabled:opacity-50 disabled:pointer-events-none
+           px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white
+           shadow-md;
+  }
+  .btn-sm {
+    @apply px-3 py-2 text-[11px];
+  }
+  .btn-lg {
+    @apply px-5 py-3 text-[14px];
+  }
+
+  /* === CARDS === */
+  .card {
+    @apply bg-slate-900/60 border border-slate-800/60 rounded-xl
+           shadow-lg p-5 sm:p-6;
+  }
+  .card-sm {
+    @apply bg-slate-900/60 border border-slate-800/60 rounded-lg
+           shadow-md p-4;
+  }
+  .card-flat {
+    @apply bg-slate-900/40 border border-slate-800/40 rounded-xl p-5 sm:p-6;
+  }
+
+  /* === TYPOGRAPHY === */
+  .page-title {
+    @apply text-xl sm:text-2xl font-bold tracking-tight text-white font-display;
+  }
+  .section-title {
+    @apply text-base font-bold tracking-tight text-white font-display;
+  }
+  .label-xs {
+    @apply text-[10px] font-bold uppercase tracking-widest text-slate-500;
+  }
+  .text-muted {
+    @apply text-[12px] text-slate-500 leading-relaxed;
+  }
+
+  /* === PAGE LAYOUT === */
+  .page-wrapper {
+    @apply p-4 sm:p-6 md:p-8 space-y-6;
+  }
+  .page-header {
+    @apply flex items-center justify-between gap-4 flex-wrap;
+  }
+}

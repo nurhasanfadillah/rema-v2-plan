@@ -152,9 +152,9 @@ export default function Finance() {
       animate="show"
       className="space-y-4 lg:space-y-6"
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+      <div className="page-header">
         <div>
-           <h1 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 leading-tight">Keuangan & Tagihan Mitra</h1>
+           <h1 className="page-title">Keuangan & Tagihan Mitra</h1>
            <p className="text-[12px] text-slate-500 mt-0.5 font-semibold">Kelola aliran bayar, kredit retur, dan balance berjalan.</p>
         </div>
 
@@ -162,14 +162,14 @@ export default function Finance() {
            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
               <button
                 onClick={() => setIsPaymentOpen(true)}
-                className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl font-bold transition-all shadow-md shadow-emerald-500/10 flex justify-center items-center gap-1.5 active:scale-95 cursor-pointer text-[11px]"
+                className="btn-success flex-1 sm:flex-none text-[11px]"
               >
                 <Plus className="w-3.5 h-3.5" /> Input Bayar
               </button>
 
               <button
                 onClick={() => setIsChargeOpen(true)}
-                className="flex-1 sm:flex-none bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl font-bold transition-all shadow-md flex justify-center items-center gap-1.5 active:scale-95 cursor-pointer text-[11px]"
+                className="btn-secondary flex-1 sm:flex-none text-[11px]"
               >
                 <Plus className="w-3.5 h-3.5" /> Tagihan Manual
               </button>
@@ -181,7 +181,7 @@ export default function Finance() {
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <motion.div
               variants={itemVariants}
-              className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/60 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.03),0_4px_12px_-8px_rgba(0,0,0,0.01)] flex flex-col justify-between"
+              className="card-sm flex flex-col justify-between"
             >
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex w-9 h-9 bg-blue-50 border border-blue-100 rounded-xl items-center justify-center text-blue-600 shadow-inner flex-shrink-0">
@@ -196,7 +196,7 @@ export default function Finance() {
 
             <motion.div
               variants={itemVariants}
-              className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/60 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.03),0_4px_12px_-8px_rgba(0,0,0,0.01)] flex flex-col justify-between"
+              className="card-sm flex flex-col justify-between"
             >
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex w-9 h-9 bg-amber-50 border border-amber-100 rounded-xl items-center justify-center text-amber-600 shadow-inner flex-shrink-0">
@@ -215,7 +215,7 @@ export default function Finance() {
               variants={itemVariants}
               className="grid grid-cols-2 gap-3 sm:gap-4"
             >
-               <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-center">
+               <div className="card-sm flex flex-col justify-center">
                   <div className="flex items-center gap-2 mb-1.5">
                      <div className="w-6 h-6 rounded-lg bg-red-50 text-red-600 flex items-center justify-center border border-red-100">
                         <ArrowUpRight className="w-3 h-3" />
@@ -225,7 +225,7 @@ export default function Finance() {
                   <p className="text-sm sm:text-lg font-black tracking-tight text-red-600 truncate">{formatCurrency(totalDebit)}</p>
                </div>
 
-               <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-center">
+               <div className="card-sm flex flex-col justify-center">
                   <div className="flex items-center gap-2 mb-1.5">
                      <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
                         <ArrowDownLeft className="w-3 h-3" />

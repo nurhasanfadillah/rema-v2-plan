@@ -116,15 +116,15 @@ export default function Products() {
       animate="show"
       className="space-y-6"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tighter leading-none">Katalog & Koleksi Produk</h1>
+          <h1 className="page-title">Katalog & Koleksi Produk</h1>
           <p className="text-[12px] text-slate-500 mt-2 font-medium italic opacity-80 decoration-slate-800">Manajemen inventori, basis harga mitra, dan visual aset produk.</p>
         </div>
         {user?.role === 'admin' && (
           <button 
             onClick={() => setIsAddOpen(true)}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-blue-600/10 active:scale-95 cursor-pointer uppercase tracking-widest"
+            className="btn-primary text-[11px] uppercase tracking-widest"
           >
             <Plus className="w-4 h-4" /> Add Item
           </button>

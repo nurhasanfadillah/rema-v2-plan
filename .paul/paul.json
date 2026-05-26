@@ -1,14 +1,14 @@
 {
-  "name": "rema-v2.1",
-  "version": "2.2.0",
+  "name": "rema-v2.3",
+  "version": "2.3.0",
   "milestone": {
-    "name": "v2.2 PWA",
-    "version": "2.2.0",
+    "name": "v2.3 UI Consistency",
+    "version": "2.3.0",
     "status": "complete"
   },
   "phase": {
-    "number": 7,
-    "name": "pwa-implementation",
+    "number": 8,
+    "name": "ui-consistency",
     "status": "complete"
   },
   "loop": {

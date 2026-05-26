@@ -92,9 +92,9 @@ export default function AppQueue() {
       animate="show"
       className="space-y-4 lg:space-y-5"
     >
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div className="page-header items-end">
           <div>
-            <h1 className="text-xl font-black tracking-tight text-slate-900 leading-none underline decoration-indigo-500/30 decoration-4 underline-offset-8">Antrian Produksi</h1>
+            <h1 className="page-title underline decoration-indigo-500/30 decoration-4 underline-offset-8">Antrian Produksi</h1>
             <p className="hidden sm:block text-[11px] text-slate-500 mt-2.5 font-bold uppercase tracking-widest opacity-80">Manufacturing Core Pipeline</p>
           </div>
           

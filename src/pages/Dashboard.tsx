@@ -152,12 +152,12 @@ export default function Dashboard() {
       {/* Orders Chart Section */}
       <motion.div
         variants={itemVariants}
-        className="bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04),0_8px_20px_-8px_rgba(0,0,0,0.02)] border border-slate-200/60 p-6 lg:p-7"
+        className="card"
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 bg-indigo-600 rounded-full" />
-            <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-800">
+            <h2 className="section-title">
               Grafik Pesanan Masuk
             </h2>
           </div>
@@ -208,11 +208,11 @@ export default function Dashboard() {
       {/* Main Info Box */}
       <motion.div
         variants={itemVariants}
-        className="bg-white rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04),0_8px_20px_-8px_rgba(0,0,0,0.02)] border border-slate-200/60 p-6 lg:p-7"
+        className="card"
       >
         <div className="flex items-center gap-2.5 mb-5">
           <div className="w-1 h-5 bg-blue-600 rounded-full" />
-          <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900">Spesifikasi Sistem REMA v2.1</h2>
+          <h2 className="section-title">Spesifikasi Sistem REMA v2.1</h2>
         </div>
         <div className="bg-slate-50 rounded-2xl p-5 text-slate-600 text-[12px] leading-relaxed border border-slate-100">
           <p className="font-medium">
