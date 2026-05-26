@@ -1,0 +1,168 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e63]:
+    - generic [ref=e372]:
+      - generic [ref=e375]:
+        - heading "REMA -V2" [level=2] [ref=e376]:
+          - text: REMA
+          - generic [ref=e377]: "-V2"
+        - paragraph [ref=e378]: Workspace v2.1
+      - generic [ref=e379]:
+        - paragraph [ref=e380]: Main Menu
+        - link "Dashboard" [ref=e381] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e382]:
+            - img [ref=e383]
+            - generic [ref=e388]: Dashboard
+        - link "Pengguna" [ref=e389] [cursor=pointer]:
+          - /url: /users
+          - generic [ref=e390]:
+            - img [ref=e391]
+            - generic [ref=e396]: Pengguna
+          - img [ref=e397]
+        - link "Mitra" [ref=e399] [cursor=pointer]:
+          - /url: /mitras
+          - generic [ref=e400]:
+            - img [ref=e401]
+            - generic [ref=e405]: Mitra
+          - img [ref=e406]
+        - link "Katalog Produk" [ref=e408] [cursor=pointer]:
+          - /url: /products
+          - generic [ref=e409]:
+            - img [ref=e410]
+            - generic [ref=e414]: Katalog Produk
+          - img [ref=e415]
+        - link "Daftar Pesanan" [ref=e417] [cursor=pointer]:
+          - /url: /orders
+          - generic [ref=e418]:
+            - img [ref=e419]
+            - generic [ref=e422]: Daftar Pesanan
+          - img [ref=e423]
+        - link "Pembatalan & Retur" [ref=e425] [cursor=pointer]:
+          - /url: /cancellations
+          - generic [ref=e426]:
+            - img [ref=e427]
+            - generic [ref=e430]: Pembatalan & Retur
+          - img [ref=e431]
+        - link "Antrian Produksi" [ref=e433] [cursor=pointer]:
+          - /url: /queue
+          - generic [ref=e434]:
+            - img [ref=e435]
+            - generic [ref=e438]: Antrian Produksi
+          - img [ref=e439]
+        - link "Keuangan" [ref=e441] [cursor=pointer]:
+          - /url: /finance
+          - generic [ref=e442]:
+            - img [ref=e443]
+            - generic [ref=e446]: Keuangan
+          - img [ref=e447]
+        - link "Laporan" [ref=e449] [cursor=pointer]:
+          - /url: /reports
+          - generic [ref=e450]:
+            - img [ref=e451]
+            - generic [ref=e453]: Laporan
+          - img [ref=e454]
+        - link "Audit Logs" [ref=e456] [cursor=pointer]:
+          - /url: /audit-logs
+          - generic [ref=e457]:
+            - img [ref=e458]
+            - generic [ref=e461]: Audit Logs
+          - img [ref=e462]
+    - generic [ref=e467]:
+      - generic [ref=e468]:
+        - generic [ref=e469]:
+          - heading "Akun Saya" [level=3] [ref=e470]
+          - button [ref=e471]:
+            - img [ref=e472]
+        - generic [ref=e475]:
+          - generic [ref=e476]: A
+          - generic [ref=e477]:
+            - generic [ref=e478]: Admin Utama
+            - generic [ref=e479]: admin
+      - generic [ref=e480]:
+        - button "Ganti Password" [ref=e481]:
+          - generic [ref=e482]:
+            - img [ref=e484]
+            - generic [ref=e487]: Ganti Password
+          - img [ref=e488]
+        - button "Keluar Sesi" [ref=e491] [cursor=pointer]:
+          - img [ref=e492]
+          - text: Keluar Sesi
+    - generic [ref=e158]:
+      - banner [ref=e159]:
+        - generic [ref=e162]:
+          - img [ref=e163]
+          - generic [ref=e165]: Operational Panel
+        - generic [ref=e167] [cursor=pointer]: A
+      - generic [ref=e169]:
+        - generic [ref=e170]:
+          - img [ref=e171]
+          - generic [ref=e174]: Terbaru
+        - generic [ref=e176]: JISOI OFFICIAL 1 pcs — JISOI OFFICIAL 1 pcs —
+      - main [ref=e177]:
+        - generic [ref=e179]:
+          - generic [ref=e182]:
+            - heading "Halo, Admin Utama 👋" [level=1] [ref=e183]:
+              - text: Halo, Admin Utama
+              - generic [ref=e184]: 👋
+            - paragraph [ref=e185]: Akses panel untuk memonitor produksi pesanan, mengelola keuangan, dan melihat statistik performa operasional REMA v2.1 Anda.
+          - generic [ref=e186]:
+            - generic [ref=e187]:
+              - heading "Grafik Pesanan Masuk" [level=2] [ref=e190]
+              - combobox [ref=e191] [cursor=pointer]:
+                - option "Minggu Ini"
+                - option "Bulan Ini" [selected]
+                - option "Tahun Ini"
+            - generic [ref=e194]:
+              - generic:
+                - status:
+                  - paragraph: "16"
+                  - list:
+                    - listitem: "pesanan : 0"
+              - application [ref=e195]:
+                - generic [ref=e232]:
+                  - generic [ref=e233]:
+                    - generic [ref=e235]: "1"
+                    - generic [ref=e237]: "2"
+                    - generic [ref=e239]: "3"
+                    - generic [ref=e241]: "4"
+                    - generic [ref=e243]: "5"
+                    - generic [ref=e245]: "6"
+                    - generic [ref=e247]: "7"
+                    - generic [ref=e249]: "8"
+                    - generic [ref=e251]: "9"
+                    - generic [ref=e253]: "10"
+                    - generic [ref=e255]: "11"
+                    - generic [ref=e257]: "12"
+                    - generic [ref=e259]: "13"
+                    - generic [ref=e261]: "14"
+                    - generic [ref=e263]: "15"
+                    - generic [ref=e265]: "16"
+                    - generic [ref=e267]: "17"
+                    - generic [ref=e269]: "18"
+                    - generic [ref=e271]: "19"
+                    - generic [ref=e273]: "20"
+                    - generic [ref=e275]: "21"
+                    - generic [ref=e277]: "22"
+                    - generic [ref=e279]: "23"
+                    - generic [ref=e281]: "24"
+                    - generic [ref=e283]: "25"
+                    - generic [ref=e285]: "26"
+                    - generic [ref=e287]: "27"
+                    - generic [ref=e289]: "28"
+                    - generic [ref=e291]: "29"
+                    - generic [ref=e293]: "30"
+                    - generic [ref=e295]: "31"
+                  - generic [ref=e296]:
+                    - generic [ref=e298]: "0"
+                    - generic [ref=e362]: "0.25"
+                    - generic [ref=e364]: "0.5"
+                    - generic [ref=e366]: "0.75"
+                    - generic [ref=e368]: "1"
+          - generic [ref=e307]:
+            - heading "Spesifikasi Sistem REMA v2.1" [level=2] [ref=e310]
+            - generic [ref=e311]:
+              - paragraph [ref=e312]: Sistem Informasi Manajemen Produksi & Finance (REMA) saat ini dikonfigurasi menggunakan basis data lokal terenkripsi di sisi klien. Desain antarmuka telah ditingkatkan dengan standar premium Enterprise untuk performa prima di perangkat mobile maupun desktop.
+              - generic [ref=e313]:
+                - generic [ref=e314]: File Sesi Terkendali
+                - generic [ref=e316]: Enkripsi Sisi Klien Aktif
+  - generic [ref=e324]: "0.25"

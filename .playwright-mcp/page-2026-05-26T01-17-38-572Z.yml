@@ -1,0 +1,135 @@
+- generic [ref=e2]:
+  - generic [ref=e95]:
+    - generic [ref=e97]:
+      - generic [ref=e100]:
+        - heading "REMA -V2" [level=2] [ref=e101]:
+          - text: REMA
+          - generic [ref=e102]: "-V2"
+        - paragraph [ref=e103]: Workspace v2.1
+      - generic [ref=e104]:
+        - paragraph [ref=e105]: Main Menu
+        - link "Dashboard" [ref=e106] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e107]:
+            - img [ref=e108]
+            - generic [ref=e113]: Dashboard
+          - img [ref=e114]
+        - link "Pengguna" [ref=e116] [cursor=pointer]:
+          - /url: /users
+          - generic [ref=e117]:
+            - img [ref=e118]
+            - generic [ref=e123]: Pengguna
+          - img [ref=e124]
+        - link "Mitra" [ref=e126] [cursor=pointer]:
+          - /url: /mitras
+          - generic [ref=e127]:
+            - img [ref=e128]
+            - generic [ref=e132]: Mitra
+          - img [ref=e133]
+        - link "Katalog Produk" [ref=e135] [cursor=pointer]:
+          - /url: /products
+          - generic [ref=e136]:
+            - img [ref=e137]
+            - generic [ref=e141]: Katalog Produk
+        - link "Daftar Pesanan" [ref=e142] [cursor=pointer]:
+          - /url: /orders
+          - generic [ref=e143]:
+            - img [ref=e144]
+            - generic [ref=e147]: Daftar Pesanan
+          - img [ref=e148]
+        - link "Pembatalan & Retur" [ref=e150] [cursor=pointer]:
+          - /url: /cancellations
+          - generic [ref=e151]:
+            - img [ref=e152]
+            - generic [ref=e155]: Pembatalan & Retur
+          - img [ref=e156]
+        - link "Antrian Produksi" [ref=e158] [cursor=pointer]:
+          - /url: /queue
+          - generic [ref=e159]:
+            - img [ref=e160]
+            - generic [ref=e163]: Antrian Produksi
+          - img [ref=e164]
+        - link "Keuangan" [ref=e166] [cursor=pointer]:
+          - /url: /finance
+          - generic [ref=e167]:
+            - img [ref=e168]
+            - generic [ref=e171]: Keuangan
+          - img [ref=e172]
+        - link "Laporan" [ref=e174] [cursor=pointer]:
+          - /url: /reports
+          - generic [ref=e175]:
+            - img [ref=e176]
+            - generic [ref=e178]: Laporan
+          - img [ref=e179]
+        - link "Audit Logs" [ref=e181] [cursor=pointer]:
+          - /url: /audit-logs
+          - generic [ref=e182]:
+            - img [ref=e183]
+            - generic [ref=e186]: Audit Logs
+          - img [ref=e187]
+    - generic [ref=e190]:
+      - banner [ref=e191]:
+        - generic [ref=e194]:
+          - img [ref=e195]
+          - generic [ref=e197]: Operational Panel
+        - generic [ref=e199] [cursor=pointer]: A
+      - generic [ref=e201]:
+        - generic [ref=e202]:
+          - img [ref=e203]
+          - generic [ref=e206]: Terbaru
+        - generic [ref=e208]: JISOI OFFICIAL 1 pcs — JISOI OFFICIAL 1 pcs —
+      - main [ref=e63]:
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - heading "Katalog & Koleksi Produk" [level=1] [ref=e68]
+              - paragraph [ref=e69]: Manajemen inventori, basis harga mitra, dan visual aset produk.
+            - button "Add Item" [ref=e70] [cursor=pointer]:
+              - img [ref=e71]
+              - text: Add Item
+          - generic [ref=e72]:
+            - generic [ref=e73] [cursor=pointer]:
+              - img "CLUTA D300" [ref=e75]
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - heading "CLUTA D300" [level=3] [ref=e79]
+                  - paragraph [ref=e80]: "Material: D300"
+                - paragraph [ref=e81]: Rp 9.500
+            - generic [ref=e82] [cursor=pointer]:
+              - generic [ref=e84]:
+                - img [ref=e85]
+                - generic [ref=e88]: No Image
+              - generic [ref=e90]:
+                - generic [ref=e91]:
+                  - heading "Test Produk Playwright EDITED" [level=3] [ref=e274]
+                  - paragraph [ref=e93]: Produk test untuk E2E testing
+                - paragraph [ref=e94]: Rp 15.000
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - heading "Detail Info Produk" [level=2] [ref=e212]
+              - button [ref=e213] [cursor=pointer]:
+                - img [ref=e214]
+            - generic [ref=e275]:
+              - generic [ref=e276]:
+                - generic [ref=e278]:
+                  - img [ref=e279]
+                  - generic [ref=e282]: Gambar Tidak Tersedia
+                - heading "Test Produk Playwright EDITED" [level=3] [ref=e283]
+                - paragraph [ref=e284]: Rp 15.000
+                - generic [ref=e286]: AKTIF
+                - generic [ref=e287]:
+                  - paragraph [ref=e288]: Deskripsi Produk
+                  - paragraph [ref=e289]: Produk test untuk E2E testing
+              - generic [ref=e290]:
+                - heading "Kontrol Manajemen" [level=4] [ref=e291]
+                - generic [ref=e292]:
+                  - button "Edit & Perbarui Produk" [ref=e293] [cursor=pointer]:
+                    - img [ref=e294]
+                    - text: Edit & Perbarui Produk
+                  - button "Arsipkan" [ref=e296] [cursor=pointer]:
+                    - img [ref=e297]
+                    - text: Arsipkan
+                  - button "Hapus" [ref=e300] [cursor=pointer]:
+                    - img [ref=e301]
+                    - text: Hapus
+  - status [ref=e309]: Produk berhasil diperbarui

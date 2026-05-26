@@ -1,0 +1,123 @@
+- generic [ref=e63]:
+  - generic [ref=e221]:
+    - generic [ref=e224]:
+      - heading "REMA -V2" [level=2] [ref=e225]:
+        - text: REMA
+        - generic [ref=e226]: "-V2"
+      - paragraph [ref=e227]: Workspace v2.1
+    - generic [ref=e228]:
+      - paragraph [ref=e229]: Main Menu
+      - link "Dashboard" [ref=e230] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e231]:
+          - img [ref=e232]
+          - generic [ref=e237]: Dashboard
+        - img [ref=e238]
+      - link "Pengguna" [ref=e240] [cursor=pointer]:
+        - /url: /users
+        - generic [ref=e241]:
+          - img [ref=e242]
+          - generic [ref=e247]: Pengguna
+      - link "Mitra" [ref=e248] [cursor=pointer]:
+        - /url: /mitras
+        - generic [ref=e249]:
+          - img [ref=e250]
+          - generic [ref=e254]: Mitra
+        - img [ref=e255]
+      - link "Katalog Produk" [ref=e257] [cursor=pointer]:
+        - /url: /products
+        - generic [ref=e258]:
+          - img [ref=e259]
+          - generic [ref=e263]: Katalog Produk
+        - img [ref=e264]
+      - link "Daftar Pesanan" [ref=e266] [cursor=pointer]:
+        - /url: /orders
+        - generic [ref=e267]:
+          - img [ref=e268]
+          - generic [ref=e271]: Daftar Pesanan
+        - img [ref=e272]
+      - link "Pembatalan & Retur" [ref=e274] [cursor=pointer]:
+        - /url: /cancellations
+        - generic [ref=e275]:
+          - img [ref=e276]
+          - generic [ref=e279]: Pembatalan & Retur
+        - img [ref=e280]
+      - link "Antrian Produksi" [ref=e282] [cursor=pointer]:
+        - /url: /queue
+        - generic [ref=e283]:
+          - img [ref=e284]
+          - generic [ref=e287]: Antrian Produksi
+        - img [ref=e288]
+      - link "Keuangan" [ref=e290] [cursor=pointer]:
+        - /url: /finance
+        - generic [ref=e291]:
+          - img [ref=e292]
+          - generic [ref=e295]: Keuangan
+        - img [ref=e296]
+      - link "Laporan" [ref=e298] [cursor=pointer]:
+        - /url: /reports
+        - generic [ref=e299]:
+          - img [ref=e300]
+          - generic [ref=e302]: Laporan
+        - img [ref=e303]
+      - link "Audit Logs" [ref=e305] [cursor=pointer]:
+        - /url: /audit-logs
+        - generic [ref=e306]:
+          - img [ref=e307]
+          - generic [ref=e310]: Audit Logs
+        - img [ref=e311]
+  - generic [ref=e158]:
+    - banner [ref=e159]:
+      - generic [ref=e162]:
+        - img [ref=e163]
+        - generic [ref=e165]: Operational Panel
+      - generic [ref=e167] [cursor=pointer]: A
+    - generic [ref=e169]:
+      - generic [ref=e170]:
+        - img [ref=e171]
+        - generic [ref=e174]: Terbaru
+      - generic [ref=e176]: JISOI OFFICIAL 1 pcs — JISOI OFFICIAL 1 pcs —
+    - main [ref=e177]:
+      - generic [ref=e314]:
+        - generic [ref=e315]:
+          - generic [ref=e316]:
+            - heading "Otentikasi & Akun Pengguna" [level=1] [ref=e317]
+            - paragraph [ref=e318]: Manajemen privilege, verifikasi kredensial, dan kontrol status hak akses.
+          - button "Add User" [ref=e319] [cursor=pointer]:
+            - img [ref=e320]
+            - text: Add User
+        - table [ref=e323]:
+          - rowgroup [ref=e324]:
+            - row "Informasi Profil Kredensial Hak Akses Status" [ref=e325]:
+              - columnheader "Informasi Profil" [ref=e326]
+              - columnheader "Kredensial" [ref=e327]
+              - columnheader "Hak Akses" [ref=e328]
+              - columnheader "Status" [ref=e329]
+          - rowgroup [ref=e330]:
+            - row "A Admin JIOSI 6282113133160 mitra Aktif" [ref=e331] [cursor=pointer]:
+              - cell "A Admin JIOSI" [ref=e332]:
+                - generic [ref=e333]:
+                  - generic [ref=e334]: A
+                  - generic [ref=e335]: Admin JIOSI
+              - cell "6282113133160" [ref=e336]
+              - cell "mitra" [ref=e337]
+              - cell "Aktif" [ref=e338]:
+                - generic [ref=e340]: Aktif
+            - row "A Admin Utama 6282113133165 admin Aktif" [ref=e341] [cursor=pointer]:
+              - cell "A Admin Utama" [ref=e342]:
+                - generic [ref=e343]:
+                  - generic [ref=e344]: A
+                  - generic [ref=e345]: Admin Utama
+              - cell "6282113133165" [ref=e346]
+              - cell "admin" [ref=e347]
+              - cell "Aktif" [ref=e348]:
+                - generic [ref=e350]: Aktif
+            - row "T Test Mitra Playwright 628999888777 mitra Aktif" [ref=e351] [cursor=pointer]:
+              - cell "T Test Mitra Playwright" [ref=e352]:
+                - generic [ref=e353]:
+                  - generic [ref=e354]: T
+                  - generic [ref=e355]: Test Mitra Playwright
+              - cell "628999888777" [ref=e356]
+              - cell "mitra" [ref=e357]
+              - cell "Aktif" [ref=e358]:
+                - generic [ref=e360]: Aktif

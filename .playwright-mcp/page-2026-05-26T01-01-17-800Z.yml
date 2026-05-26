@@ -1,0 +1,43 @@
+- generic [ref=e331]:
+  - generic [ref=e332]:
+    - img "Workspace Background" [ref=e334]
+    - generic [ref=e337]:
+      - generic [ref=e338]:
+        - img [ref=e340]
+        - heading "REMA-V2" [level=1] [ref=e344]
+      - heading "Platform Manajemen Produksi Generasi Terbaru." [level=2] [ref=e345]
+      - paragraph [ref=e346]: Kelola ekosistem produksi dan alur keuangan bisnis Anda dalam satu workspace yang terintegrasi, aman, dan efisien.
+      - generic [ref=e347]:
+        - generic [ref=e348]: Sistem Online
+        - generic [ref=e350]: Build v2.1.0 (LTS)
+        - generic [ref=e351]: PT. Redone Berkah Mandiri
+  - generic [ref=e353]:
+    - generic [ref=e354]:
+      - heading "Selamat Datang Kembali" [level=2] [ref=e355]
+      - paragraph [ref=e356]: Masukkan kredensial Anda untuk mengakses sistem.
+    - generic [ref=e357]:
+      - generic [ref=e358]:
+        - text: Nomor Telepon
+        - generic [ref=e359]:
+          - img [ref=e361]
+          - textbox "0812XXXXXXXX" [ref=e363]
+      - generic [ref=e364]:
+        - generic [ref=e365]:
+          - generic [ref=e366]: Kata Sandi
+          - button "Lupa sandi?" [ref=e367]
+        - generic [ref=e368]:
+          - img [ref=e370]
+          - textbox "••••••••" [ref=e373]
+          - button [ref=e374]:
+            - img [ref=e375]
+      - button "Masuk ke Workspace" [ref=e378]:
+        - generic [ref=e379]:
+          - text: Masuk ke Workspace
+          - img [ref=e380]
+    - generic [ref=e382]:
+      - generic [ref=e383]:
+        - img [ref=e384]
+        - text: Sesi terenkripsi secara end-to-end
+      - generic [ref=e387]:
+        - generic [ref=e388] [cursor=pointer]: Syarat & Ketentuan
+        - generic [ref=e390] [cursor=pointer]: Kebijakan Privasi
