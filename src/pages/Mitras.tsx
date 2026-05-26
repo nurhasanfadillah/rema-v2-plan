@@ -334,7 +334,7 @@ function MitraDetailPanel({
         animate={{ x: 0 }}
         exit={{ x: '100vw' }}
         transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-        className="bg-slate-950 w-full max-w-md h-full lg:h-auto lg:max-h-[85vh] lg:rounded-3xl shadow-2xl flex flex-col border-l lg:border border-white/5 overflow-hidden"
+        className="bg-slate-950 w-full max-w-md h-full lg:h-auto lg:max-h-[90vh] lg:rounded-3xl shadow-2xl flex flex-col border-l lg:border border-white/5 overflow-hidden"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <h2 className="text-[16px] font-black text-white tracking-tight">Detail Info Mitra</h2>
@@ -343,9 +343,9 @@ function MitraDetailPanel({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-5">
           {!isEditing ? (
-            <div className="space-y-5">
+            <div className="space-y-3.5">
                <div className="flex items-center gap-4">
                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 flex items-center justify-center p-1 relative shadow-sm">
                     {mitra.logoUrl ? (
@@ -368,15 +368,15 @@ function MitraDetailPanel({
                  </div>
                </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 flex flex-col justify-center">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2.5 bg-emerald-500/5 rounded-xl border border-emerald-500/10 flex flex-col justify-center">
                      <div className="flex items-center gap-1.5 mb-0.5">
                         <Award className="w-2.5 h-2.5 text-emerald-500" />
                         <p className="text-[8px] font-extrabold text-emerald-500/70 uppercase tracking-widest">Total Penjualan</p>
                      </div>
                      <p className="text-[13px] font-black text-emerald-400 tabular-nums">{formatCurrency(stats.totalSales)}</p>
                   </div>
-                  <div className="p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 flex flex-col justify-center">
+                  <div className="p-2.5 bg-blue-500/5 rounded-xl border border-blue-500/10 flex flex-col justify-center">
                      <div className="flex items-center gap-1.5 mb-0.5">
                         <Sparkles className="w-2.5 h-2.5 text-blue-500" />
                         <p className="text-[8px] font-extrabold text-blue-500/70 uppercase tracking-widest">Volume Pesanan</p>
@@ -384,7 +384,7 @@ function MitraDetailPanel({
                      <p className="text-[13px] font-black text-blue-400 tabular-nums">{stats.totalOrders} <span className="text-[9px] font-bold opacity-60">items</span></p>
                     </div>
 
-                  <div className="col-span-2 p-3 bg-red-500/5 rounded-xl border border-red-500/10 flex flex-col justify-center">
+                  <div className="col-span-2 p-2.5 bg-red-500/5 rounded-xl border border-red-500/10 flex flex-col justify-center">
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                            <AlertCircle className="w-2.5 h-2.5 text-red-500" />
@@ -396,7 +396,7 @@ function MitraDetailPanel({
                      </div>
                   </div>
 
-                  <div className="col-span-2 p-3 bg-white/5 rounded-xl border border-white/5 flex flex-col gap-2.5">
+                  <div className="col-span-2 p-2.5 bg-white/5 rounded-xl border border-white/5 flex flex-col gap-2">
                      <div className="flex justify-between items-start">
                         <div>
                            <p className="text-[8px] font-extrabold text-slate-500 uppercase tracking-widest mb-0.5">Akun Penanggung Jawab</p>
@@ -409,7 +409,7 @@ function MitraDetailPanel({
                      </div>
                   </div>
 
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/5 col-span-2">
+                  <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 col-span-2">
                      <p className="text-[8px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Limit Kredit</p>
                      <LimitEditor defaultValue={mitra.creditLimit} onSave={(val) => onUpdateLimit(mitra.id, val)} />
                   </div>
