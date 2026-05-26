@@ -237,26 +237,26 @@ function ProductDetailPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/40 backdrop-blur-sm">
-      <motion.div 
-        initial={{ x: '100vw' }}
-        animate={{ x: 0 }}
-        exit={{ x: '100vw' }}
-        transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-        className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ type: 'tween', duration: 0.18 }}
+        className="bg-white w-full max-w-md max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
       >
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <h2 className="text-lg font-black text-slate-900 tracking-tight">Detail Info Produk</h2>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-50 transition-all cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-5">
           {!isEditing ? (
-            <div className="space-y-8">
+            <div className="space-y-5">
                <div>
-                 <div className="w-full aspect-video bg-slate-50 border rounded-2xl overflow-hidden mb-5">
+                 <div className="w-full aspect-video bg-slate-50 border rounded-2xl overflow-hidden mb-3">
                     {product.imageUrl ? (
                        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
@@ -267,10 +267,10 @@ function ProductDetailPanel({
                     )}
                  </div>
                  
-                 <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1.5 leading-tight">{product.name}</h3>
-                 <p className="text-lg font-black text-slate-950 mb-4">{formatCurrency(product.price)}</p>
-                 
-                 <div className="flex items-center gap-2 mb-6">
+                 <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1 leading-tight">{product.name}</h3>
+                 <p className="text-lg font-black text-slate-950 mb-2">{formatCurrency(product.price)}</p>
+
+                 <div className="flex items-center gap-2 mb-3">
                     {product.isArchived ? (
                          <span className="inline-flex items-center px-2.5 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-[10px] font-extrabold uppercase">DIARSIPKAN</span>
                       ) : (
@@ -358,9 +358,9 @@ function ProductModal({ product, onClose, onSave, formattedLabel }: { product: P
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 lg:p-8 animate-in slide-in-from-bottom-8 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-black text-slate-900 mb-6">{product ? 'Edit Produk' : 'Tambah Produk'}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4 font-bold text-xs sm:text-sm">
+      <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-5 animate-in slide-in-from-bottom-8">
+        <h2 className="text-lg font-black text-slate-900 mb-4">{product ? 'Edit Produk' : 'Tambah Produk'}</h2>
+        <form onSubmit={handleSubmit} className="space-y-3 font-bold text-xs sm:text-sm">
           <div>
              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nama Produk</label>
              <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-bold text-slate-800 text-xs" placeholder="Mis. Produk Kualitas Premium" />
@@ -374,12 +374,12 @@ function ProductModal({ product, onClose, onSave, formattedLabel }: { product: P
           </div>
           <div>
              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Deskripsi Produk (Opsional)</label>
-             <textarea value={desc} onChange={e=>setDesc(e.target.value)} rows={3} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-semibold text-xs leading-relaxed" placeholder="Penjelasan bahan, warna, dll." />
+             <textarea value={desc} onChange={e=>setDesc(e.target.value)} rows={2} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-semibold text-xs leading-relaxed" placeholder="Penjelasan bahan, warna, dll." />
           </div>
           <div>
              <FileUpload value={img} onChange={setImg} label="Gambar Utama Produk" accept="image/*" />
           </div>
-          <div className="pt-6 flex justify-end gap-3 text-xs">
+          <div className="pt-3 flex justify-end gap-3 text-xs">
              <button type="button" onClick={onClose} className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold transition-all cursor-pointer">Batal</button>
              <button type="submit" className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold transition-all cursor-pointer active:scale-95">Simpan Produk</button>
           </div>

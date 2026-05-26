@@ -26,6 +26,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 11 | UI Fixes | 1 | ✅ Complete | 2026-05-26 |
 | 13 | UI Bug Fixes & Improvements | 1 | ✅ Complete | 2026-05-26 |
 | 14 | Modal Akun Center | 1 | ✅ Complete | 2026-05-26 |
+| 15 | Produk Modal Clean | 1 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 
@@ -155,4 +156,14 @@ Phases: 1 of 1 complete (Phase 11)
 
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-26 — Phase 14 Modal Akun Center ditambahkan*
+### Phase 15: Produk Modal Clean ✅ Complete
+
+**Goal:** Form Tambah/Edit Produk tanpa scrollbar (spacing kompak), Detail Info Produk centered overlay dengan fade+scale dan no-scrollbar
+**Depends on:** Phase 14 (app stable)
+**Completed:** 2026-05-27
+
+**Plans:**
+- [x] 15-01: ProductFormModal compact + ProductDetailPanel centered+no-scrollbar (execute)
+
+---
+*Last updated: 2026-05-27 — Phase 15 Produk Modal Clean ditambahkan*
