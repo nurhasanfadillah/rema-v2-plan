@@ -31,7 +31,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30">
+    <div className="h-screen w-full flex overflow-hidden bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30">
       {/* Left Panel: Hero Visual (Desktop Only) */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 items-center justify-center overflow-hidden border-r border-white/5">
         <div className="absolute inset-0 z-0">
@@ -83,7 +83,7 @@ export default function Login() {
       </div>
 
       {/* Right Panel: Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-20 bg-slate-950 relative">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10 lg:p-12 bg-slate-950 relative overflow-y-auto">
         {/* Background elements for mobile */}
         <div className="lg:hidden absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-blue-600/10 blur-[80px] rounded-full" />
@@ -104,7 +104,7 @@ export default function Login() {
             <p className="text-slate-500 text-[12px] mt-2 font-medium">Manajemen Produksi & Finance</p>
           </div>
 
-          <div className="mb-10">
+          <div className="mb-10 text-center">
             <h2 className="text-2xl font-bold text-white tracking-tight font-display mb-2">Selamat Datang Kembali</h2>
             <p className="text-[13px] text-slate-500 font-medium">Masukkan kredensial Anda untuk mengakses sistem.</p>
           </div>

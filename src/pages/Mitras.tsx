@@ -328,13 +328,13 @@ function MitraDetailPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex justify-end lg:items-center lg:justify-center bg-slate-950/40 backdrop-blur-sm">
       <motion.div
         initial={{ x: '100vw' }}
         animate={{ x: 0 }}
         exit={{ x: '100vw' }}
         transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-        className="bg-slate-950 w-full max-w-md h-full shadow-2xl flex flex-col border-l border-white/5"
+        className="bg-slate-950 w-full max-w-md h-full lg:h-auto lg:max-h-[85vh] lg:rounded-3xl shadow-2xl flex flex-col border-l lg:border border-white/5 overflow-hidden"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <h2 className="text-[16px] font-black text-white tracking-tight">Detail Info Mitra</h2>

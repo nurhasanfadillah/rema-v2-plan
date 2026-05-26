@@ -114,10 +114,13 @@ export default function OrderDetail() {
       }
     }
 
+    const isDraftSubmit = newStatus === 'waiting_confirmation' && order.status === 'draft';
     const isConfirmed = await confirm({
-      title: isCancel ? 'Batalkan Pesanan' : (isReturn ? 'Retur Pesanan' : 'Update Status Pesanan'),
-      message: `Apakah Anda yakin ingin ${isCancel ? 'membatalkan' : (isReturn ? 'meretur' : `mengubah status pesanan menjadi ${newStatus}`)} pesanan ini?`,
-      confirmText: isCancel ? 'Ya, Batalkan' : (isReturn ? 'Ya, Retur' : 'Ya, Update'),
+      title: isDraftSubmit ? 'Ajukan Draft Pesanan' : (isCancel ? 'Batalkan Pesanan' : (isReturn ? 'Retur Pesanan' : 'Update Status Pesanan')),
+      message: isDraftSubmit
+        ? 'Pesanan akan dikirimkan ke admin untuk diverifikasi. Pastikan semua detail item dan lampiran sudah benar sebelum mengajukan.'
+        : `Apakah Anda yakin ingin ${isCancel ? 'membatalkan' : (isReturn ? 'meretur' : `mengubah status pesanan menjadi ${STATUS_LABELS[newStatus] || newStatus}`)} pesanan ini?`,
+      confirmText: isDraftSubmit ? 'Ya, Ajukan' : (isCancel ? 'Ya, Batalkan' : (isReturn ? 'Ya, Retur' : 'Ya, Update')),
       type: (isCancel || isReturn) ? 'danger' : 'info'
     });
 
@@ -243,7 +246,7 @@ export default function OrderDetail() {
 
   const canAdvanceNormally = () => {
     if (!order) return false;
-    if (order.status === 'draft') return user.role === 'mitra';
+    if (order.status === 'draft') return false; // mitra+draft punya panel "Ajukan Sekarang" tersendiri
     if (order.status === 'waiting_confirmation') return user.role === 'admin' || user.role === 'staff';
     if (['confirmed', 'processing', 'pressing', 'packing'].includes(order.status)) {
       return user.role === 'admin' || user.role === 'staff' || user.role === 'operational';

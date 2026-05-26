@@ -39,6 +39,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] E2E Testing — 21/25 AC pass (84%), semua 14 halaman diuji via Chrome DevTools — Phase 9
 - [x] Upload file ke R2 berfungsi di Vercel production (express.raw() fix) — Phase 10
 - [x] UI fixes: running orders filter confirmed, grafik exclude non-aktif, tabel ringkas order confirmed — Phase 11
+- [x] UI Bug Fixes & Improvements: 9 item (button mitra+draft, sidebar active, modal copy, dashboard labels, about text, login layout, mitra modal desktop, admin edit harga satuan) — Phase 13
 
 ### Active (In Progress)
 

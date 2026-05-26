@@ -341,7 +341,7 @@ export default function CreateOrder() {
                     </div>
 
                      <div className="flex items-center justify-between gap-4 pt-3 border-t border-slate-200/55">
-                      <div className="flex items-center gap-4 border-0">
+                      <div className="flex flex-wrap items-center gap-4 border-0">
                         <input
                           type="number"
                           min="1"
@@ -350,6 +350,20 @@ export default function CreateOrder() {
                           className="w-16 px-3 py-1.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 font-bold text-xs text-slate-800 bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           placeholder="Qty"
                         />
+                        {(user.role === 'admin' || user.role === 'staff') && id && (
+                          <div className="flex items-center gap-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Harga/Unit</label>
+                            <input
+                              type="number"
+                              min="0"
+                              step="500"
+                              value={item.priceSnapshot || ''}
+                              onChange={e => handleUpdateItem(item.id, 'priceSnapshot', Math.max(0, parseInt(e.target.value) || 0))}
+                              className="w-28 px-3 py-1.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 font-bold text-xs text-slate-800 bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              placeholder="Harga"
+                            />
+                          </div>
+                        )}
                         <div className="text-xs font-semibold text-slate-500">
                           Subtotal: <span className="font-extrabold text-teal-600">{formatCurrency(item.qty * item.priceSnapshot)}</span>
                         </div>

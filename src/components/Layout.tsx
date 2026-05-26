@@ -29,7 +29,7 @@ export default function Layout() {
     { to: '/mitras', icon: <UserSquare2 />, label: 'Mitra', roles: ['admin'] },
     { to: '/products', icon: <Package />, label: 'Katalog Produk', roles: ['admin', 'mitra'] },
     { to: '/orders/drafts', icon: <ShoppingCart />, label: 'Draft Pesanan', roles: ['mitra'] },
-    { to: '/orders', icon: <ListOrdered />, label: 'Daftar Pesanan', roles: ['admin', 'staff', 'operational', 'mitra'] },
+    { to: '/orders', icon: <ListOrdered />, label: 'Daftar Pesanan', roles: ['admin', 'staff', 'operational', 'mitra'], excludePrefix: '/orders/drafts' },
     { to: '/cancellations', icon: <Undo2 />, label: 'Pembatalan & Retur', roles: ['admin', 'staff', 'mitra'] },
     { to: '/queue', icon: <Receipt />, label: 'Antrian Produksi', roles: ['admin', 'staff', 'operational', 'mitra'] },
     { to: '/finance', icon: <Wallet />, label: 'Keuangan', roles: ['admin', 'mitra'] },
@@ -55,33 +55,41 @@ export default function Layout() {
       <div className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto no-scrollbar">
         <p className="label-xs px-3 mb-2">Menu Utama</p>
         
-        {visibleLinks.map(l => (
-          <NavLink 
-            key={l.to} 
-            to={l.to}
-            className={({ isActive }) => cn(
-              "flex items-center justify-between px-3.5 py-3 rounded-2xl transition-all duration-300 font-semibold text-[13px] group relative",
-              isActive 
-                ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/15" 
-                : "text-slate-400 hover:bg-slate-900 hover:text-slate-100"
-            )}
-          >
-            {({ isActive }) => (
-              <>
-                <div className="flex items-center gap-3">
-                  {React.cloneElement(l.icon as React.ReactElement, { 
-                    className: cn("w-4.5 h-4.5 transition-colors duration-300", 
-                    isActive ? "text-white" : "text-slate-500 group-hover:text-slate-300") 
-                  })}
-                  <span>{l.label}</span>
-                </div>
-                {!isActive && (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                )}
-              </>
-            )}
-          </NavLink>
-        ))}
+        {visibleLinks.map(l => {
+          const active = l.excludePrefix
+            ? location.pathname.startsWith(l.to) && !location.pathname.startsWith(l.excludePrefix)
+            : undefined; // undefined = let NavLink decide via isActive
+          return (
+            <NavLink
+              key={l.to}
+              to={l.to}
+              className={({ isActive }) => cn(
+                "flex items-center justify-between px-3.5 py-3 rounded-2xl transition-all duration-300 font-semibold text-[13px] group relative",
+                (active ?? isActive)
+                  ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/15"
+                  : "text-slate-400 hover:bg-slate-900 hover:text-slate-100"
+              )}
+            >
+              {({ isActive }) => {
+                const isLinkActive = active ?? isActive;
+                return (
+                  <>
+                    <div className="flex items-center gap-3">
+                      {React.cloneElement(l.icon as React.ReactElement, {
+                        className: cn("w-4.5 h-4.5 transition-colors duration-300",
+                        isLinkActive ? "text-white" : "text-slate-500 group-hover:text-slate-300")
+                      })}
+                      <span>{l.label}</span>
+                    </div>
+                    {!isLinkActive && (
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    )}
+                  </>
+                );
+              }}
+            </NavLink>
+          );
+        })}
       </div>
 
       <div className="p-4 border-t border-slate-900 bg-slate-950 min-h-[80px]">

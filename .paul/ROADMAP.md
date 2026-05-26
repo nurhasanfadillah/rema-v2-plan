@@ -24,6 +24,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 9 | E2E Testing via MCP Playwright | 4 | ✅ Complete | 2026-05-26 |
 | 10 | Upload Bug Fix | 1 | ✅ Complete | 2026-05-26 |
 | 11 | UI Fixes | 1 | ✅ Complete | 2026-05-26 |
+| 13 | UI Bug Fixes & Improvements | 1 | ✅ Complete | 2026-05-26 |
 
 ## Phase Details
 
@@ -123,15 +124,25 @@ Phases: 1 of 1 complete (Phase 11)
 **Plans:**
 - [x] 11-01: RunningOrders filter + Dashboard chart filter + tabel ringkas
 
-### Phase 12: Copywriting Audit & Improvement
+### Phase 12: Copywriting Audit & Improvement ✅ Complete
 
 **Goal:** Audit komprehensif seluruh copy UI (buttons, labels, placeholders, toasts, modals, page titles) — identifikasi inconsistency & verbosity, apply copy standar industri SaaS Indonesia yang ringkas dan profesional
 **Depends on:** Phase 11 (app stable di production)
+**Completed:** 2026-05-26
 
 **Plans:**
-- [ ] 12-01: Audit komprehensif copy UI → COPY-AUDIT.md (research)
-- [ ] 12-02: Implementasi approved copy improvements (execute)
+- [x] 12-01: Audit komprehensif copy UI → COPY-AUDIT.md (research)
+- [x] 12-02: Implementasi approved copy improvements (execute)
+
+### Phase 13: UI Bug Fixes & Improvements ✅ Complete
+
+**Goal:** Perbaiki 9 item: bug role mitra+draft (button & modal copy), sidebar active state, dashboard labels, about text, login layout, mitra modal desktop center, dan feature edit harga satuan untuk admin
+**Depends on:** Phase 12 (app stable)
+**Completed:** 2026-05-26
+
+**Plans:**
+- [x] 13-01: Bug fixes + UI/copy + feature harga satuan (execute)
 
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-26 — Phase 12 Copywriting Audit ditambahkan*
+*Last updated: 2026-05-26 — Phase 13 UI Bug Fixes & Improvements ditambahkan*

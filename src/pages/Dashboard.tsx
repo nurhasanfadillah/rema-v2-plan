@@ -167,7 +167,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 bg-indigo-600 rounded-full" />
             <h2 className="section-title">
-              Grafik Pesanan Masuk
+              Monitor Pesanan Masuk
             </h2>
           </div>
 
@@ -219,7 +219,7 @@ export default function Dashboard() {
         <motion.div variants={itemVariants} className="card">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-1 h-5 bg-green-600 rounded-full" />
-            <h2 className="section-title">10 Pesanan Dikonfirmasi Terakhir</h2>
+            <h2 className="section-title">Pesanan Terbaru</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -266,8 +266,9 @@ export default function Dashboard() {
         </div>
         <div className="bg-slate-50 rounded-2xl p-5 text-slate-600 text-[12px] leading-relaxed border border-slate-100">
           <p className="font-medium">
-            Sistem manajemen produksi dan keuangan mitra PT. Redone Berkah Mandiri Utama.
-            Data pesanan dan keuangan tersimpan di cloud, file tersimpan di Cloudflare R2.
+            REMA adalah platform digital untuk mitra konveksi PT. Redone Berkah Mandiri Utama.
+            Melalui aplikasi ini, mitra dapat membuat dan memantau pesanan secara real-time,
+            sementara admin mengelola alur produksi, keuangan, dan aktivitas mitra dalam satu tempat.
           </p>
         </div>
       </motion.div>
