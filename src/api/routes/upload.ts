@@ -30,6 +30,7 @@ router.post('/', express.raw({ type: '*/*', limit: '10mb' }), async (req: Reques
   try {
     const { s3, bucketName, publicUrl, missing } = initS3();
     if (missing.length > 0) {
+      console.error('[upload] Missing R2 env vars:', missing);
       return res.status(500).json({ error: `Missing R2 env vars: ${missing.join(', ')}` });
     }
 
