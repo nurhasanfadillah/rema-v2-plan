@@ -25,6 +25,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 10 | Upload Bug Fix | 1 | ✅ Complete | 2026-05-26 |
 | 11 | UI Fixes | 1 | ✅ Complete | 2026-05-26 |
 | 13 | UI Bug Fixes & Improvements | 1 | ✅ Complete | 2026-05-26 |
+| 14 | Modal Akun Center | 1 | ✅ Complete | 2026-05-26 |
 
 ## Phase Details
 
@@ -143,6 +144,15 @@ Phases: 1 of 1 complete (Phase 11)
 **Plans:**
 - [x] 13-01: Bug fixes + UI/copy + feature harga satuan (execute)
 
+### Phase 14: Modal Akun Center ✅ Complete
+
+**Goal:** Ubah modal Detail Info Akun dari slide-in panel kanan menjadi centered overlay modal
+**Depends on:** Phase 13 (app stable)
+**Completed:** 2026-05-26
+
+**Plans:**
+- [x] 14-01: UserDetailPanel layout + animasi diubah ke centered modal (quick-fix)
+
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-26 — Phase 13 UI Bug Fixes & Improvements ditambahkan*
+*Last updated: 2026-05-26 — Phase 14 Modal Akun Center ditambahkan*

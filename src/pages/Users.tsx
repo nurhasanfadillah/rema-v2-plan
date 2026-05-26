@@ -351,13 +351,13 @@ function UserDetailPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/40 backdrop-blur-sm">
-      <motion.div 
-        initial={{ x: '100dvw' }}
-        animate={{ x: 0 }}
-        exit={{ x: '100dvw' }}
-        transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-        className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ type: 'tween', duration: 0.18 }}
+        className="bg-white w-full max-w-md max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <h2 className="text-[16px] font-black text-slate-900 tracking-tight">Detail Info Akun</h2>
