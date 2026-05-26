@@ -28,6 +28,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 14 | Modal Akun Center | 1 | ✅ Complete | 2026-05-26 |
 | 15 | Produk Modal Clean | 1 | ✅ Complete | 2026-05-27 |
 | 16 | Produk Form Scroll Fix | 1 | ✅ Complete | 2026-05-27 |
+| 17 | Login UI Redesign | 1 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 
@@ -166,5 +167,15 @@ Phases: 1 of 1 complete (Phase 11)
 **Plans:**
 - [x] 15-01: ProductFormModal compact + ProductDetailPanel centered+no-scrollbar (execute)
 
+### Phase 17: Login UI Redesign 🔄 Planning
+
+**Goal:** Redesign halaman Login mengikuti referensi desain: single-column mobile-first, latar navy, logo centered, input bergaya kotak ikon + validasi, checkbox "Ingat saya", security badge card, footer lengkap — tanpa Face ID & PIN
+**Depends on:** Phase 16 (app stable)
+
+**Plans:**
+- [x] 17-01: Login.tsx redesign sesuai referensi gambar (execute)
+
+**Result:** Login page mobile-first, navy theme, input kotak-ikon biru, security badge, footer lengkap
+
 ---
-*Last updated: 2026-05-27 — Phase 15 Produk Modal Clean ditambahkan*
+*Last updated: 2026-05-27 — Phase 17 Login UI Redesign complete*
