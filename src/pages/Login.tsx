@@ -182,7 +182,7 @@ export default function Login() {
                     exit={{ opacity: 0, y: -5 }}
                     className="flex items-center gap-2"
                   >
-                    Masuk ke Workspace <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    Masuk <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -192,7 +192,7 @@ export default function Login() {
           <div className="mt-12 pt-8 border-t border-white/5 flex flex-col items-center gap-4 text-[10px] text-slate-600 font-medium text-center">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
-              Sesi terenkripsi secara end-to-end
+              Koneksi terenkripsi
             </div>
             <div className="flex items-center gap-4">
               <span className="hover:text-slate-400 transition-colors cursor-pointer">Syarat & Ketentuan</span>

@@ -229,7 +229,7 @@ export default function Reports() {
                   
                   <div className="flex bg-slate-50 rounded-xl p-3 divide-x divide-slate-200 border border-slate-100">
                      <div className="flex-1 px-3">
-                        <span className="text-xs text-slate-500 font-bold block mb-1">Total Limit / Debit</span>
+                        <span className="text-xs text-slate-500 font-bold block mb-1">Total Tagihan</span>
                         <span className="text-lg font-black text-red-650">{formatCurrency(financeData.totalDebit)}</span>
                      </div>
                      <div className="flex-1 px-3">
@@ -286,11 +286,11 @@ export default function Reports() {
                     </div>
                   )}
                   <div className="col-span-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tgl Mulai</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tanggal Mulai</label>
                     <input type="date" value={ordStart} onChange={e=>setOrdStart(e.target.value)} className="w-full border-slate-200 rounded-xl px-2 py-1.5 bg-slate-50 text-xs font-bold text-slate-700" />
                   </div>
                   <div className="col-span-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tgl Akhir</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tanggal Akhir</label>
                     <input type="date" value={ordEnd} onChange={e=>setOrdEnd(e.target.value)} className="w-full border-slate-200 rounded-xl px-2 py-1.5 bg-slate-50 text-xs font-bold text-slate-700" />
                   </div>
                   <div className="col-span-1">
@@ -350,7 +350,7 @@ export default function Reports() {
                 </div>
 
                 <div className="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm h-80 flex flex-col">
-                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Grafik Qty Pesanan</h3>
+                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Grafik Volume Pesanan</h3>
                    {ordStart && ordEnd ? (
                      <div className="flex-1 min-h-0">
                        <ResponsiveContainer width="100%" height="100%">
@@ -387,7 +387,7 @@ export default function Reports() {
               </button>
             </div>
             <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-              Apakah Anda ingin mengekspor data yang saat ini difilter dalam bentuk dokumen PDF?
+              Data akan diekspor dalam format PDF sesuai filter aktif.
             </p>
             <div className="flex gap-3">
               <button onClick={() => setIsExportModalOpen(false)} className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all">Batal</button>

@@ -123,6 +123,15 @@ Phases: 1 of 1 complete (Phase 11)
 **Plans:**
 - [x] 11-01: RunningOrders filter + Dashboard chart filter + tabel ringkas
 
+### Phase 12: Copywriting Audit & Improvement
+
+**Goal:** Audit komprehensif seluruh copy UI (buttons, labels, placeholders, toasts, modals, page titles) — identifikasi inconsistency & verbosity, apply copy standar industri SaaS Indonesia yang ringkas dan profesional
+**Depends on:** Phase 11 (app stable di production)
+
+**Plans:**
+- [ ] 12-01: Audit komprehensif copy UI → COPY-AUDIT.md (research)
+- [ ] 12-02: Implementasi approved copy improvements (execute)
+
 ---
 *Roadmap created: 2026-05-24*
-*Last updated: 2026-05-26 — v2.5 UI Fixes complete*
+*Last updated: 2026-05-26 — Phase 12 Copywriting Audit ditambahkan*

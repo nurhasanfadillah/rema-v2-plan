@@ -143,8 +143,8 @@ export default function Mitras() {
     >
       <div className="page-header">
         <div>
-          <h1 className="page-title">Manajemen Partner & Mitra</h1>
-          <p className="text-[11px] text-slate-500 mt-1 font-medium opacity-80">Pantau limit kredit, identitas brand mitra, dan statistik performa partner.</p>
+          <h1 className="page-title">Manajemen Mitra</h1>
+          <p className="text-[11px] text-slate-500 mt-1 font-medium opacity-80">Pantau limit kredit, profil mitra, dan statistik performa.</p>
         </div>
       </div>
 
@@ -153,7 +153,7 @@ export default function Mitras() {
           <div className="w-16 h-16 bg-slate-900 border border-slate-800 text-slate-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-xl">
             <AlertCircle className="w-8 h-8" />
           </div>
-          <h3 className="text-white font-bold text-lg tracking-tight">Data Mitra Kosong</h3>
+          <h3 className="text-white font-bold text-lg tracking-tight">Belum Ada Mitra</h3>
           <p className="text-slate-500 text-[12px] mt-1.5 mx-auto max-w-sm font-medium leading-relaxed">Silakan daftarkan akun dengan role 'Mitra' terlebih dahulu melalui menu Manajemen User untuk memunculkan profil di sini.</p>
         </div>
       ) : (
@@ -212,9 +212,9 @@ export default function Mitras() {
             <table className="w-full text-left">
               <thead className="bg-slate-950/40 border-b border-white/5 text-slate-500 font-bold text-[8px] uppercase tracking-widest">
                 <tr>
-                  <th className="px-5 py-3.5">Partner Profile</th>
-                  <th className="px-5 py-3.5">Total Sales</th>
-                  <th className="px-5 py-3.5 text-center">Vol</th>
+                  <th className="px-5 py-3.5">Profil Mitra</th>
+                  <th className="px-5 py-3.5">Total Penjualan</th>
+                  <th className="px-5 py-3.5 text-center">Volume</th>
                   <th className="px-5 py-3.5">Saldo Piutang</th>
                   <th className="px-5 py-3.5">Limit Kredit</th>
                   <th className="px-5 py-3.5 text-right">Status Hubungan</th>
@@ -261,7 +261,7 @@ export default function Mitras() {
                         {m.isArchived ? (
                            <span className="inline-flex items-center px-1.5 py-0.5 bg-slate-900 text-slate-500 rounded text-[7px] font-bold uppercase border border-slate-800 tracking-wider">Arsip</span>
                         ) : (
-                           <span className="inline-flex items-center px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-md text-[8px] font-bold uppercase border border-blue-500/20 tracking-wider">Aktif Partner</span>
+                           <span className="inline-flex items-center px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-md text-[8px] font-bold uppercase border border-blue-500/20 tracking-wider">Aktif</span>
                         )}
                       </td>
                     </tr>
@@ -372,14 +372,14 @@ function MitraDetailPanel({
                   <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 flex flex-col justify-center">
                      <div className="flex items-center gap-1.5 mb-0.5">
                         <Award className="w-2.5 h-2.5 text-emerald-500" />
-                        <p className="text-[8px] font-extrabold text-emerald-500/70 uppercase tracking-widest">Total Sales</p>
+                        <p className="text-[8px] font-extrabold text-emerald-500/70 uppercase tracking-widest">Total Penjualan</p>
                      </div>
                      <p className="text-[13px] font-black text-emerald-400 tabular-nums">{formatCurrency(stats.totalSales)}</p>
                   </div>
                   <div className="p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 flex flex-col justify-center">
                      <div className="flex items-center gap-1.5 mb-0.5">
                         <Sparkles className="w-2.5 h-2.5 text-blue-500" />
-                        <p className="text-[8px] font-extrabold text-blue-500/70 uppercase tracking-widest">Order Vol</p>
+                        <p className="text-[8px] font-extrabold text-blue-500/70 uppercase tracking-widest">Volume Pesanan</p>
                      </div>
                      <p className="text-[13px] font-black text-blue-400 tabular-nums">{stats.totalOrders} <span className="text-[9px] font-bold opacity-60">items</span></p>
                     </div>
@@ -388,7 +388,7 @@ function MitraDetailPanel({
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                            <AlertCircle className="w-2.5 h-2.5 text-red-500" />
-                           <p className="text-[8px] font-extrabold text-red-500/70 uppercase tracking-widest leading-none mt-0.5">Saldo Piutang (Receivables)</p>
+                           <p className="text-[8px] font-extrabold text-red-500/70 uppercase tracking-widest leading-none mt-0.5">Saldo Piutang</p>
                         </div>
                         <p className={`text-[12px] font-black tabular-nums transition-colors ${stats.saldoPiutang > 0 ? 'text-red-500' : 'text-emerald-500 opacity-60'}`}>
                            {formatCurrency(stats.saldoPiutang)}
@@ -410,23 +410,23 @@ function MitraDetailPanel({
                   </div>
 
                   <div className="p-3 bg-white/5 rounded-xl border border-white/5 col-span-2">
-                     <p className="text-[8px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Limit Kredit Dinamis (Hutang Maks)</p>
+                     <p className="text-[8px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Limit Kredit</p>
                      <LimitEditor defaultValue={mitra.creditLimit} onSave={(val) => onUpdateLimit(mitra.id, val)} />
                   </div>
                </div>
 
                <div className="space-y-2.5 pt-1">
-                 <h4 className="text-[9px] font-extrabold text-slate-600 uppercase tracking-widest border-b border-white/5 pb-1">Kontrol Akses & Profil</h4>
+                 <h4 className="text-[9px] font-extrabold text-slate-600 uppercase tracking-widest border-b border-white/5 pb-1">Tindakan</h4>
                  <div className="grid grid-cols-2 gap-2 text-[10px] font-bold">
                     <button onClick={() => setIsEditing(true)} className="flex items-center justify-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-all cursor-pointer active:scale-95 border border-white/5">
                       <Edit2 className="w-3 h-3" /> Edit Profil
                     </button>
                     <button onClick={onToggleArchive} className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition-all cursor-pointer active:scale-95 border ${mitra.isArchived ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border-orange-500/20'}`}>
                       <Archive className="w-3 h-3" />
-                      {mitra.isArchived ? 'Open Access' : 'Restricted'}
+                      {mitra.isArchived ? 'Buka Akses' : 'Batasi Akses'}
                     </button>
                     <button onClick={onDelete} className="col-span-2 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-all cursor-pointer active:scale-95 font-extrabold uppercase tracking-wider border border-red-500/20">
-                      <Trash2 className="w-3 h-3" /> Delete Partner Record
+                      <Trash2 className="w-3 h-3" /> Hapus Mitra
                     </button>
                  </div>
                </div>
@@ -461,7 +461,7 @@ function LimitEditor({ defaultValue, onSave }: { defaultValue: number | null, on
           <input
              type="text"
              value={new Intl.NumberFormat('id-ID').format(parseInt(val.replace(/\D/g, '')) || 0)}
-             placeholder="No Limit (Unlimited)"
+             placeholder="Kosongkan untuk tanpa limit"
              onChange={(e) => setVal(e.target.value.replace(/\D/g, ''))}
              className="pl-7 pr-3 py-2 border border-white/10 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-right w-full bg-white/5 font-bold text-white text-[11px] placeholder:text-slate-600 placeholder:italic"
           />
@@ -471,7 +471,7 @@ function LimitEditor({ defaultValue, onSave }: { defaultValue: number | null, on
            className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer text-[10px] font-bold"
            title="Save Limit"
         >
-           <Save className="w-3 h-3" /> Save
+           <Save className="w-3 h-3" /> Simpan
         </button>
     </div>
   );

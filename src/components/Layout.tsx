@@ -53,7 +53,7 @@ export default function Layout() {
       </div>
 
       <div className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto no-scrollbar">
-        <p className="label-xs px-3 mb-2">Main Menu</p>
+        <p className="label-xs px-3 mb-2">Menu Utama</p>
         
         {visibleLinks.map(l => (
           <NavLink 
@@ -182,7 +182,7 @@ export default function Layout() {
                     <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-amber-400 group-hover:bg-amber-500/10 transition-colors">
                       <KeyRound className="w-4.5 h-4.5" />
                     </div>
-                    <span className="text-[13px] font-bold">Ganti Password</span>
+                    <span className="text-[13px] font-bold">Ganti Kata Sandi</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-600" />
                 </button>
@@ -193,7 +193,7 @@ export default function Layout() {
                     className="btn-danger w-full"
                   >
                     <LogOut className="w-4.5 h-4.5" />
-                    Keluar Sesi
+                    Keluar
                   </button>
                 </div>
               </div>
@@ -217,7 +217,7 @@ export default function Layout() {
             <div className="flex items-center gap-3">
               <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 text-[10px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-lg uppercase tracking-[0.08em]">
                 <Activity className="w-3 h-3" />
-                <span>Operational Panel</span>
+                <span>Panel Operasional</span>
               </div>
               <span className="lg:hidden font-display font-black tracking-tighter text-white text-xl leading-none">
                 REMA<span className="text-blue-500">-V2</span>

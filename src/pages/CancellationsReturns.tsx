@@ -68,7 +68,7 @@ export default function CancellationsReturns() {
   const handleOpenForm = (type: 'cancellation' | 'return') => {
     const list = getEligibleOrders(type);
     if (list.length === 0) {
-      toast.error(`Tidak ada pesanan yang memenuhi syarat untuk ${type === 'cancellation' ? 'pembatalan/pembatalan' : 'retur'}.`);
+      toast.error(`Tidak ada pesanan yang dapat ${type === 'cancellation' ? 'dibatalkan' : 'diretur'}.`);
       return;
     }
     setActiveForm(type);
@@ -157,7 +157,7 @@ export default function CancellationsReturns() {
     if (status === 'cancelled') {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[10px] font-bold bg-slate-100 border-slate-200 text-slate-700 uppercase tracking-tight">
-          <XOctagon className="w-3 h-3" /> Dibatalkan
+          <XOctagon className="w-3 h-3" /> Batal
         </span>
       );
     }
@@ -178,7 +178,7 @@ export default function CancellationsReturns() {
             Pembatalan & Retur
           </h1>
           <p className="text-[11px] text-slate-400 font-medium tracking-wide">
-            Pusat kendali klaim transaksi dan penyesuaian limit saldo mitra.
+            Proses pembatalan dan retur pesanan mitra.
           </p>
         </div>
 
@@ -224,7 +224,7 @@ export default function CancellationsReturns() {
                     <h3 className="font-bold text-white text-sm">
                       Formulir {activeForm === 'cancellation' ? 'Pembatalan' : 'Retur'}
                     </h3>
-                    <p className="text-[10px] text-slate-500 font-medium">Input validasi klaim transaksi pada sistem.</p>
+                    <p className="text-[10px] text-slate-500 font-medium"></p>
                   </div>
                 </div>
                 <button
@@ -258,7 +258,7 @@ export default function CancellationsReturns() {
                       </select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-500">Estimasi Refund</label>
+                      <label className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-500">Estimasi Pengembalian</label>
                       <div className="px-3 py-2 bg-slate-800/50 border border-slate-800 rounded-lg text-xs font-black text-emerald-400">
                         {selectedOrderId ? formatCurrency(orders.find(o => o.id === selectedOrderId)?.totalAmount || 0) : 'Rp 0'}
                       </div>
@@ -266,7 +266,7 @@ export default function CancellationsReturns() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-500">Kronologi / Alasan</label>
+                    <label className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-500">Alasan</label>
                     <textarea
                       value={reason}
                       onChange={e => setReason(e.target.value)}
@@ -280,7 +280,7 @@ export default function CancellationsReturns() {
 
                 <div className="flex flex-col justify-between bg-white/5 p-4 rounded-xl border border-white/5">
                   <div className="space-y-2">
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Metrik Dampak</span>
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Ringkasan Dampak</span>
                     <div className="space-y-1.5 text-[10px] font-medium text-slate-400 leading-relaxed">
                       <div className="flex gap-2">
                         <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />
@@ -322,7 +322,7 @@ export default function CancellationsReturns() {
             <div className="p-1.5 bg-blue-500/10 rounded-md">
               <Activity className="w-3.5 h-3.5 text-blue-400" />
             </div>
-            <span className="text-[11px] font-black text-slate-200 uppercase tracking-[0.15em]">Log Resumen Aktivitas</span>
+            <span className="text-[11px] font-black text-slate-200 uppercase tracking-[0.15em]">Riwayat Aktivitas</span>
           </div>
           <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-900 rounded-full border border-slate-800">
             <div className={`w-1.5 h-1.5 rounded-full ${displayedOrders.length > 0 ? 'bg-emerald-500' : 'bg-slate-700'}`} />
@@ -383,7 +383,7 @@ export default function CancellationsReturns() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-800/30 text-[10px] uppercase tracking-widest text-slate-500">
-                    <th className="px-4 py-3 font-bold">Ref Orde</th>
+                    <th className="px-4 py-3 font-bold">Nomor Pesanan</th>
                     <th className="px-4 py-3 font-bold text-center">Tipe</th>
                     <th className="px-4 py-3 font-bold">Waktu Klaim</th>
                     {user.role !== 'mitra' && <th className="px-4 py-3 font-bold">Mitra</th>}

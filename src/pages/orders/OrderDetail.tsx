@@ -162,13 +162,13 @@ export default function OrderDetail() {
       setOrder(updated);
       toast.success('Status pesanan berhasil diperbarui');
     } catch (err: any) {
-      toast.error(err.message || 'Gagal update status');
+      toast.error(err.message || 'Gagal memperbarui status');
     }
   };
 
   const handleUpdateDTFStatus = async (itemId: string, newDTFStatus: 'belum_cetak' | 'sudah_cetak') => {
     if (!['confirmed', 'processing'].includes(order.status)) {
-      toast.error('Status Cetak DTF hanya dapat diubah saat status pesanan Dikonfirmasi atau Diproses Produksi.');
+      toast.error('Status cetak DTF hanya dapat diubah saat pesanan Dikonfirmasi atau Diproses.');
       return;
     }
 
@@ -331,7 +331,7 @@ export default function OrderDetail() {
          <div className="bg-slate-900/40 p-6 rounded-3xl border border-white/5 shadow-xl space-y-5 backdrop-blur-sm">
             <div className="flex items-center gap-2.5 pb-3 border-b border-white/5">
               <Truck className="w-4 h-4 text-slate-500" />
-              <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Alur Distribusi & Logistik</h2>
+              <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Informasi Pengiriman</h2>
             </div>
             <div className="space-y-4 text-[13px] text-slate-300 font-medium">
                <div className="flex justify-between items-center bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/50">
@@ -352,15 +352,15 @@ export default function OrderDetail() {
                ) : (
                   <>
                     <div className="flex justify-between px-1">
-                      <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Penerima Atas Nama:</span>
+                      <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Nama Penerima:</span>
                       <span className="text-slate-100 font-bold tracking-tight">{order.recipientName}</span>
                     </div>
                     <div className="flex justify-between px-1 pt-1">
-                      <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Identitas Telepon:</span>
+                      <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Telepon:</span>
                       <span className="text-slate-100 font-mono tracking-[0.05em] font-bold tabular-nums text-sm italic">{order.recipientPhone}</span>
                     </div>
                     <div className="flex flex-col gap-2 pt-3 border-t border-white/5">
-                      <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px] px-1">Alamat Pengiriman Lengkap:</span>
+                      <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px] px-1">Alamat:</span>
                       <p className="text-slate-400 px-3 py-3 bg-slate-950/50 rounded-xl border border-slate-800/30 leading-relaxed text-[12px] font-medium font-sans italic opacity-90">{order.recipientAddress}</p>
                     </div>
                   </>
@@ -374,19 +374,19 @@ export default function OrderDetail() {
               <div>
                 <div className="flex items-center gap-2.5 pb-3 border-b border-white/5 mb-5">
                   <CreditCard className="w-4 h-4 text-slate-500" />
-                  <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Rincian Finansial & Billing</h2>
+                  <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Rincian Tagihan</h2>
                 </div>
                 <div className="space-y-4 text-[13px] text-slate-300 font-medium">
                    <div className="flex justify-between items-center px-1">
-                     <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Integrasi Ledger:</span>
+                     <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Status Tagihan:</span>
                      {order.isBilled ? (
-                       <span className="px-2.5 py-1 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg tracking-wider italic uppercase">Ledger Tercatat</span>
+                       <span className="px-2.5 py-1 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg tracking-wider italic uppercase">Sudah Ditagih</span>
                      ) : (
-                       <span className="px-2.5 py-1 text-[9px] font-bold text-slate-500 bg-slate-800 border border-slate-700/50 rounded-lg tracking-wider italic uppercase">Pending Billed</span>
+                       <span className="px-2.5 py-1 text-[9px] font-bold text-slate-500 bg-slate-800 border border-slate-700/50 rounded-lg tracking-wider italic uppercase">Belum Ditagih</span>
                      )}
                    </div>
                    <div className="flex justify-between px-1">
-                     <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Kuantitas Pesanan:</span>
+                     <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Jumlah Item:</span>
                      <span className="text-slate-100 font-bold tabular-nums italic">{order.totalQty} <span className="text-[10px] opacity-40 font-normal ml-0.5">Pcs</span></span>
                    </div>
                 </div>
@@ -404,7 +404,7 @@ export default function OrderDetail() {
       <div className="bg-slate-900/10 p-4 sm:p-6 lg:p-8 rounded-[32px] border border-white/5 shadow-2xl backdrop-blur-sm space-y-6">
          <div className="flex items-center gap-3 pb-4 border-b border-white/5">
            <Package className="w-4.5 h-4.5 text-slate-500" />
-           <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Daftar Komposisi Item & Visual</h2>
+           <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Item Pesanan</h2>
          </div>
          <div className="space-y-8">
            {order.items.map((item, i) => (
@@ -416,9 +416,9 @@ export default function OrderDetail() {
                       </h3>
                       <div className="flex flex-wrap gap-2.5">
                         {item.isCustomLogo ? (
-                          <span className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[9px] font-bold uppercase tracking-wider italic">Custom Logo Design</span>
+                          <span className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[9px] font-bold uppercase tracking-wider italic">Custom Logo</span>
                         ) : (
-                          <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 text-slate-500 rounded-lg text-[9px] font-bold uppercase tracking-wider italic">Katalog Stock Polos</span>
+                          <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 text-slate-500 rounded-lg text-[9px] font-bold uppercase tracking-wider italic">Polos</span>
                         )}
                         <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 text-slate-400 rounded-lg text-[9px] font-bold uppercase tracking-wider tabular-nums">{item.qty} items</span>
                       </div>
@@ -436,7 +436,7 @@ export default function OrderDetail() {
                     <div className="mt-5 p-5 bg-slate-950/40 border border-white/5 rounded-3xl space-y-6 text-[13px]">
 
                        <div className="flex flex-col gap-3">
-                          <span className="font-bold text-slate-600 text-[9px] uppercase tracking-[0.2em] flex items-center gap-2 italic ml-1"><ImageIcon className="w-3.5 h-3.5 opacity-60" /> Galeri Preview Visual (Klik perbesar)</span>
+                          <span className="font-bold text-slate-600 text-[9px] uppercase tracking-[0.2em] flex items-center gap-2 italic ml-1"><ImageIcon className="w-3.5 h-3.5 opacity-60" /> Preview</span>
                           <div className="flex flex-wrap gap-3.5 pt-1">
                              {(Array.isArray(item.previewUrls) && item.previewUrls.length > 0 ? item.previewUrls : (item.previewUrl ? [item.previewUrl] : [])).map((url, idx, arr) => (
                                 <div
@@ -454,7 +454,7 @@ export default function OrderDetail() {
                        </div>
 
                        <div className="flex flex-col gap-3 pt-2">
-                          <span className="font-bold text-slate-600 text-[9px] uppercase tracking-[0.2em] flex items-center gap-2 italic ml-1"><ExternalLink className="w-3.5 h-3.5 opacity-60" /> Arsip Sumber Design Master</span>
+                          <span className="font-bold text-slate-600 text-[9px] uppercase tracking-[0.2em] flex items-center gap-2 italic ml-1"><ExternalLink className="w-3.5 h-3.5 opacity-60" /> File Desain</span>
                           <div className="flex flex-wrap gap-3 pt-1">
                              {(Array.isArray(item.designUrls) && item.designUrls.length > 0 ? item.designUrls : (item.designUrl ? [item.designUrl] : [])).map((url, idx) => (
                                 <a
@@ -463,14 +463,14 @@ export default function OrderDetail() {
                                   key={idx}
                                   className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 rounded-xl transition-all flex items-center gap-2.5 text-blue-400 font-bold text-[11px] shadow-lg cursor-pointer uppercase tracking-wide group"
                                 >
-                                   <Download className="w-3.5 h-3.5 opacity-50 transition-transform group-hover:-translate-y-0.5" /> Unduh Master {idx + 1}
+                                   <Download className="w-3.5 h-3.5 opacity-50 transition-transform group-hover:-translate-y-0.5" /> Unduh Desain {idx + 1}
                                 </a>
                              ))}
                           </div>
                        </div>
 
                        <div className="pt-2">
-                          <span className="font-bold text-slate-600 text-[9px] uppercase tracking-[0.2em] block mb-2 italic ml-1">Catatan Operasional Desain:</span>
+                          <span className="font-bold text-slate-600 text-[9px] uppercase tracking-[0.2em] block mb-2 italic ml-1">Catatan Desain:</span>
                           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-slate-400 font-medium leading-relaxed text-[12px] italic opacity-80 font-sans shadow-inner">
                             {item.designNotes || 'Tidak ada catatan khusus yang dilampirkan.'}
                           </div>
@@ -480,7 +480,7 @@ export default function OrderDetail() {
                        <div className="pt-6 mt-4 border-t border-white/5">
                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950/60 p-4 rounded-2xl border border-white/5 shadow-inner">
                            <div className="space-y-0.5">
-                             <h4 className="text-[10px] font-bold text-slate-500 tracking-[0.15em] uppercase italic">Status Verifikasi Cetak DTF</h4>
+                             <h4 className="text-[10px] font-bold text-slate-500 tracking-[0.15em] uppercase italic">Status Cetak DTF</h4>
                            </div>
                            <div className="flex items-center gap-2">
                              {['belum_cetak', 'sudah_cetak'].map((status) => (
@@ -500,7 +500,7 @@ export default function OrderDetail() {
                            </div>
                          </div>
                          {!['confirmed', 'processing'].includes(order.status) && (
-                           <p className="mt-3 text-[10px] text-slate-600 font-bold italic tracking-wide text-center sm:text-left opacity-80">* Kontrol status Cetak available dalam stage Produksi.</p>
+                           <p className="mt-3 text-[10px] text-slate-600 font-bold italic tracking-wide text-center sm:text-left opacity-80">Status cetak hanya dapat diubah pada tahap Produksi.</p>
                          )}
                        </div>
                     </div>
@@ -520,7 +520,7 @@ export default function OrderDetail() {
                  <ShieldAlert className="w-3.5 h-3.5" /> Menunggu Pengajuan
                </div>
                <p className="font-bold tracking-tight text-xl text-white">Ajukan Draft Pesanan</p>
-               <p className="text-[13px] text-slate-400 font-medium leading-relaxed max-w-lg">Ajukan pesanan Anda saat ini agar admin dapat memverifikasi pembayaran dan memulai rute produksi.</p>
+               <p className="text-[13px] text-slate-400 font-medium leading-relaxed max-w-lg">Pesanan masih draft. Ajukan agar masuk ke antrean verifikasi admin.</p>
              </div>
              <button
                onClick={() => handleUpdateStatus('waiting_confirmation')}
@@ -573,7 +573,7 @@ export default function OrderDetail() {
                   onClick={() => navigate(`/orders/${order.id}/edit`)}
                   className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition px-4 py-3 sm:py-2.5 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer bg-slate-900/80 uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
                 >
-                   Edit Order
+                   Edit Pesanan
                 </button>
               )}
 

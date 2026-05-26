@@ -155,7 +155,7 @@ export default function OrdersList() {
       processing: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200/60', dot: 'bg-purple-500', label: 'Diproses' },
       pressing: { bg: 'bg-rose-50 border-rose-100', text: 'text-rose-700', border: 'border-rose-200/60', dot: 'bg-rose-500', label: 'Press Sablon' },
       packing: { bg: 'bg-orange-50 border-orange-100', text: 'text-orange-700', border: 'border-orange-200/60', dot: 'bg-orange-500', label: 'Packing' },
-      shipped: { bg: 'bg-emerald-50 border-emerald-100', text: 'text-emerald-700 border-emerald-200/60', border: 'border-emerald-200/60', dot: 'bg-emerald-500', label: 'Kirim' },
+      shipped: { bg: 'bg-emerald-50 border-emerald-100', text: 'text-emerald-700 border-emerald-200/60', border: 'border-emerald-200/60', dot: 'bg-emerald-500', label: 'Terkirim' },
       returned: { bg: 'bg-red-50 border-red-100', text: 'text-red-700', border: 'border-red-200/60', dot: 'bg-red-500', label: 'Retur' },
       cancelled: { bg: 'bg-slate-900', text: 'text-slate-100', border: 'border-slate-800', dot: 'bg-slate-500', label: 'Batal' },
     };
@@ -189,7 +189,7 @@ export default function OrdersList() {
     >
       <div className="page-header">
         <div className="space-y-0.5">
-          <h1 className="page-title">{isDraftPage ? 'Draft Unit Pesanan' : 'Daftar Manajemen Pesanan'}</h1>
+          <h1 className="page-title">{isDraftPage ? 'Draft Pesanan' : 'Daftar Pesanan'}</h1>
           <p className="text-[12px] text-slate-500 font-medium tracking-wide italic opacity-80">{isDraftPage ? 'Lanjutkan pesanan yang belum selesai' : 'Kelola dan pantau pesanan Anda'}</p>
         </div>
         {user.role === 'mitra' && (
@@ -211,7 +211,7 @@ export default function OrdersList() {
               type="text"
               value={searchQuery}
               onChange={e => handleSearchChange(e.target.value)}
-              placeholder="Cari nomor order, tipe, atau mitra..."
+              placeholder="Cari nomor pesanan, tipe, atau mitra..."
               className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs sm:text-[13px] font-medium outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-slate-950 transition placeholder:text-slate-600 tabular-nums"
             />
           </div>
@@ -233,7 +233,7 @@ export default function OrdersList() {
                 <option value="processing">Diproses - {statusStats['processing']?.orders || 0} ({statusStats['processing']?.qty || 0})</option>
                 <option value="pressing">Press Sablon - {statusStats['pressing']?.orders || 0} ({statusStats['pressing']?.qty || 0})</option>
                 <option value="packing">Packing - {statusStats['packing']?.orders || 0} ({statusStats['packing']?.qty || 0})</option>
-                <option value="shipped">Kirim - {statusStats['shipped']?.orders || 0} ({statusStats['shipped']?.qty || 0})</option>
+                <option value="shipped">Terkirim - {statusStats['shipped']?.orders || 0} ({statusStats['shipped']?.qty || 0})</option>
               </select>
             </div>
           )}
@@ -370,7 +370,7 @@ export default function OrdersList() {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-4 bg-slate-900/50 rounded-2xl shadow-xl border border-white/5 backdrop-blur-sm">
           <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto justify-between lg:justify-start">
             <div className="flex items-center gap-3 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 shadow-inner">
-              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">Show Limit:</span>
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">Tampilkan:</span>
               <select
                 value={pageSize}
                 onChange={e => {
@@ -379,9 +379,9 @@ export default function OrdersList() {
                 }}
                 className="bg-transparent border-0 text-[11px] font-bold text-slate-300 uppercase outline-none focus:ring-0 cursor-pointer p-0 pr-1 tabular-nums italic"
               >
-                <option value={5}>5 Units</option>
-                <option value={10}>10 Units</option>
-                <option value={25}>25 Units</option>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
                 <option value={50}>50 Units</option>
                 <option value={100}>100 Units</option>
               </select>

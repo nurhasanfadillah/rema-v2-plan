@@ -82,7 +82,7 @@ export function FileUpload({ value, onChange, accept = "image/*", label = "Uploa
             <div className="flex flex-col items-center gap-1.5 p-3 text-slate-700 bg-white border rounded-xl shadow-sm max-w-xs">
               <FileText className="w-6 h-6 text-blue-500" />
               <div className="text-xs font-semibold truncate max-w-full text-center">Berkas Berhasil Terunggah</div>
-              <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Ready</span>
+              <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Siap</span>
             </div>
           )}
           <button
@@ -120,7 +120,7 @@ export function FileUpload({ value, onChange, accept = "image/*", label = "Uploa
             <Upload className="w-5 h-5" />
           </div>
           <p className="text-sm text-slate-700 font-bold text-center">Tarik & Lepas File di Sini</p>
-          <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Bisa klik untuk memilih file di folder lokal komputer (Maksimal 10MB)</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Klik atau seret file ke sini (maks. 10MB)</p>
           <input
             ref={inputRef}
             type="file"

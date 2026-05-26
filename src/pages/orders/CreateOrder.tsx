@@ -145,7 +145,7 @@ export default function CreateOrder() {
       }
       if (item.isCustomLogo) {
         if (!item.previewUrls?.length || !item.designUrls?.length) {
-          toast.error('File preview dan berkas desain wajib untuk item custom logo (minimum 1).');
+          toast.error('Preview dan berkas desain wajib diisi untuk item custom logo (min. 1 file).');
           return;
         }
       }
@@ -212,7 +212,7 @@ export default function CreateOrder() {
         if (isSubmit) {
           const isConfirmed = await confirm({
             title: 'Konfirmasi Ajukan Pesanan',
-            message: `Apakah Anda yakin ingin mengajukan pesanan dengan total ${totalQty} pcs ini? Setelah diajukan, pesanan akan masuk ke tahap verifikasi admin.`,
+            message: `Pesanan dengan total ${totalQty} pcs akan masuk ke antrean verifikasi admin.`,
             confirmText: 'Ya, Ajukan',
             type: 'info'
           });
@@ -244,7 +244,7 @@ export default function CreateOrder() {
              {existingOrder ? `Edit Pesanan #${existingOrder.orderNumber}` : 'Formulir Pesanan Baru'}
            </h1>
            <p className="text-[13px] text-slate-500 mt-0.5 font-semibold">
-             {existingOrder ? 'Perbarui informasi pengiriman, item, dan berkas cetak.' : 'Tentukan metode pengiriman, isi items, dan lengkapi berkas aset cetak.'}
+             {existingOrder ? 'Perbarui informasi pengiriman, item, dan berkas cetak.' : 'Tentukan metode pengiriman, isi item, dan lengkapi berkas cetak.'}
            </p>
         </div>
       </div>
@@ -254,7 +254,7 @@ export default function CreateOrder() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 pb-2.5 border-b border-slate-150">
             <span className="w-6 h-6 rounded-lg bg-blue-50 border border-blue-105 text-blue-600 font-extrabold text-xs flex items-center justify-center">1</span>
-            <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">Informasi Distribusi & Pengiriman</h2>
+            <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">Informasi Pengiriman</h2>
           </div>
 
           <div className="pt-1.5 flex flex-col md:flex-row md:items-center gap-4">
@@ -281,7 +281,7 @@ export default function CreateOrder() {
 
           {type === 'online' ? (
             <div className="pt-2">
-               <FileUpload value={resiUrl} onChange={setResiUrl} label="Unggah Label Pengiriman PDF / File Resi Cetak (Wajib)" accept="*/*" />
+               <FileUpload value={resiUrl} onChange={setResiUrl} label="Label Pengiriman / Resi (Wajib)" accept="*/*" />
             </div>
           ) : (
             <div className="space-y-4 pt-2">
@@ -296,7 +296,7 @@ export default function CreateOrder() {
                  </div>
                </div>
                <div>
-                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Alamat Lengkap Distribusi *</label>
+                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Alamat Pengiriman *</label>
                  <textarea required rows={3} value={recipientAddress} onChange={e=>setRecipientAddress(e.target.value)} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-xs leading-relaxed" placeholder="Tuliskan nama jalan, RT/RW, Kecamatan, Kota, Kode Pos" />
                </div>
             </div>
@@ -371,7 +371,7 @@ export default function CreateOrder() {
                             <MultiFileUpload values={item.previewUrls || (item.previewUrl ? [item.previewUrl] : [])} onChange={val=>handleUpdateItem(item.id, 'previewUrls', val)} label="Unggah Visual Preview" accept="image/*" />
                          </div>
                          <div>
-                            <MultiFileUpload values={item.designUrls || (item.designUrl ? [item.designUrl] : [])} onChange={val=>handleUpdateItem(item.id, 'designUrls', val)} label="File Master Design" accept="*/*" />
+                            <MultiFileUpload values={item.designUrls || (item.designUrl ? [item.designUrl] : [])} onChange={val=>handleUpdateItem(item.id, 'designUrls', val)} label="File Master Desain" accept="*/*" />
                          </div>
                          <div>
                             <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">Catatan Desain</label>
@@ -385,8 +385,8 @@ export default function CreateOrder() {
             {items.length === 0 && (
               <div className="text-center py-10 border-2 border-dashed rounded-3xl p-8 max-w-sm mx-auto">
                  <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                 <p className="text-slate-700 font-bold text-xs">Keranjang Belanja Masih Kosong</p>
-                 <p className="text-[10px] text-slate-400 font-medium">Klik tombol + Polos atau + Custom diatas untuk mulai merancang produk pilihan Anda.</p>
+                 <p className="text-slate-700 font-bold text-xs">Belum Ada Item</p>
+                 <p className="text-[10px] text-slate-400 font-medium">Tambahkan item dengan tombol + Polos atau + Custom di atas.</p>
               </div>
             )}
           </div>
@@ -409,10 +409,10 @@ export default function CreateOrder() {
               ) : (
                 <>
                   <button onClick={() => handleSave(false)} className="flex-1 md:flex-none px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all active:scale-95 cursor-pointer">
-                     {existingOrder ? 'Update Draft' : 'Simpan di Draft'}
+                     {existingOrder ? 'Simpan Draft' : 'Simpan di Draft'}
                   </button>
                   <button onClick={() => handleSave(true)} className="flex-1 md:flex-none px-6 py-3 bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white font-black rounded-2xl shadow-md shadow-blue-500/10 transition-all active:scale-95 cursor-pointer">
-                     {existingOrder ? 'Update & Ajukan' : 'Ajukan Pesanan'}
+                     {existingOrder ? 'Simpan & Ajukan' : 'Ajukan Pesanan'}
                   </button>
                 </>
               )}

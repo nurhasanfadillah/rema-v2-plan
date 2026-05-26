@@ -28,7 +28,7 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
   const processFiles = async (files: FileList | File[]) => {
     const validFiles = Array.from(files).filter(f => {
       if (f.size > 10 * 1024 * 1024) {
-        toast.error(`${f.name}: terlalu besar (maks 10MB)`);
+        toast.error(`${f.name}: ukuran file melebihi batas 10MB`);
         return false;
       }
       return true;
@@ -70,7 +70,7 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
     const newVals = Array.isArray(values) ? [...values] : [];
     newVals.splice(index, 1);
     onChange(newVals);
-    toast.success("Lampiran berhasil dihapus");
+    toast.success("Berkas dihapus");
   };
 
   return (
@@ -130,8 +130,8 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
         }`}>
           <Upload className="w-4.5 h-4.5" />
         </div>
-        <p className="text-sm text-slate-700 font-bold text-center">Tarik & Lepas File ke Sini</p>
-        <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Bisa memilih lebih dari 1 file sekaligus (Maksimal 10MB per file)</p>
+        <p className="text-sm text-slate-700 font-bold text-center">Tarik & Lepas File di Sini</p>
+        <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Pilih beberapa file sekaligus (maks. 10MB per file)</p>
         <input
           ref={inputRef}
           type="file"

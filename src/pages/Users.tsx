@@ -66,9 +66,9 @@ export default function Users() {
 
   const handleResetPassword = async (targetId: string) => {
     const isConfirmed = await confirm({
-      title: 'Reset Password',
+      title: 'Reset Kata Sandi',
       message: 'Apakah Anda yakin ingin melakukan reset password pengguna ini? Semua sesi akan diakhiri dan mereka wajib mengganti password saat login kembali.',
-      confirmText: 'Reset Password',
+      confirmText: 'Reset Kata Sandi',
       type: 'warning'
     });
     if (!isConfirmed) return;
@@ -146,14 +146,14 @@ export default function Users() {
     >
       <div className="page-header">
         <div>
-          <h1 className="page-title">Otentikasi & Akun Pengguna</h1>
-          <p className="text-[11px] text-slate-500 mt-1 font-medium opacity-80">Manajemen privilege, verifikasi kredensial, dan kontrol status hak akses.</p>
+          <h1 className="page-title">Manajemen Pengguna</h1>
+          <p className="text-[11px] text-slate-500 mt-1 font-medium opacity-80">Kelola akun, peran, dan status akses pengguna.</p>
         </div>
         <button 
           onClick={() => setIsAddOpen(true)}
           className="btn-primary text-[10px] uppercase tracking-wider"
         >
-          <Plus className="w-3.5 h-3.5" /> Add User
+          <Plus className="w-3.5 h-3.5" /> Tambah Pengguna
         </button>
       </div>
 
@@ -162,8 +162,8 @@ export default function Users() {
           <div className="w-20 h-20 bg-slate-900 border border-slate-800 text-slate-700 rounded-[24px] flex items-center justify-center mx-auto mb-6 shadow-xl">
              <AlertCircle className="w-10 h-10" />
           </div>
-          <h3 className="text-white font-bold text-xl tracking-tight">Data User Kosong</h3>
-          <p className="text-slate-500 text-[13px] mt-2 mx-auto max-w-sm font-medium leading-relaxed">Silakan buat akun baru dengan klik tombol "Add User" di atas untuk memulai manajemen otentikasi.</p>
+          <h3 className="text-white font-bold text-xl tracking-tight">Belum Ada Pengguna</h3>
+          <p className="text-slate-500 text-[13px] mt-2 mx-auto max-w-sm font-medium leading-relaxed">Silakan buat akun baru dengan klik tombol "Tambah Pengguna" di atas untuk memulai manajemen otentikasi.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -200,7 +200,7 @@ export default function Users() {
                     {u.isActive ? (
                       <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[7px] font-bold uppercase border border-blue-500/20 tracking-wider">Aktif</span>
                     ) : (
-                      <span className="px-1.5 py-0.5 bg-slate-900 text-slate-500 rounded text-[7px] font-bold uppercase border border-slate-800 tracking-wider">Banned</span>
+                      <span className="px-1.5 py-0.5 bg-slate-900 text-slate-500 rounded text-[7px] font-bold uppercase border border-slate-800 tracking-wider">Diblokir</span>
                     )}
                     {u.lockedUntil && u.lockedUntil > Date.now() && (
                       <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded text-[7px] font-bold uppercase border border-amber-500/20 tracking-wider animate-pulse">Locked</span>
@@ -258,7 +258,7 @@ export default function Users() {
                         {u.isActive ? (
                            <span className="inline-flex items-center px-3 py-1 bg-blue-500/10 text-blue-400 rounded text-[8px] font-bold uppercase border border-blue-500/20 tracking-wider">Aktif</span>
                         ) : (
-                           <span className="inline-flex items-center px-3 py-1 bg-slate-900 text-slate-500 rounded text-[8px] font-bold uppercase border border-slate-800 tracking-wider">Off</span>
+                           <span className="inline-flex items-center px-3 py-1 bg-slate-900 text-slate-500 rounded text-[8px] font-bold uppercase border border-slate-800 tracking-wider">Nonaktif</span>
                         )}
                       </div>
                     </td>
@@ -385,7 +385,7 @@ function UserDetailPanel({
                        <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Status Login</p>
                        <div className="flex items-center gap-2">
                          <span className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-extrabold uppercase tracking-wider ${userTarget.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                           {userTarget.isActive ? 'Aktif' : 'Off'}
+                           {userTarget.isActive ? 'Aktif' : 'Nonaktif'}
                          </span>
                        </div>
                     </div>
@@ -397,7 +397,7 @@ function UserDetailPanel({
                </div>
 
                <div className="space-y-3">
-                 <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1.5">Kontrol Operasional</h4>
+                 <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1.5">Tindakan</h4>
                  <div className="grid grid-cols-2 gap-2 font-bold text-[11px]">
                     <button onClick={() => setIsEditing(true)} className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all cursor-pointer active:scale-95">
                       <Edit2 className="w-3.5 h-3.5" /> Edit Profil
@@ -408,11 +408,11 @@ function UserDetailPanel({
                       </button>
                     )}
                     <button onClick={onResetPassword} className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all cursor-pointer active:scale-95">
-                      <Lock className="w-3.5 h-3.5" /> Reset PW
+                      <Lock className="w-3.5 h-3.5" /> Reset Kata Sandi
                     </button>
                     <button onClick={onToggleActive} disabled={userTarget.id === currentUserId} className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl transition-all cursor-pointer active:scale-95 ${userTarget.isActive ? 'bg-orange-50 hover:bg-orange-100 text-orange-700' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700'} disabled:opacity-50`}>
                       {userTarget.isActive ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-                      {userTarget.isActive ? 'Disable' : 'Enable'}
+                      {userTarget.isActive ? 'Nonaktifkan' : 'Aktifkan'}
                     </button>
                     <button onClick={onDelete} disabled={userTarget.id === currentUserId} className="col-span-2 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition-all cursor-pointer active:scale-95 disabled:opacity-50 font-extrabold whitespace-nowrap">
                       <Trash2 className="w-3.5 h-3.5" /> Hapus Akun Permanen
@@ -489,7 +489,7 @@ function AddUserModal({ onClose, onAdd, onAddMitra }: { onClose: () => void, onA
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 transition-all max-h-[90vh] overflow-y-auto">
-        <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5">➕ Daftarkan Akun Pengguna</h2>
+        <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5">Tambah Pengguna</h2>
         {error && <div className="bg-red-50 border border-red-150 text-red-650 p-3 rounded-xl text-[11px] flex items-start gap-2 mb-4"><AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {error}</div>}
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
@@ -497,16 +497,16 @@ function AddUserModal({ onClose, onAdd, onAddMitra }: { onClose: () => void, onA
              <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 focus:bg-white rounded-lg outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-bold text-slate-800 text-[12px]" placeholder="Nama lengkap" />
           </div>
           <div>
-             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nomor Handphone (HP)</label>
+             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nomor Handphone</label>
              <input required type="tel" value={phone} onChange={e=>setPhone(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 focus:bg-white rounded-lg outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-bold text-slate-850 text-[12px]" placeholder="08xxxxxxxxxx" />
           </div>
           <div>
              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hak Akses Sistem</label>
              <select value={role} onChange={e=>setRole(e.target.value as Role)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-bold text-slate-700 text-[11px]">
-                <option value="admin">Administrator SYSTEM</option>
+                <option value="admin">Administrator</option>
                 <option value="staff">Staff Admin</option>
                 <option value="operational">Operational Produksi</option>
-                <option value="mitra">Mitra Partner</option>
+                <option value="mitra">Mitra</option>
              </select>
           </div>
           <div className="pt-4 flex justify-end gap-2.5 text-[11px]">

@@ -67,7 +67,7 @@ export default function AppQueue() {
       icon: <Layers className="w-5 h-5" />
     },
     { 
-      label: 'PACKING & SHIP', 
+      label: 'PACKING & KIRIM', 
       count: sortedOrders.filter(o => o.status === 'packing').length,
       qty: sortedOrders.filter(o => o.status === 'packing').reduce((sum, o) => sum + o.totalQty, 0),
       color: 'text-orange-650',
@@ -95,12 +95,11 @@ export default function AppQueue() {
       <div className="page-header items-end">
           <div>
             <h1 className="page-title underline decoration-indigo-500/30 decoration-4 underline-offset-8">Antrian Produksi</h1>
-            <p className="hidden sm:block text-[11px] text-slate-500 mt-2.5 font-bold uppercase tracking-widest opacity-80">Manufacturing Core Pipeline</p>
           </div>
           
           <div className="flex items-center gap-3 bg-slate-50/50 p-1.5 rounded-2xl border border-slate-200/60 font-mono">
              <div className="px-3 py-1 text-center">
-                <span className="block text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Queue</span>
+                <span className="block text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Antrian</span>
                 <span className="text-sm font-black text-slate-900">{sortedOrders.length}</span>
              </div>
              <div className="w-px h-6 bg-slate-200/50" />
@@ -180,7 +179,7 @@ export default function AppQueue() {
         {sortedOrders.length === 0 && (
           <motion.div variants={itemVariants} className="bg-white border text-center py-8 rounded-xl">
              <Package className="w-8 h-8 mx-auto text-slate-300 mb-2"/>
-             <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Antrian Kosong</p>
+             <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Antrian Produksi Kosong</p>
           </motion.div>
         )}
       </div>
@@ -195,10 +194,10 @@ export default function AppQueue() {
             <thead className="bg-slate-50/50 border-b border-slate-100 text-slate-400 font-extrabold text-[9px] uppercase tracking-[0.12em]">
               <tr>
                 <th className="pl-4 pr-2 py-2 w-32 font-black">Waktu Masuk</th>
-                <th className="px-2 py-2 w-24 font-black">Ref ID</th>
-                <th className="px-2 py-2 font-black">Mitra Partner</th>
+                <th className="px-2 py-2 w-24 font-black">Nomor Pesanan</th>
+                <th className="px-2 py-2 font-black">Mitra</th>
                 <th className="px-2 py-2 w-20 text-center font-black">Volume</th>
-                <th className="pl-2 pr-4 py-2 w-36 text-right font-black">Progress Pos</th>
+                <th className="pl-2 pr-4 py-2 w-36 text-right font-black">Posisi Produksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 font-bold">
@@ -238,7 +237,7 @@ export default function AppQueue() {
                 <tr>
                   <td colSpan={5} className="px-6 py-16 text-center text-slate-400">
                     <ShieldCheck className="w-8 h-8 text-emerald-400 mx-auto mb-3 opacity-50" />
-                    <p className="font-extrabold text-[11px] uppercase tracking-widest">Seluruh Produksi Selesai</p>
+                    <p className="font-extrabold text-[11px] uppercase tracking-widest">Antrian Produksi Kosong</p>
                   </td>
                 </tr>
               )}

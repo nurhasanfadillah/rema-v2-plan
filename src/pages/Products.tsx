@@ -126,7 +126,7 @@ export default function Products() {
             onClick={() => setIsAddOpen(true)}
             className="btn-primary text-[11px] uppercase tracking-widest"
           >
-            <Plus className="w-4 h-4" /> Add Item
+            <Plus className="w-4 h-4" /> Tambah Produk
           </button>
         )}
       </div>
@@ -148,7 +148,7 @@ export default function Products() {
                ) : (
                   <div className="flex flex-col items-center gap-1.5 text-slate-700">
                     <ShoppingBag className="w-8 h-8 opacity-40 group-hover:text-blue-500 transition-colors" />
-                    <span className="text-[9px] font-bold uppercase tracking-widest opacity-30">No Image</span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest opacity-30">Belum Ada Gambar</span>
                   </div>
                )}
                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
@@ -291,7 +291,7 @@ function ProductDetailPanel({
                    <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Kontrol Manajemen</h4>
                    <div className="grid grid-cols-2 gap-3 text-xs font-bold">
                       <button onClick={() => setIsEditing(true)} className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 border border-slate-900 text-white hover:bg-slate-800 rounded-xl transition-all cursor-pointer active:scale-95 text-xs font-extrabold shadow-md">
-                        <Edit2 className="w-4 h-4" /> Edit & Perbarui Produk
+                        <Edit2 className="w-4 h-4" /> Simpan
                       </button>
                       <button onClick={onToggleArchive} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all cursor-pointer active:scale-95 ${product.isArchived ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700' : 'bg-orange-50 hover:bg-orange-100 text-orange-700'}`}>
                         <Archive className="w-4 h-4" />
@@ -359,14 +359,14 @@ function ProductModal({ product, onClose, onSave, formattedLabel }: { product: P
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 lg:p-8 animate-in slide-in-from-bottom-8 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-black text-slate-900 mb-6">{product ? '📝 Ubah Detail Produk' : '📦 Tambah Kategori Produk'}</h2>
+        <h2 className="text-lg font-black text-slate-900 mb-6">{product ? 'Edit Produk' : 'Tambah Produk'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4 font-bold text-xs sm:text-sm">
           <div>
              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nama Produk</label>
              <input required value={name} onChange={e=>setName(e.target.value)} className="w-full px-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-bold text-slate-800 text-xs" placeholder="Mis. Produk Kualitas Premium" />
           </div>
           <div>
-             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Harga Dasar (Rp)</label>
+             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Harga (Rp)</label>
              <div className="relative">
                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">Rp</span>
                <input required type="text" value={new Intl.NumberFormat('id-ID').format(parseInt(price.replace(/\D/g, '')) || 0)} onChange={e=>setPrice(e.target.value.replace(/\D/g, ''))} className="w-full pl-9 pr-4 py-3 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all font-extrabold text-slate-850 text-xs" placeholder="0" />

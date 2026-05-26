@@ -114,8 +114,8 @@ export default function Finance() {
   const getSourceBadge = (source: string) => {
      switch(source) {
         case 'order': return <span className="bg-blue-50 border border-blue-100 text-blue-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Pesanan</span>;
-        case 'payment': return <span className="bg-emerald-50 border border-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Pembahasan</span>;
-        case 'manual': return <span className="bg-amber-50 border border-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Manual Charge</span>;
+        case 'payment': return <span className="bg-emerald-50 border border-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Pembayaran</span>;
+        case 'manual': return <span className="bg-amber-50 border border-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Tagihan Manual</span>;
         case 'cancellation': return <span className="bg-red-50 border border-red-100 text-red-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Batal Pesanan</span>;
         case 'return': return <span className="bg-purple-50 border border-purple-100 text-purple-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Kredit Retur</span>;
         default: return <span className="bg-slate-50 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">{source}</span>;
@@ -155,7 +155,7 @@ export default function Finance() {
       <div className="page-header">
         <div>
            <h1 className="page-title">Keuangan & Tagihan Mitra</h1>
-           <p className="text-[12px] text-slate-500 mt-0.5 font-semibold">Kelola aliran bayar, kredit retur, dan balance berjalan.</p>
+           <p className="text-[12px] text-slate-500 mt-0.5 font-semibold">Kelola aliran pembayaran, kredit retur, dan saldo berjalan.</p>
         </div>
 
         {user.role === 'admin' && (
@@ -203,7 +203,7 @@ export default function Finance() {
                   <FileText className="w-4.5 h-4.5" />
                 </div>
                 <div className="flex-1 min-w-0 text-center sm:text-left">
-                  <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block mb-0.5 truncate">Tagihan Pending {selectedMitraId === 'all' ? '(Global)' : ''}</span>
+                  <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block mb-0.5 truncate">Tagihan Tertunda {selectedMitraId === 'all' ? '(Global)' : ''}</span>
                   <p className="text-sm sm:text-xl lg:text-2xl font-black tracking-tight leading-none text-slate-900 truncate">{formatCurrency(pendingBills)}</p>
                 </div>
               </div>
@@ -372,7 +372,7 @@ export default function Finance() {
         {sortedLedgers.length === 0 && (
           <motion.div variants={itemVariants} className="bg-white border-2 border-dashed text-center p-10 rounded-3xl mt-4">
              <FileText className="w-12 h-12 mx-auto text-slate-300 mb-3"/>
-             <p className="text-slate-800 font-bold text-sm">Belum ada transaksi tercatat.</p>
+             <p className="text-slate-800 font-bold text-sm">Belum ada transaksi</p>
           </motion.div>
         )}
       </div>
@@ -417,7 +417,7 @@ export default function Finance() {
                 <tr>
                   <td colSpan={6} className="px-4 py-10 text-center text-slate-400 font-bold">
                     <BookOpen className="w-8 h-8 text-slate-250 mx-auto mb-2" />
-                    Belum ada aliran kas tercatat.
+                    Belum ada transaksi
                   </td>
                 </tr>
               )}
@@ -569,7 +569,7 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData, mitras }: {
     e.preventDefault();
     const cleanNum = parseInt(nominalDisplay.replace(/\D/g, ''));
     if (isNaN(cleanNum) || cleanNum <= 0) {
-      toast.error('Masukan nominal yang valid!');
+      toast.error('Masukkan nominal yang valid');
       return;
     }
 
@@ -619,12 +619,12 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData, mitras }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 max-h-[95vh] overflow-y-auto">
-        <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5 flex items-center gap-2">
-          <span>💳</span> {editData ? 'Edit' : 'Input'} Pengurangan Piutang
+        <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5">
+          {editData ? 'Edit Pembayaran' : 'Catat Pembayaran'}
         </h2>
         <form onSubmit={submit} className="space-y-3.5">
           <div>
-             <label htmlFor="finance-debit-partner" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Mitra Partner</label>
+             <label htmlFor="finance-debit-partner" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Mitra</label>
              <select id="finance-debit-partner" required value={mitra} onChange={e=>setMitra(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
                 {mitras.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
              </select>
@@ -668,7 +668,7 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData, mitras }: {
           </div>
           <div className="pt-4 flex justify-end gap-2.5">
              <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all text-[11px] cursor-pointer">Batal</button>
-             <button type="submit" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-md shadow-emerald-555/10 text-[11px] cursor-pointer active:scale-95">Simpan Kredit</button>
+             <button type="submit" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-md shadow-emerald-555/10 text-[11px] cursor-pointer active:scale-95">Simpan</button>
           </div>
         </form>
       </div>
@@ -692,7 +692,7 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData, mitras }: {
     e.preventDefault();
     const cleanNum = parseInt(nominalDisplay.replace(/\D/g, ''));
     if (isNaN(cleanNum) || cleanNum <= 0) {
-      toast.error('Masukan nominal yang valid!');
+      toast.error('Masukkan nominal yang valid');
       return;
     }
 
@@ -736,12 +736,12 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData, mitras }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 transition-all max-h-[90vh] overflow-y-auto">
-        <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5 flex items-center gap-2">
-          <span>📈</span> {editData ? 'Edit' : 'Input'} Tambahan Piutang
+        <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5">
+          {editData ? 'Edit Tagihan Manual' : 'Catat Tagihan Manual'}
         </h2>
         <form onSubmit={submit} className="space-y-3.5">
           <div>
-             <label htmlFor="finance-credit-partner" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Mitra Partner</label>
+             <label htmlFor="finance-credit-partner" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Mitra</label>
              <select id="finance-credit-partner" required value={mitra} onChange={e=>setMitra(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
                 {mitras.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
              </select>
@@ -763,7 +763,7 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData, mitras }: {
              </div>
           </div>
           <div>
-             <label htmlFor="finance-credit-desc" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Uraian Deskripsi Tagihan</label>
+             <label htmlFor="finance-credit-desc" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Keterangan</label>
              <input id="finance-credit-desc" required value={desc} onChange={e=>setDesc(e.target.value)} autoComplete="off" className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-800 text-[11px]" placeholder="Mis. Denda, Tambah Layanan" />
           </div>
           <div className="pt-4 flex justify-end gap-2.5">

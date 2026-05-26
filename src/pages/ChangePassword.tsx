@@ -21,11 +21,11 @@ export default function ChangePassword() {
     e.preventDefault();
 
     if (password.length < 8 || password.length > 64) {
-      toast.error('Password must be between 8 and 64 characters.');
+      toast.error('Kata sandi harus 8–64 karakter.');
       return;
     }
     if (password !== confirm) {
-      toast.error('Passwords do not match.');
+      toast.error('Konfirmasi kata sandi tidak cocok.');
       return;
     }
 
@@ -86,7 +86,7 @@ export default function ChangePassword() {
           
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-semibold text-white">
-              {isForced ? 'Change Password Required' : 'Ganti Kata Sandi'}
+              Ganti Kata Sandi
             </h2>
             {!isForced && (
                <button 
@@ -173,11 +173,6 @@ export default function ChangePassword() {
           </form>
         </div>
 
-        {isForced && (
-          <p className="text-center text-xs text-slate-400/70 mt-8">
-            Fase Pengembangan v2.1 • Keamanan Enkripsi Lokal
-          </p>
-        )}
       </motion.div>
     </div>
   );

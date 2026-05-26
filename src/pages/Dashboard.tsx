@@ -135,7 +135,7 @@ export default function Dashboard() {
               Halo, {user.name} <span className="inline-block animate-bounce origin-bottom">👋</span>
             </h1>
             <p className="text-slate-400 text-[11px] sm:text-xs leading-relaxed max-w-xl font-medium tracking-wide">
-              Akses panel untuk memonitor produksi pesanan, mengelola keuangan, dan melihat statistik performa operasional REMA v2.1 Anda.
+              Panel kontrol produksi, keuangan, dan statistik performa.
             </p>
           </div>
         </div>
@@ -150,9 +150,9 @@ export default function Dashboard() {
             <AlertCircle className="w-5 h-5 text-red-600" />
           </div>
           <div>
-            <h3 className="font-bold text-red-800 tracking-tight text-[13px]">Pemberitahuan: Limit Kredit Hampir Habis</h3>
+            <h3 className="font-bold text-red-800 tracking-tight text-[13px]">Limit Kredit Hampir Habis</h3>
             <p className="text-[11px] sm:text-xs font-medium mt-1 opacity-90 leading-normal">
-              Tagihan berjalan Anda saat ini adalah <span className="text-red-900 font-bold tabular-nums">{formatCurrency(mySaldo)}</span> yang mendominasi batas maksimal limit kredit Anda sebesar <span className="text-red-900 font-bold tabular-nums">{formatCurrency(creditLimit!)}</span>. Harap segera lakukan pelunasan agar proses pesanan berikutnya tetap lancar.
+              Tagihan berjalan Anda <span className="text-red-900 font-bold tabular-nums">{formatCurrency(mySaldo)}</span> mendekati batas limit <span className="text-red-900 font-bold tabular-nums">{formatCurrency(creditLimit!)}</span>. Segera lakukan pembayaran agar pesanan berikutnya tetap berjalan.
             </p>
           </div>
         </motion.div>
@@ -219,7 +219,7 @@ export default function Dashboard() {
         <motion.div variants={itemVariants} className="card">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-1 h-5 bg-green-600 rounded-full" />
-            <h2 className="section-title">10 Order Dikonfirmasi Terakhir</h2>
+            <h2 className="section-title">10 Pesanan Dikonfirmasi Terakhir</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -232,7 +232,7 @@ export default function Dashboard() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {recentConfirmedOrders.length === 0 ? (
-                  <tr><td colSpan={3} className="py-8 text-center text-slate-400 text-xs">Belum ada order dikonfirmasi</td></tr>
+                  <tr><td colSpan={3} className="py-8 text-center text-slate-400 text-xs">Belum ada pesanan dikonfirmasi</td></tr>
                 ) : (
                   recentConfirmedOrders.map(order => {
                     const mitra = mitras.find(m => m.id === order.mitraId);
@@ -262,20 +262,13 @@ export default function Dashboard() {
       >
         <div className="flex items-center gap-2.5 mb-5">
           <div className="w-1 h-5 bg-blue-600 rounded-full" />
-          <h2 className="section-title">Spesifikasi Sistem REMA v2.1</h2>
+          <h2 className="section-title">Tentang Sistem</h2>
         </div>
         <div className="bg-slate-50 rounded-2xl p-5 text-slate-600 text-[12px] leading-relaxed border border-slate-100">
           <p className="font-medium">
-            Sistem Informasi Manajemen Produksi & Finance (REMA) saat ini dikonfigurasi menggunakan basis data lokal terenkripsi di sisi klien. Desain antarmuka telah ditingkatkan dengan standar premium Enterprise untuk performa prima di perangkat mobile maupun desktop.
+            Sistem manajemen produksi dan keuangan mitra PT. Redone Berkah Mandiri Utama.
+            Data pesanan dan keuangan tersimpan di cloud, file tersimpan di Cloudflare R2.
           </p>
-          <div className="mt-4 pt-4 border-t border-slate-200/50 flex flex-wrap gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-            <span className="flex items-center gap-2 text-slate-600">
-               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> File Sesi Terkendali
-            </span>
-            <span className="flex items-center gap-2 text-slate-600">
-               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Enkripsi Sisi Klien Aktif
-             </span>
-          </div>
         </div>
       </motion.div>
     </motion.div>
