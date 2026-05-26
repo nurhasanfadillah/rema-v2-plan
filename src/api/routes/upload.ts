@@ -56,7 +56,11 @@ router.post('/', express.raw({ type: '*/*', limit: '10mb' }), async (req: Reques
     return res.json({ url });
   } catch (err: any) {
     console.error('[upload] Error:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      error: err.message,
+      code: err.Code ?? err.code ?? err.name,
+      httpStatus: err.$metadata?.httpStatusCode,
+    });
   }
 });
 
