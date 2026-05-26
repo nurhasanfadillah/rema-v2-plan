@@ -11,21 +11,32 @@ See: .paul/PROJECT.md (updated 2026-05-26)
 
 Milestone: v2.4 E2E Testing — 🔄 In Progress
 Phase: 9 of 9 (E2E Testing via MCP Playwright) — In Progress
-Plan: 09-01 unified — loop closed
-Status: Loop complete, ready for Plan 09-02
-Last activity: 2026-05-26 — Plan 09-01 UNIFY selesai, semua 5 AC pass
+Plan: 09-04 Finance & Operasional — loop closed
+Status: ✅ Phase 9 Complete — E2E Testing
+Last activity: 2026-05-26 — Phase 9 SELESAI: 21/25 AC pass (84%), semua 14 halaman diuji
+
+Phase 9 Key Findings:
+- Bug kritis: POST /api/upload → HTTP 500 (blokir semua upload file)
+- isBilled/ledger creation is client-side logic (OrderDetail.tsx:139)
+- Admin cannot create orders via UI (/orders/create restricted to mitra)
+- Payment recording (Input Bayar) works end-to-end
 
 Progress:
-- Milestone: [██░░░░░░░░] 25%
-- Phase 9: [██░░░░░░░░] 25%
+- Milestone: [██████████] 100% ✅
+- Phase 9: [██████████] 100% ✅
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop closed — ready for Plan 09-02]
+  ✓        ✓        ✓     [Phase 9 complete — all 4 plans closed]
 ```
+
+## Next Actions
+- Fix bug kritis: POST /api/upload → HTTP 500
+- Pindahkan billing logic ke backend API
+- Release v2.4 (E2E Testing complete)
 
 ## Accumulated Context
 
@@ -48,9 +59,12 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-05-26
-Stopped at: Plan 09-01 selesai — UNIFY closed
-Next action: /paul:apply .paul/phases/09-e2e-testing/09-02-PLAN.md
-Resume file: .paul/phases/09-e2e-testing/09-02-PLAN.md
+Stopped at: Plan 09-02 selesai — UNIFY closed; modal overflow fix applied (commit 081b0a4)
+Next action: /paul:apply .paul/phases/09-e2e-testing/09-03-PLAN.md
+Resume file: .paul/phases/09-e2e-testing/09-03-PLAN.md
+
+### Known Bug (Deferred)
+- POST /api/upload → HTTP 500 di production — R2 upload tidak berfungsi (logo mitra, foto produk)
 
 ---
 *STATE.md — Updated after every significant action*

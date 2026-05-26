@@ -624,28 +624,30 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData, mitras }: {
         </h2>
         <form onSubmit={submit} className="space-y-3.5">
           <div>
-             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Mitra Partner</label>
-             <select required value={mitra} onChange={e=>setMitra(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
+             <label htmlFor="finance-debit-partner" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Mitra Partner</label>
+             <select id="finance-debit-partner" required value={mitra} onChange={e=>setMitra(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
                 {mitras.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
              </select>
           </div>
           <div>
-             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Setoran (Rp)</label>
+             <label htmlFor="finance-debit-nominal" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Setoran (Rp)</label>
              <div className="relative">
                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[11px]">Rp</span>
                <input
+                 id="finance-debit-nominal"
                  required
                  type="text"
                  value={nominalDisplay}
                  onChange={e=>setNominalDisplay(formattedNominal(e.target.value))}
+                 autoComplete="off"
                  className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-extrabold text-slate-800 text-[13px]"
                  placeholder="0"
                />
              </div>
           </div>
           <div>
-             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Metode Bayar</label>
-             <select required value={method} onChange={e=>setMethod(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
+             <label htmlFor="finance-debit-method" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Metode Bayar</label>
+             <select id="finance-debit-method" required value={method} onChange={e=>setMethod(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
                 <option value="transfer">Bank Transfer (Manual)</option>
                 <option value="cash">Setor Tunai (Cash)</option>
                 <option value="qris">E-Wallet / QRIS</option>
@@ -653,8 +655,8 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData, mitras }: {
              </select>
           </div>
           <div>
-             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Kode Referensi</label>
-             <input required value={ref} onChange={e=>setRef(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-800 text-[11px]" placeholder="Mis. TF-BCA-928" />
+             <label htmlFor="finance-debit-ref" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Kode Referensi</label>
+             <input id="finance-debit-ref" required value={ref} onChange={e=>setRef(e.target.value)} autoComplete="off" className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-800 text-[11px]" placeholder="Mis. TF-BCA-928" />
           </div>
           <div>
              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Bukti Transaksi (Opsional)</label>
@@ -739,28 +741,30 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData, mitras }: {
         </h2>
         <form onSubmit={submit} className="space-y-3.5">
           <div>
-             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Mitra Partner</label>
-             <select required value={mitra} onChange={e=>setMitra(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
+             <label htmlFor="finance-credit-partner" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Mitra Partner</label>
+             <select id="finance-credit-partner" required value={mitra} onChange={e=>setMitra(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-[11px]">
                 {mitras.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
              </select>
           </div>
           <div>
-             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Penambahan Tagihan (Rp)</label>
+             <label htmlFor="finance-credit-nominal" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Penambahan Tagihan (Rp)</label>
              <div className="relative">
                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[11px]">Rp</span>
                <input
+                 id="finance-credit-nominal"
                  required
                  type="text"
                  value={nominalDisplay}
                  onChange={e=>setNominalDisplay(formattedNominal(e.target.value))}
+                 autoComplete="off"
                  className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-extrabold text-slate-800 text-[13px]"
                  placeholder="0"
                />
              </div>
           </div>
           <div>
-             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Uraian Deskripsi Tagihan</label>
-             <input required value={desc} onChange={e=>setDesc(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-800 text-[11px]" placeholder="Mis. Denda, Tambah Layanan" />
+             <label htmlFor="finance-credit-desc" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Uraian Deskripsi Tagihan</label>
+             <input id="finance-credit-desc" required value={desc} onChange={e=>setDesc(e.target.value)} autoComplete="off" className="w-full px-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition-all font-bold text-slate-800 text-[11px]" placeholder="Mis. Denda, Tambah Layanan" />
           </div>
           <div className="pt-4 flex justify-end gap-2.5">
              <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all text-[11px] cursor-pointer">Batal</button>

@@ -111,13 +111,16 @@ export default function Login() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label className="label-xs ml-1">Nomor Telepon</label>
+              <label htmlFor="login-phone" className="label-xs ml-1">Nomor Telepon</label>
               <div className="relative group">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors duration-300">
                   <Phone strokeWidth={2.5} className="w-full h-full" />
                 </div>
                 <input 
+                  id="login-phone"
+                  name="phone"
                   type="tel"
+                  autoComplete="tel-national"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   className="w-full pl-12 pr-4 py-3.5 bg-slate-900 border border-slate-800 hover:border-slate-700 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 rounded-2xl outline-none transition-all duration-300 text-[13px] text-white placeholder:text-slate-700 font-medium tabular-nums shadow-sm"
@@ -129,7 +132,7 @@ export default function Login() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
-                <label className="label-xs">Kata Sandi</label>
+                <label htmlFor="login-password" className="label-xs">Kata Sandi</label>
                 <button type="button" className="text-[10px] text-blue-500/70 hover:text-blue-500 font-bold transition-colors">Lupa sandi?</button>
               </div>
               <div className="relative group">
@@ -137,7 +140,10 @@ export default function Login() {
                   <Lock strokeWidth={2.5} className="w-full h-full" />
                 </div>
                 <input 
+                  id="login-password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="w-full pl-12 pr-12 py-3.5 bg-slate-900 border border-slate-800 hover:border-slate-700 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 rounded-2xl outline-none transition-all duration-300 text-[13px] text-white placeholder:text-slate-700 font-medium shadow-sm font-mono tracking-tight"
