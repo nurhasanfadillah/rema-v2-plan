@@ -26,7 +26,7 @@ function initS3() {
   }), bucketName: bucketName!, publicUrl: publicUrl!, missing };
 }
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', express.raw({ type: '*/*', limit: '10mb' }), async (req: Request, res: Response) => {
   try {
     const { s3, bucketName, publicUrl, missing } = initS3();
     if (missing.length > 0) {
@@ -38,14 +38,9 @@ router.post('/', async (req: Request, res: Response) => {
     const ext = originalName.split('.').pop()?.toLowerCase() || 'bin';
     const key = `uploads/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
 
-    // Collect raw body from request stream (works reliably in Vercel serverless)
-    const chunks: Buffer[] = [];
-    for await (const chunk of req) {
-      chunks.push(Buffer.from(chunk));
-    }
-    const body = Buffer.concat(chunks);
+    const body = req.body as Buffer;
 
-    if (body.length === 0) {
+    if (!body || body.length === 0) {
       return res.status(400).json({ error: 'Empty request body' });
     }
 
@@ -59,6 +54,7 @@ router.post('/', async (req: Request, res: Response) => {
     const url = `${publicUrl}/${key}`;
     return res.json({ url });
   } catch (err: any) {
+    console.error('[upload] Error:', err);
     return res.status(500).json({ error: err.message });
   }
 });

@@ -36,10 +36,12 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Deploy ke Vercel dengan custom domain redone.my.id — Phase 4
 - [x] PWA installability — install prompt, standalone mode, shell caching — Phase 7
 - [x] UI Consistency — utility class system (@layer components) seragam di semua 11 halaman — Phase 8
+- [x] E2E Testing — 21/25 AC pass (84%), semua 14 halaman diuji via Chrome DevTools — Phase 9
+- [x] Upload file ke R2 berfungsi di Vercel production (express.raw() fix) — Phase 10
 
 ### Active (In Progress)
 
-- (none — v2.3 UI Consistency complete)
+- (none — v2.4 Upload Bug Fix complete)
 
 ### Planned (Next)
 
@@ -82,6 +84,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Custom domain storage.jisoi.net untuk R2 | r2.dev diblokir Biznet Indonesia | 2026-05-25 | Active |
 | CORS_ORIGIN comma-separated multi-origin | Mendukung production domain + localhost dev bersamaan | 2026-05-25 | Active |
 | Cloudflare DNS proxy OFF untuk Vercel domain | Vercel perlu akses langsung untuk SSL cert provisioning | 2026-05-25 | Active |
+| express.raw() per-route untuk binary upload | Global raw middleware bertabrakan dengan express.json(); for-await stream tidak reliable di Vercel serverless | 2026-05-26 | Active |
 
 ## Success Metrics
 
@@ -105,4 +108,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-26 after Phase 8 — v2.3 UI Consistency complete*
+*Last updated: 2026-05-26 after Phase 10 — v2.4 Upload Bug Fix complete*
