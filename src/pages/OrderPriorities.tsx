@@ -112,12 +112,12 @@ export default function OrderPriorities() {
   return (
     <div>
       {/* Header */}
-      <div className="page-header">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
             <Zap className="w-4.5 h-4.5 text-amber-400" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h1 className="page-title">Prioritas Pesanan</h1>
             <p className="text-[11px] text-slate-500 font-medium mt-0.5">
               Pesanan yang diprioritaskan untuk diproses lebih cepat
@@ -125,7 +125,7 @@ export default function OrderPriorities() {
           </div>
         </div>
         {isMitra && (
-          <button onClick={handleOpenAdd} className="btn-primary">
+          <button onClick={handleOpenAdd} className="btn-primary flex-shrink-0">
             <Plus className="w-4 h-4" />
             Tambah Prioritas
           </button>

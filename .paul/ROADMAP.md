@@ -36,6 +36,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 22 | Reports Queue Polish | 1 | ✅ Complete | 2026-05-27 |
 | 23 | Finance Desktop Enterprise Polish | 3 | ✅ Complete | 2026-05-27 |
 | 24 | Order Priority (Prioritas Pesanan) | 2 | ✅ Complete | 2026-05-27 |
+| 25 | UI Polish Batch 2 | 1 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 
@@ -242,5 +243,16 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Halaman /priority tersedia di semua role. Mitra: tambah prioritas dari dropdown pesanan aktif, quota warning modal profesional saat limit tercapai, hapus own entry. Admin/staff/operational: view only. Field Batas Prioritas di form edit mitra.
 
+### Phase 25: UI Polish Batch 2 ✅ Complete
+
+**Goal:** 5 perbaikan UI: Priority page mobile button kanan, sembunyikan bell+search di header, OrderDetail hapus badge tagih + ubah label + warnai buttons, Finance modal no-scrollbar, CancellationsReturns button di luar card.
+**Depends on:** Phase 24 (app stable)
+**Completed:** 2026-05-27
+
+**Plans:**
+- [x] 25-01: Priority + Layout + OrderDetail + Finance + CancellationsReturns (execute)
+
+**Result:** Button mobile priority selalu di kanan; header bersih tanpa bell/search; OrderDetail badge tagih hilang, label Jenis Pesanan+Harga Satuan, 7 button berwarna; Finance modal no-scrollbar; CancellationsReturns button standalone.
+
 ---
-*Last updated: 2026-05-27 — Phase 24 complete, milestone v3.5 UI Polish selesai*
+*Last updated: 2026-05-27 — Phase 25 complete*

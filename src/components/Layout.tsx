@@ -239,7 +239,8 @@ export default function Layout() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Search */}
+            {/* Search — hidden */}
+            <div className="hidden">
             <AnimatePresence mode="wait">
               {searchOpen ? (
                 <motion.div
@@ -276,9 +277,10 @@ export default function Layout() {
                 </motion.button>
               )}
             </AnimatePresence>
+            </div>
 
-            {/* Notification */}
-            <div className="relative">
+            {/* Notification — hidden */}
+            <div className="hidden relative">
               <button
                 onClick={() => setNotifOpen(!notifOpen)}
                 className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all active:scale-95 cursor-pointer relative"

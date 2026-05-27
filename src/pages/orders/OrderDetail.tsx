@@ -320,17 +320,6 @@ export default function OrderDetail() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
-          {(user.role === 'admin' || user.role === 'mitra') && (
-            order.isBilled ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                <CreditCard className="w-3 h-3" /> Tertagih
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold uppercase tracking-wide bg-slate-800/60 text-slate-500 border-slate-700/40">
-                <CreditCard className="w-3 h-3" /> Belum Tagih
-              </span>
-            )
-          )}
           {getStatusBadge(order.status)}
         </div>
       </div>
@@ -347,7 +336,7 @@ export default function OrderDetail() {
             </div>
             <div className="space-y-4 text-[13px] text-slate-300 font-medium">
                <div className="flex justify-between items-center bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/50">
-                 <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Metode Pengiriman</span>
+                 <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Jenis Pesanan</span>
                  <span className="capitalize px-3 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-[10px] font-bold tracking-wider">{order.type}</span>
                </div>
                {order.type === 'online' ? (
@@ -389,18 +378,6 @@ export default function OrderDetail() {
                   <h2 className="text-[13px] font-semibold text-slate-300 leading-none">Rincian Tagihan</h2>
                 </div>
                 <div className="space-y-4 text-[13px] text-slate-300 font-medium">
-                   <div className="flex justify-between items-center px-1">
-                     <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Status Tagihan:</span>
-                     {order.isBilled ? (
-                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg tracking-wider uppercase">
-                         <CheckCircle className="w-3 h-3" /> Sudah Ditagih
-                       </span>
-                     ) : (
-                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[9px] font-bold text-slate-500 bg-slate-800 border border-slate-700/50 rounded-lg tracking-wider uppercase">
-                         <CreditCard className="w-3 h-3" /> Belum Ditagih
-                       </span>
-                     )}
-                   </div>
                    <div className="flex justify-between px-1">
                      <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Jumlah Item:</span>
                      <span className="text-slate-100 font-bold tabular-nums italic">{order.totalQty} <span className="text-[10px] opacity-40 font-normal ml-0.5">Pcs</span></span>
@@ -445,7 +422,7 @@ export default function OrderDetail() {
                  </div>
 
                  {(user.role === 'admin' || user.role === 'mitra') && (
-                   <p className="text-[10px] text-slate-600 font-bold tracking-widest uppercase mb-4 px-1 italic tabular-nums">Basis Harga: {formatCurrency(item.priceSnapshot)} / Unit</p>
+                   <p className="text-[10px] text-slate-600 font-bold tracking-widest uppercase mb-4 px-1 italic tabular-nums">Harga Satuan: {formatCurrency(item.priceSnapshot)} / Unit</p>
                  )}
 
                  {item.isCustomLogo && (
@@ -506,7 +483,7 @@ export default function OrderDetail() {
                                  onClick={() => handleUpdateDTFStatus(item.id, status as 'belum_cetak' | 'sudah_cetak')}
                                  className={`px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 cursor-pointer border ${
                                    (item.dtfStatus || 'belum_cetak') === status
-                                     ? (status === 'sudah_cetak' ? 'bg-emerald-600 border-emerald-500 text-white shadow-xl shadow-emerald-600/20' : 'bg-slate-800 border-slate-700 text-white shadow-xl shadow-slate-800/20')
+                                     ? (status === 'sudah_cetak' ? 'bg-purple-600 border-purple-500 text-white shadow-xl shadow-purple-600/20' : 'bg-slate-800 border-slate-700 text-white shadow-xl shadow-slate-800/20')
                                      : 'bg-white/5 border-white/5 text-slate-600 hover:bg-white/10'
                                  }`}
                                >
@@ -529,10 +506,10 @@ export default function OrderDetail() {
       {/* Action Controls Panel */}
       <div className="pt-4 space-y-4">
         {order.status === 'draft' && user.role === 'mitra' && (
-           <div className="bg-slate-900 p-5 rounded-3xl text-white shadow-2xl border border-blue-500/30 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[60px] -z-10" />
+           <div className="bg-slate-900 p-5 rounded-3xl text-white shadow-2xl border border-orange-500/30 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-[60px] -z-10" />
              <div className="space-y-1.5 text-center md:text-left">
-               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[9px] uppercase font-bold tracking-[0.1em]">
+               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-lg text-[9px] uppercase font-bold tracking-[0.1em]">
                  <ShieldAlert className="w-3.5 h-3.5" /> Menunggu Pengajuan
                </div>
                <p className="font-bold tracking-tight text-xl text-white">Ajukan Draft Pesanan</p>
@@ -540,7 +517,7 @@ export default function OrderDetail() {
              </div>
              <button
                onClick={() => handleUpdateStatus('waiting_confirmation')}
-               className="px-8 py-3 bg-blue-600 text-white font-bold text-[13px] rounded-xl hover:bg-blue-500 active:scale-95 transition-all shadow-xl shadow-blue-600/20 w-full md:w-auto cursor-pointer uppercase tracking-wide"
+               className="px-8 py-3 bg-orange-600 text-white font-bold text-[13px] rounded-xl hover:bg-orange-500 active:scale-95 transition-all shadow-xl shadow-orange-600/20 w-full md:w-auto cursor-pointer uppercase tracking-wide"
              >
                Ajukan Sekarang
              </button>
@@ -562,7 +539,7 @@ export default function OrderDetail() {
               <PDFDownloadLink
                 document={<OrderSPKPDF order={order} mitra={orderMitra} />}
                 fileName={`SPK-${order.orderNumber}.pdf`}
-                className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition px-4 py-3 sm:py-2.5 border border-slate-800 hover:border-emerald-500/30 rounded-xl cursor-pointer bg-slate-900/80 uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
+                className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition px-4 py-3 sm:py-2.5 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl cursor-pointer uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
               >
                 {({ loading }) => (
                   <>
@@ -576,7 +553,7 @@ export default function OrderDetail() {
                 <PDFDownloadLink
                   document={<ShippingLabelPDF order={order} mitra={orderMitra} mitraPhone={mitraPhone} />}
                   fileName={`RESI-OFFLINE-${order.orderNumber}.pdf`}
-                  className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition px-4 py-3 sm:py-2.5 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer bg-slate-900/80 uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
+                  className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 transition px-4 py-3 sm:py-2.5 border border-blue-500/20 hover:border-blue-500/40 rounded-xl cursor-pointer uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
                 >
                   {({ loading }) => (
                     <>
@@ -590,7 +567,7 @@ export default function OrderDetail() {
               {isEditEligible && (
                 <button
                   onClick={() => navigate(`/orders/${order.id}/edit`)}
-                  className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition px-4 py-3 sm:py-2.5 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer bg-slate-900/80 uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
+                  className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 transition px-4 py-3 sm:py-2.5 border border-amber-500/20 hover:border-amber-500/40 rounded-xl cursor-pointer uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
                 >
                    Edit Pesanan
                 </button>
@@ -599,7 +576,7 @@ export default function OrderDetail() {
               {isDeleteEligible && (
                 <button
                   onClick={handleDeleteOrder}
-                  className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-red-500/70 hover:text-red-400 hover:bg-red-500/10 transition px-4 py-3 sm:py-2.5 border border-red-900/40 hover:border-red-500/30 rounded-xl cursor-pointer bg-slate-900/80 uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
+                  className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-white hover:bg-red-500 transition px-4 py-3 sm:py-2.5 border border-red-600 rounded-xl cursor-pointer bg-red-600 uppercase tracking-widest leading-none shadow-lg shadow-red-600/20 flex items-center gap-2 active:scale-95"
                 >
                    Hapus
                 </button>

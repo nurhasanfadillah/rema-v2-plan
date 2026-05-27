@@ -450,7 +450,7 @@ export default function Finance() {
         variants={itemVariants}
         className="hidden md:block bg-white rounded-2xl shadow-[0_2px_8px_-4px_rgba(0,0,0,0.03),0_4px_12px_-8px_rgba(0,0,0,0.01)] border border-slate-200/60 overflow-hidden"
       >
-        <div className="overflow-x-auto overflow-y-auto max-h-[600px]">
+        <div className="overflow-x-auto overflow-y-auto max-h-[600px] no-scrollbar">
           <table className="w-full text-left text-[12px] text-slate-600">
             <thead className="sticky top-0 z-10 bg-slate-50/80 border-b border-slate-200/80 text-slate-900 font-bold text-[10px] uppercase tracking-wider">
               <tr>
@@ -862,7 +862,7 @@ function ChargeModal({ onClose, onSave, formattedNominal, editData, mitras }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 transition-all max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 transition-all max-h-[90vh] overflow-y-auto no-scrollbar">
         <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5">
           {editData ? 'Edit Tagihan Manual' : 'Catat Tagihan Manual'}
         </h2>
@@ -917,7 +917,7 @@ function TransactionDetailModal({ ledger, onClose, onEdit, onDelete, isAdmin, mi
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 sm:p-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 sm:p-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="flex justify-between items-center mb-5">
            <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${isDebit ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>

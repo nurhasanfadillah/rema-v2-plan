@@ -183,19 +183,19 @@ export default function CancellationsReturns() {
         </div>
 
         {user.role !== 'operational' && (
-          <div className="flex items-center gap-1.5 bg-slate-900/60 p-1.5 rounded-xl border border-slate-800 shadow-inner">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => handleOpenForm('cancellation')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500/5 hover:bg-red-500/10 text-red-500 font-black text-[10px] uppercase tracking-[0.15em] rounded-lg transition-all cursor-pointer border border-red-500/20 active:scale-[0.97] group"
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold text-[11px] uppercase tracking-wide rounded-xl transition-all cursor-pointer border border-red-500/20 active:scale-95"
             >
-              <XOctagon className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" />
+              <XOctagon className="w-3.5 h-3.5" />
               <span>Pembatalan</span>
             </button>
             <button
               onClick={() => handleOpenForm('return')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-500/5 hover:bg-purple-500/10 text-purple-400 font-black text-[10px] uppercase tracking-[0.15em] rounded-lg transition-all cursor-pointer border border-purple-500/20 active:scale-[0.97] group"
+              className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 font-bold text-[11px] uppercase tracking-wide rounded-xl transition-all cursor-pointer border border-purple-500/20 active:scale-95"
             >
-              <RefreshCw className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" />
+              <RefreshCw className="w-3.5 h-3.5" />
               <span>Retur</span>
             </button>
           </div>
