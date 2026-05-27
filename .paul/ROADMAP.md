@@ -33,6 +33,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 19 | Order Button Polish | 1 | ✅ Complete | 2026-05-27 |
 | 20 | Finance UI Polish | 1 | ✅ Complete | 2026-05-27 |
 | 21 | Cancellations Returns Polish | 1 | ✅ Complete | 2026-05-27 |
+| 22 | Reports Queue Polish | 1 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 
@@ -203,5 +204,16 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Label summary card title case, mobile cards debit=red/kredit=green left-border, btn-secondary shadow diperkuat
 
+### Phase 22: Reports Queue Polish ✅ Complete
+
+**Goal:** Polish halaman Laporan dan Antrian Produksi — header utility class, btn-primary untuk export, mobile cards colored left-border per status
+**Depends on:** Phase 21 (app stable)
+**Completed:** 2026-05-27
+
+**Plans:**
+- [x] 22-01: Reports header + AppQueue mobile cards (execute)
+
+**Result:** Reports.tsx page-header/page-title/btn-primary; AppQueue mobile cards border-l-4 + status color
+
 ---
-*Last updated: 2026-05-27 — Phase 20 Finance UI Polish complete*
+*Last updated: 2026-05-27 — Phase 22 Reports Queue Polish complete*

@@ -143,11 +143,18 @@ export default function AppQueue() {
           const isMine = user.role === 'admin' || user.role === 'staff' || user.role === 'operational' || o.mitraId === activeMitra?.id;
           const mitraName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
           
+          const statusLeftBorder = {
+            confirmed: 'border-l-blue-400',
+            processing: 'border-l-purple-400',
+            pressing: 'border-l-rose-400',
+            packing: 'border-l-orange-400'
+          }[o.status as string] || 'border-l-slate-200';
+
           return (
-            <motion.div 
+            <motion.div
               variants={itemVariants}
-              key={o.id} 
-              className={`rounded-xl border p-2.5 shadow-sm relative transition-all active:scale-[0.99] ${
+              key={o.id}
+              className={`rounded-xl border border-l-4 p-2.5 shadow-sm relative transition-all active:scale-[0.99] ${statusLeftBorder} ${
                 isMine ? 'bg-white border-slate-200' : 'bg-slate-50/50 border-slate-100 opacity-80'
               }`}
             >

@@ -166,12 +166,12 @@ export default function Reports() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+      <div className="page-header items-end">
         <div>
-           <h1 className="text-xl font-black tracking-tight text-slate-900 leading-tight">Laporan & Analitik</h1>
-           <p className="text-[12px] text-slate-500 mt-0.5 font-semibold">Tinjauan komprehensif keuangan dan aktivitas pesanan.</p>
+           <h1 className="page-title">Laporan & Analitik</h1>
+           <p className="text-xs text-slate-400 mt-0.5 font-medium">Tinjauan komprehensif keuangan dan aktivitas pesanan.</p>
         </div>
-        <button onClick={() => setIsExportModalOpen(true)} className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-md flex items-center gap-2 active:scale-95 text-sm">
+        <button onClick={() => setIsExportModalOpen(true)} className="btn-primary">
           <Download className="w-4 h-4" /> Cetak PDF
         </button>
       </div>

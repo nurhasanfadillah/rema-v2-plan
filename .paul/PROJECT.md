@@ -41,10 +41,12 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] UI fixes: running orders filter confirmed, grafik exclude non-aktif, tabel ringkas order confirmed — Phase 11
 - [x] UI Bug Fixes & Improvements: 9 item (button mitra+draft, sidebar active, modal copy, dashboard labels, about text, login layout, mitra modal desktop, admin edit harga satuan) — Phase 13
 - [x] Login UI Redesign: mobile-first navy theme, input kotak-ikon, security badge, footer lengkap — Phase 17
+- [x] UI Polish lanjutan: Cancellations, Finance, Orders, AppQueue, Reports — header utility class, colored cards, mobile left-border — Phase 18–22
+- [x] Confirm dialog dark theme + login autofill fix — Phase 22
 
 ### Active (In Progress)
 
-- (none — v2.5 UI Fixes complete)
+- (none)
 
 ### Planned (Next)
 
@@ -111,4 +113,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-26 after Phase 11 — v2.5 UI Fixes complete*
+*Last updated: 2026-05-27 after Phase 22 — UI Polish selesai, semua halaman konsisten*
