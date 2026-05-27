@@ -19,6 +19,7 @@ export interface Mitra {
   creditLimit: number | null;
   isArchived: boolean;
   logoUrl?: string;
+  priorityLimit?: number;
 }
 
 export interface Product {
@@ -105,4 +106,16 @@ export interface AuditLog {
   action: string;
   details: string;
   createdAt: number;
+}
+
+export interface OrderPriority {
+  id: string;
+  orderId: string;
+  mitraId: string;
+  mitraName: string;
+  orderNumber: string;
+  totalQty: number;
+  notes: string | null;
+  createdAt: number;
+  createdBy: string;
 }

@@ -23,6 +23,7 @@ import Finance from './pages/Finance';
 import CancellationsReturns from './pages/CancellationsReturns';
 import Reports from './pages/Reports';
 import AuditLogs from './pages/AuditLogs';
+import OrderPriorities from './pages/OrderPriorities';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -48,6 +49,7 @@ export default function App() {
               <Route path="orders/:id/edit" element={<CreateOrder />} />
               <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="queue" element={<AppQueue />} />
+              <Route path="priority" element={<OrderPriorities />} />
               <Route path="finance" element={<Finance />} />
               <Route path="reports" element={<Reports />} />
               <Route path="audit-logs" element={<AuditLogs />} />

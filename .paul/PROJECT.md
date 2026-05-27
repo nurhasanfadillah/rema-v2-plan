@@ -44,6 +44,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] UI Polish lanjutan: Cancellations, Finance, Orders, AppQueue, Reports — header utility class, colored cards, mobile left-border — Phase 18–22
 - [x] Confirm dialog dark theme + login autofill fix — Phase 22
 - [x] Finance Desktop Enterprise Polish: sticky table, sortable columns, quick action row menu, sidebar glow/hover, topbar search/notif, summary sparkline, semantic color system, PaymentModal clean — Phase 23
+- [x] Order Priority (Prioritas Pesanan): halaman /priority, modal tambah + quota warning professional, hapus own entry, nav link Zap semua role, field Batas Prioritas di form mitra — Phase 24
 
 ### Active (In Progress)
 
@@ -51,7 +52,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ### Planned (Next)
 
-- [ ] Order Priority (Prioritas Pesanan): halaman daftar prioritas, modal tambah prioritas, quota per mitra, role-based access — Phase 24
+- (none)
 
 ### Out of Scope
 
@@ -91,6 +92,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | CORS_ORIGIN comma-separated multi-origin | Mendukung production domain + localhost dev bersamaan | 2026-05-25 | Active |
 | Cloudflare DNS proxy OFF untuk Vercel domain | Vercel perlu akses langsung untuk SSL cert provisioning | 2026-05-25 | Active |
 | express.raw() per-route untuk binary upload | Global raw middleware bertabrakan dengan express.json(); for-await stream tidak reliable di Vercel serverless | 2026-05-26 | Active |
+| Quota check via API error QUOTA_EXCEEDED | Frontend tidak perlu prefetch quota — lazy check saat submit, single source of truth di backend | 2026-05-27 | Active |
 
 ## Success Metrics
 
@@ -114,4 +116,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-27 after Phase 23 — Finance Desktop Enterprise Polish selesai*
+*Last updated: 2026-05-27 after Phase 24 — Order Priority (Prioritas Pesanan) selesai*

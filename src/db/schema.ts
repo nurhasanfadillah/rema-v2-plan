@@ -20,6 +20,7 @@ export const mitras = pgTable('mitras', {
   creditLimit: real('credit_limit'),
   isArchived: boolean('is_archived').notNull().default(false),
   logoUrl: text('logo_url'),
+  priorityLimit: integer('priority_limit').notNull().default(1),
 });
 
 export const products = pgTable('products', {
@@ -101,6 +102,15 @@ export const auditLogs = pgTable('audit_logs', {
   createdAt: bigint('created_at', { mode: 'number' }).notNull(),
 });
 
+export const orderPriorities = pgTable('order_priorities', {
+  id: text('id').primaryKey(),
+  orderId: text('order_id').notNull().references(() => orders.id),
+  mitraId: text('mitra_id').notNull().references(() => mitras.id),
+  notes: text('notes'),
+  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  createdBy: text('created_by').notNull(),
+});
+
 // Inferred types for use in API layer
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -125,3 +135,6 @@ export type NewActionRequest = InferInsertModel<typeof actionRequests>;
 
 export type AuditLog = InferSelectModel<typeof auditLogs>;
 export type NewAuditLog = InferInsertModel<typeof auditLogs>;
+
+export type OrderPriority = InferSelectModel<typeof orderPriorities>;
+export type NewOrderPriority = InferInsertModel<typeof orderPriorities>;

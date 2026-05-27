@@ -6,6 +6,7 @@ import type {
   LedgerEntry,
   ActionRequest,
   AuditLog,
+  OrderPriority,
 } from '../types';
 
 type SafeUser = Omit<User, 'passwordHash'>;
@@ -105,6 +106,13 @@ export const api = {
       request<AuditLog[]>('GET', limit ? `/audit-logs?limit=${limit}` : '/audit-logs'),
     create: (data: Omit<AuditLog, 'id' | 'createdAt'>) =>
       request<AuditLog>('POST', '/audit-logs', data),
+  },
+
+  priorities: {
+    list: () => request<OrderPriority[]>('GET', '/priorities'),
+    create: (data: { orderId: string; notes?: string }) =>
+      request<OrderPriority>('POST', '/priorities', data),
+    remove: (id: string) => request<void>('DELETE', `/priorities/${id}`),
   },
 
   upload: {

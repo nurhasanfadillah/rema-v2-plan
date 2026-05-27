@@ -316,6 +316,7 @@ function MitraDetailPanel({
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(mitra.name);
   const [logoUrl, setLogoUrl] = useState(mitra.logoUrl || '');
+  const [priorityLimit, setPriorityLimit] = useState(mitra.priorityLimit ?? 1);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -323,6 +324,7 @@ function MitraDetailPanel({
       ...mitra,
       name,
       logoUrl,
+      priorityLimit,
     });
     setIsEditing(false);
   };
@@ -439,6 +441,15 @@ function MitraDetailPanel({
                 </div>
                 <div className="dark">
                    <FileUpload value={logoUrl} onChange={setLogoUrl} label="Logo Perusahaan / Profil" accept="image/*" />
+                </div>
+                <div>
+                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Batas Prioritas</label>
+                   <input
+                     type="number" min="0" value={priorityLimit}
+                     onChange={e => setPriorityLimit(Math.max(0, parseInt(e.target.value) || 0))}
+                     className="w-full px-3 py-2.5 border border-white/5 bg-white/5 focus:bg-white/10 text-white rounded-lg outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 transition-all text-[12px]"
+                   />
+                   <p className="text-[10px] text-slate-600 mt-1">Jumlah pesanan prioritas aktif yang diizinkan per mitra</p>
                 </div>
                 <div className="pt-4 flex justify-end gap-2.5 text-[11px]">
                    <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-400 rounded-xl font-bold transition-all cursor-pointer">Batal</button>

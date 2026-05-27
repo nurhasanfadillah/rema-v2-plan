@@ -35,7 +35,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 21 | Cancellations Returns Polish | 1 | ✅ Complete | 2026-05-27 |
 | 22 | Reports Queue Polish | 1 | ✅ Complete | 2026-05-27 |
 | 23 | Finance Desktop Enterprise Polish | 3 | ✅ Complete | 2026-05-27 |
-| 24 | Order Priority (Prioritas Pesanan) | — | 🔵 Planned | — |
+| 24 | Order Priority (Prioritas Pesanan) | 2 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 
@@ -230,14 +230,17 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Finance desktop table sticky+sortable+action menu; typography title case; semantic colors (overdue/pending/warning/success); sidebar active glow; topbar search+notif; summary sparkline; export button UI; PaymentModal clean (no scrollbar)
 
-### Phase 24: Order Priority (Prioritas Pesanan) 🔵 Planned
+### Phase 24: Order Priority (Prioritas Pesanan) ✅ Complete
 
 **Goal:** Halaman baru Prioritas Pesanan — daftar pesanan prioritas per mitra, modal tambah prioritas dengan dropdown pesanan aktif + catatan, quota limit per mitra (set di data mitra), role-based access (mitra: add/delete own; admin/staff/operational: view only), auto-filter status confirmed→pressing.
 **Depends on:** Phase 23 (app stable)
+**Completed:** 2026-05-27
 
 **Plans:**
-- [ ] 24-01: Backend — schema `order_priorities` table + `priorityLimit` di mitras + API endpoints
-- [ ] 24-02: Frontend — halaman `/priority`, modal tambah, nav link, role-based UI
+- [x] 24-01: Backend — schema `order_priorities` table + `priorityLimit` di mitras + API endpoints
+- [x] 24-02: Frontend — halaman `/priority`, modal tambah, nav link, role-based UI
+
+**Result:** Halaman /priority tersedia di semua role. Mitra: tambah prioritas dari dropdown pesanan aktif, quota warning modal profesional saat limit tercapai, hapus own entry. Admin/staff/operational: view only. Field Batas Prioritas di form edit mitra.
 
 ---
-*Last updated: 2026-05-27 — Phase 23 complete, Phase 24 planned*
+*Last updated: 2026-05-27 — Phase 24 complete, milestone v3.5 UI Polish selesai*
