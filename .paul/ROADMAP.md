@@ -34,6 +34,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 20 | Finance UI Polish | 1 | ✅ Complete | 2026-05-27 |
 | 21 | Cancellations Returns Polish | 1 | ✅ Complete | 2026-05-27 |
 | 22 | Reports Queue Polish | 1 | ✅ Complete | 2026-05-27 |
+| 23 | Finance Desktop Enterprise Polish | 2 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 
@@ -152,6 +153,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Plans:**
 - [x] 13-01: Bug fixes + UI/copy + feature harga satuan (execute)
 
+### Phase 23: Finance Desktop Enterprise Polish 🔵 Planning
+
+**Goal:** Upgrade UI halaman Finance desktop menuju level enterprise dashboard — sticky table header, sortable columns, quick action row menu, typography title case, semantic color system, sidebar glow/hover, topbar search + notification, summary sparkline, dan export button UI.
+**Depends on:** Phase 22 (Reports Queue Polish)
+**Status:** 🔵 Planning
+
+**Plans:**
+- [ ] 23-01: Table interaction + Typography + Color System (Finance.tsx + index.css)
+- [ ] 23-02: Sidebar glow + Topbar search/notif + Summary sparkline (Layout.tsx + Finance.tsx)
+
 ### Phase 14: Modal Akun Center ✅ Complete
 
 **Goal:** Ubah modal Detail Info Akun dari slide-in panel kanan menjadi centered overlay modal
@@ -215,5 +226,17 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Reports.tsx page-header/page-title/btn-primary; AppQueue mobile cards border-l-4 + status color
 
+### Phase 23: Finance Desktop Enterprise Polish ✅ Complete
+
+**Goal:** Upgrade UI halaman Finance desktop menuju level enterprise dashboard — sticky table header, sortable columns, quick action row menu, typography title case, semantic color system, sidebar glow/hover, topbar search + notification, summary sparkline, dan export button UI.
+**Depends on:** Phase 22 (Reports Queue Polish)
+**Completed:** 2026-05-27
+
+**Plans:**
+- [x] 23-01: Table interaction + Typography + Color System — Finance.tsx + index.css
+- [x] 23-02: Sidebar glow + Topbar search/notif + Summary sparkline — Layout.tsx + Finance.tsx
+
+**Result:** Finance desktop table sticky+sortable+action menu; typography title case; semantic colors (overdue/pending/warning/success); sidebar active glow; topbar search+notif; summary sparkline; export button UI
+
 ---
-*Last updated: 2026-05-27 — Phase 22 Reports Queue Polish complete*
+*Last updated: 2026-05-27 — Phase 23 Finance Desktop Enterprise Polish complete*

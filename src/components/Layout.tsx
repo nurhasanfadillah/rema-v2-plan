@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, HelpCircle, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, HelpCircle, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList, Search, Bell } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,9 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [notifOpen, setNotifOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -64,16 +67,17 @@ export default function Layout() {
               key={l.to}
               to={l.to}
               className={({ isActive }) => cn(
-                "flex items-center justify-between px-3.5 py-3 rounded-2xl transition-all duration-300 font-semibold text-[13px] group relative",
+                "flex items-center justify-between px-3.5 py-3 rounded-2xl transition-all duration-300 font-semibold text-[13px] group relative overflow-visible",
                 (active ?? isActive)
-                  ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/15"
-                  : "text-slate-400 hover:bg-slate-900 hover:text-slate-100"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/15 shadow-[0_0_12px_rgba(59,130,246,0.2)]"
+                  : "text-slate-400 hover:bg-slate-900 hover:text-slate-100 hover:translate-x-0.5"
               )}
             >
               {({ isActive }) => {
                 const isLinkActive = active ?? isActive;
                 return (
                   <>
+                    {isLinkActive && <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-blue-400 rounded-r-full shadow-lg shadow-blue-500/50" />}
                     <div className="flex items-center gap-3">
                       {React.cloneElement(l.icon as React.ReactElement, {
                         className: cn("w-4.5 h-4.5 transition-colors duration-300",
@@ -233,7 +237,76 @@ export default function Layout() {
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Search */}
+            <AnimatePresence mode="wait">
+              {searchOpen ? (
+                <motion.div
+                  key="search-input"
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 'auto', opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center"
+                >
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <input
+                      autoFocus
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Escape') { setSearchOpen(false); setSearchQuery(''); } }}
+                      placeholder="Cari pesanan, mitra..."
+                      className="w-40 sm:w-56 pl-8 pr-3 py-1.5 bg-slate-900 border border-slate-700/60 rounded-xl text-[12px] text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                    />
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.button
+                  key="search-btn"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSearchOpen(true)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all active:scale-95 cursor-pointer"
+                  title="Cari"
+                >
+                  <Search className="w-4.5 h-4.5" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            {/* Notification */}
+            <div className="relative">
+              <button
+                onClick={() => setNotifOpen(!notifOpen)}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all active:scale-95 cursor-pointer relative"
+                title="Notifikasi"
+              >
+                <Bell className="w-4.5 h-4.5" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-slate-950" />
+              </button>
+              <AnimatePresence>
+                {notifOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-72 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl shadow-blue-500/5 overflow-hidden z-50"
+                  >
+                    <div className="p-3 border-b border-slate-800">
+                      <span className="text-[11px] font-bold text-slate-400">Notifikasi</span>
+                    </div>
+                    <div className="p-6 text-center">
+                      <Bell className="w-8 h-8 mx-auto mb-2 text-slate-700" />
+                      <p className="text-[11px] text-slate-500 font-medium">Belum ada notifikasi</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
              <div 
                onClick={() => setProfileOpen(true)}
                className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-blue-400 font-bold text-lg shadow-inner cursor-pointer hover:bg-slate-800 hover:border-slate-700 transition-all active:scale-95 group overflow-hidden relative"

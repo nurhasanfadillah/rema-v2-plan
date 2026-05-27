@@ -5,7 +5,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { api } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
 import { LedgerEntry, Mitra, Order } from '../types';
-import { Plus, Wallet, FileText, ArrowDownLeft, ArrowUpRight, TrendingDown, BookOpen, Clock, Calendar, Info, Filter, ChevronDown, ChevronUp, Trash2, Edit2, X, Download, ExternalLink, Image as ImageIcon, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Plus, Wallet, FileText, ArrowDownLeft, ArrowUpRight, TrendingDown, BookOpen, Clock, Calendar, Info, Filter, ChevronDown, ChevronUp, Trash2, Edit2, X, Download, ExternalLink, Image as ImageIcon, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileUpload } from '../components/FileUpload';
 
@@ -27,23 +27,13 @@ export default function Finance() {
 
   const [selectedMitraId, setSelectedMitraId] = useState<string>('all');
 
-  useEffect(() => {
-    Promise.all([
-      api.mitras.list(),
-      api.ledgers.list(),
-      api.orders.list(),
-    ]).then(([m, l, o]) => {
-      setMitras(m);
-      setLedgers(l);
-      setOrders(o);
-      if (user?.role === 'mitra') {
-        const active = m.find(mt => mt.userId === user.id);
-        if (active) setSelectedMitraId(active.id);
-      }
-    }).catch(() => toast.error('Gagal memuat data keuangan'));
-  }, [user]);
+  const [sortKey, setSortKey] = useState<'createdAt' | 'nominal' | 'description' | 'source'>('createdAt');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
-  const activeMitra = mitras.find(m => m.userId === user?.id);
+  const handleSort = (key: typeof sortKey) => {
+    setSortDir(prev => sortKey === key ? (prev === 'asc' ? 'desc' : 'asc') : 'desc');
+    setSortKey(key);
+  };
 
   const handleMitraChange = (id: string) => {
     setSelectedMitraId(id);
@@ -53,6 +43,14 @@ export default function Finance() {
   const [isChargeOpen, setIsChargeOpen] = useState(false);
   const [selectedLedger, setSelectedLedger] = useState<LedgerEntry | null>(null);
   const [editingLedger, setEditingLedger] = useState<LedgerEntry | null>(null);
+  const [actionRowId, setActionRowId] = useState<string | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
+
+  useEffect(() => {
+    const close = () => { setActionRowId(null); setExportOpen(false); };
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, []);
 
   if (!user || user.role === 'staff' || user.role === 'operational') return <div className="p-8 text-center text-red-500 font-bold">Akses ditolak</div>;
 
@@ -122,7 +120,14 @@ export default function Finance() {
      }
   }
 
-  const sortedLedgers = displayLedgers.sort((a,b) => b.createdAt - a.createdAt);
+  const sortedLedgers = [...displayLedgers].sort((a, b) => {
+    const dir = sortDir === 'asc' ? 1 : -1;
+    if (sortKey === 'nominal') return (a.nominal - b.nominal) * dir;
+    if (sortKey === 'createdAt') return (a.createdAt - b.createdAt) * dir;
+    if (sortKey === 'description') return a.description.localeCompare(b.description) * dir;
+    if (sortKey === 'source') return a.source.localeCompare(b.source) * dir;
+    return 0;
+  });
 
   const totalItems = sortedLedgers.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -190,6 +195,12 @@ export default function Finance() {
                 <div className="flex-1 min-w-0 text-center sm:text-left">
                   <span className="text-[10px] font-bold text-slate-500 tracking-tight block mb-0.5 truncate">Saldo Piutang {selectedMitraId === 'all' ? '(Global)' : ''}</span>
                   <p className={`text-sm sm:text-xl lg:text-2xl font-black tracking-tight leading-none truncate ${currentSaldo > 0 ? 'text-red-650' : 'text-slate-900'}`}>{formatCurrency(currentSaldo)}</p>
+                  <div className="hidden sm:flex items-center gap-1.5 mt-1.5">
+                    <svg width="60" height="20" viewBox="0 0 60 20" className="flex-shrink-0">
+                      <polyline points="0,15 15,12 30,14 45,8 60,10" fill="none" stroke={currentSaldo > 0 ? "#ef4444" : "#34d399"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="text-[8px] font-bold text-slate-500">30 hari</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -205,6 +216,12 @@ export default function Finance() {
                 <div className="flex-1 min-w-0 text-center sm:text-left">
                   <span className="text-[10px] font-bold text-slate-500 tracking-tight block mb-0.5 truncate">Tagihan Tertunda {selectedMitraId === 'all' ? '(Global)' : ''}</span>
                   <p className="text-sm sm:text-xl lg:text-2xl font-black tracking-tight leading-none text-slate-900 truncate">{formatCurrency(pendingBills)}</p>
+                  <div className="hidden sm:flex items-center gap-1.5 mt-1.5">
+                    <svg width="60" height="20" viewBox="0 0 60 20" className="flex-shrink-0">
+                      <polyline points="0,18 15,14 30,16 45,10 60,12" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="text-[8px] font-bold text-slate-500">30 hari</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -220,7 +237,7 @@ export default function Finance() {
                      <div className="w-6 h-6 rounded-lg bg-red-50 text-red-600 flex items-center justify-center border border-red-100">
                         <ArrowUpRight className="w-3 h-3" />
                      </div>
-                     <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Debit (Tagihan)</span>
+                     <span className="text-[9px] font-bold text-slate-500 tracking-tight">Debit (Tagihan)</span>
                   </div>
                   <p className="text-sm sm:text-lg font-black tracking-tight text-red-600 truncate">{formatCurrency(totalDebit)}</p>
                </div>
@@ -230,7 +247,7 @@ export default function Finance() {
                      <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
                         <ArrowDownLeft className="w-3 h-3" />
                      </div>
-                     <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Kredit (Bayar)</span>
+                     <span className="text-[9px] font-bold text-slate-500 tracking-tight">Kredit (Bayar)</span>
                   </div>
                   <p className="text-sm sm:text-lg font-black tracking-tight text-emerald-700 truncate">{formatCurrency(totalCredit)}</p>
                </div>
@@ -245,14 +262,49 @@ export default function Finance() {
             Riwayat Jurnal
           </h3>
           {user.role === 'admin' && (
-             <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`border px-2.5 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer text-[10px] ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
-             >
-                <Filter className="w-3 h-3" />
-                Filter
-                {showFilters ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}
-             </button>
+             <div className="flex items-center gap-2">
+               {/* Export Button */}
+               <div className="relative">
+                 <button
+                   onClick={(e) => { e.stopPropagation(); setExportOpen(!exportOpen); }}
+                   className="border border-slate-200/60 px-2.5 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer text-[10px] bg-white text-slate-600 hover:bg-slate-50"
+                 >
+                   <Download className="w-3 h-3" />
+                   Export
+                   {exportOpen ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}
+                 </button>
+                 <AnimatePresence>
+                   {exportOpen && (
+                     <motion.div
+                       initial={{ opacity: 0, y: -4, scale: 0.96 }}
+                       animate={{ opacity: 1, y: 0, scale: 1 }}
+                       exit={{ opacity: 0, y: -4, scale: 0.96 }}
+                       transition={{ duration: 0.15 }}
+                       className="absolute right-0 top-full mt-1 w-40 bg-white border border-slate-200/60 rounded-xl shadow-lg z-50 overflow-hidden"
+                       onClick={(e) => e.stopPropagation()}
+                     >
+                       <button className="w-full flex items-center gap-2 px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer">
+                         <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                         Export Excel
+                       </button>
+                       <button className="w-full flex items-center gap-2 px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer border-t border-slate-100">
+                         <FileText className="w-3.5 h-3.5 text-red-600" />
+                         Export PDF
+                       </button>
+                     </motion.div>
+                   )}
+                 </AnimatePresence>
+               </div>
+
+               <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`border px-2.5 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer text-[10px] ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+               >
+                  <Filter className="w-3 h-3" />
+                  Filter
+                  {showFilters ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}
+               </button>
+             </div>
           )}
         </div>
 
@@ -268,14 +320,14 @@ export default function Finance() {
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 sm:px-3 sm:py-1.5 flex flex-col sm:flex-row items-center gap-2.5">
                 <div className="hidden sm:flex items-center gap-1 text-slate-500 flex-shrink-0">
                   <Filter className="w-2.5 h-2.5" />
-                  <span className="text-[9px] font-black uppercase tracking-wider">Opsi:</span>
+                  <span className="text-[9px] font-bold tracking-tight">Opsi:</span>
                 </div>
 
                 <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
 
                 <div className="flex flex-wrap items-center gap-2 w-full">
                   <div className="flex items-center gap-1 flex-1 sm:flex-none">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase hidden sm:block">Mitra:</span>
+                    <span className="text-[9px] font-bold text-slate-500 tracking-tight hidden sm:block">Mitra:</span>
                     <select
                       value={selectedMitraId}
                       onChange={e=>handleMitraChange(e.target.value)}
@@ -289,7 +341,7 @@ export default function Finance() {
                   <div className="hidden sm:block h-3 w-px bg-slate-200 mx-1"></div>
 
                   <div className="flex items-center gap-1 flex-1 sm:flex-none">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase whitespace-nowrap hidden sm:block">Periode:</span>
+                    <span className="text-[9px] font-bold text-slate-500 tracking-tight whitespace-nowrap hidden sm:block">Periode:</span>
                     <div className="flex items-center gap-1 flex-1">
                       <div className="relative flex-1 sm:flex-none">
                         <Calendar className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-slate-400" />
@@ -325,7 +377,7 @@ export default function Finance() {
                       setDateRange({ start: '', end: '' });
                       setCurrentPage(1);
                     }}
-                    className="ml-auto text-[9px] font-black text-blue-600 hover:text-blue-700 px-2 py-1 hover:bg-blue-50 rounded-lg transition-all uppercase tracking-wider"
+                    className="ml-auto text-[9px] font-bold text-blue-600 hover:text-blue-700 px-2 py-1 hover:bg-blue-50 rounded-lg transition-all tracking-tight"
                   >
                     Reset
                   </button>
@@ -382,16 +434,42 @@ export default function Finance() {
         variants={itemVariants}
         className="hidden md:block bg-white rounded-2xl shadow-[0_2px_8px_-4px_rgba(0,0,0,0.03),0_4px_12px_-8px_rgba(0,0,0,0.01)] border border-slate-200/60 overflow-hidden"
       >
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-auto max-h-[600px]">
           <table className="w-full text-left text-[12px] text-slate-600">
-            <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-900 font-extrabold text-[10px] uppercase tracking-wider">
+            <thead className="sticky top-0 z-10 bg-slate-50/80 border-b border-slate-200/80 text-slate-900 font-bold text-[10px] uppercase tracking-wider">
               <tr>
-                <th className="px-4 py-3">Waktu</th>
+                <th className="px-4 py-3 cursor-pointer hover:text-blue-400 transition-colors select-none" onClick={() => handleSort('createdAt')}>
+                  <span className="inline-flex items-center gap-1">
+                    Waktu
+                    {sortKey === 'createdAt' && (sortDir === 'asc' ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />)}
+                  </span>
+                </th>
                 {user.role === 'admin' && selectedMitraId === 'all' && <th className="px-4 py-3">Mitra</th>}
-                <th className="px-4 py-3">Sumber</th>
-                <th className="px-4 py-3 font-bold">Deskripsi</th>
-                <th className="px-4 py-3 text-right">Debit (+)</th>
-                <th className="px-4 py-3 text-right">Kredit (-)</th>
+                <th className="px-4 py-3 cursor-pointer hover:text-blue-400 transition-colors select-none" onClick={() => handleSort('source')}>
+                  <span className="inline-flex items-center gap-1">
+                    Sumber
+                    {sortKey === 'source' && (sortDir === 'asc' ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />)}
+                  </span>
+                </th>
+                <th className="px-4 py-3 cursor-pointer hover:text-blue-400 transition-colors select-none font-bold" onClick={() => handleSort('description')}>
+                  <span className="inline-flex items-center gap-1">
+                    Deskripsi
+                    {sortKey === 'description' && (sortDir === 'asc' ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />)}
+                  </span>
+                </th>
+                <th className="px-4 py-3 text-right cursor-pointer hover:text-blue-400 transition-colors select-none" onClick={() => handleSort('nominal')}>
+                  <span className="inline-flex items-center gap-1 justify-end">
+                    Debit (+)
+                    {sortKey === 'nominal' && (sortDir === 'asc' ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />)}
+                  </span>
+                </th>
+                <th className="px-4 py-3 text-right cursor-pointer hover:text-blue-400 transition-colors select-none" onClick={() => handleSort('nominal')}>
+                  <span className="inline-flex items-center gap-1 justify-end">
+                    Kredit (-)
+                    {sortKey === 'nominal' && (sortDir === 'asc' ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />)}
+                  </span>
+                </th>
+                <th className="px-4 py-3 text-center w-10">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
@@ -401,7 +479,7 @@ export default function Finance() {
                 return (
                   <tr
                     key={l.id}
-                    className="hover:bg-slate-50/70 transition-colors duration-200 cursor-pointer"
+                    className="hover:bg-slate-50/70 transition-colors duration-200 cursor-pointer group"
                     onClick={() => setSelectedLedger(l)}
                   >
                     <td className="px-4 py-2.5 whitespace-nowrap font-medium text-slate-400 text-[11px]">{formatDate(l.createdAt)}</td>
@@ -410,12 +488,45 @@ export default function Finance() {
                     <td className="px-4 py-2.5 font-medium max-w-[200px] truncate" title={l.description}>{l.description}</td>
                     <td className="px-4 py-2.5 text-right font-extrabold text-red-650">{isDebit ? formatCurrency(l.nominal) : '-'}</td>
                     <td className="px-4 py-2.5 text-right font-extrabold text-emerald-700">{!isDebit ? formatCurrency(l.nominal) : '-'}</td>
+                    <td className="px-4 py-2.5 text-center relative">
+                      {(l.source === 'manual' || l.source === 'payment') && user.role === 'admin' && (
+                        <>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setActionRowId(actionRowId === l.id ? null : l.id); }}
+                            className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50/50 transition-all opacity-0 group-hover:opacity-100"
+                          >
+                            <MoreHorizontal className="w-3.5 h-3.5" />
+                          </button>
+                          {actionRowId === l.id && (
+                            <div
+                              className="absolute right-0 top-full mt-0.5 w-32 bg-white border border-slate-200/60 rounded-xl shadow-lg z-50 overflow-hidden"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setActionRowId(null); setEditingLedger(l); }}
+                                className="w-full flex items-center gap-2 px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 transition-all"
+                              >
+                                <Edit2 className="w-3 h-3 text-blue-600" />
+                                Edit
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setActionRowId(null); handleDeleteLedger(l.id); }}
+                                className="w-full flex items-center gap-2 px-3 py-2.5 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-all border-t border-slate-100"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                Hapus
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </td>
                   </tr>
                 );
               })}
               {sortedLedgers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-slate-400 font-bold">
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-400 font-bold">
                     <BookOpen className="w-8 h-8 text-slate-250 mx-auto mb-2" />
                     Belum ada transaksi
                   </td>

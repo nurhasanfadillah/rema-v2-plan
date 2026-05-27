@@ -281,7 +281,18 @@ table, thead, tbody, tr, th, td {
   color: #38bdf8 !important;
 }
 
-/* 6. Interactivity Hover Maps */
+/* 6. Semantic Status Colors */
+.text-status-overdue { color: #ef4444 !important; }
+.text-status-pending { color: #f59e0b !important; }
+.text-status-warning { color: #f97316 !important; }
+.text-status-success { color: #34d399 !important; }
+
+.bg-status-overdue { background-color: rgba(239, 68, 68, 0.1) !important; }
+.bg-status-pending { background-color: rgba(245, 158, 11, 0.1) !important; }
+.bg-status-warning { background-color: rgba(249, 115, 22, 0.1) !important; }
+.bg-status-success { background-color: rgba(52, 211, 153, 0.1) !important; }
+
+/* 7. Interactivity Hover Maps */
 .hover\:bg-slate-50\/70:hover {
   background-color: rgba(30, 41, 59, 0.35) !important;
 }
