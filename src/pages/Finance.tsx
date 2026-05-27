@@ -745,7 +745,7 @@ function PaymentModal({ onClose, onSave, formattedNominal, editData, mitras }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 max-h-[95vh] no-scrollbar">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 animate-in slide-in-from-bottom-6 max-h-[95vh] overflow-y-auto no-scrollbar">
         <h2 className="text-[16px] font-black tracking-tight text-slate-900 mb-5">
           {editData ? 'Edit Pembayaran' : 'Catat Pembayaran'}
         </h2>
