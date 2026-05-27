@@ -31,6 +31,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 17 | Login UI Redesign | 1 | ✅ Complete | 2026-05-27 |
 | 18 | Orders Visual Polish | 1 | ✅ Complete | 2026-05-27 |
 | 19 | Order Button Polish | 1 | ✅ Complete | 2026-05-27 |
+| 20 | Finance UI Polish | 1 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 
@@ -190,5 +191,16 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Tombol advance status kini emerald-500 dengan shadow-2xl; label PDF dipersingkat
 
+### Phase 20: Finance UI Polish ✅ Complete
+
+**Goal:** Polish UI halaman Keuangan: typography label title case, subtitle dipersingkat, mobile journal cards colored left-border by direction, secondary button visual hierarchy
+**Depends on:** Phase 19 (app stable)
+**Completed:** 2026-05-27
+
+**Plans:**
+- [x] 20-01: Typography + mobile card border + button polish (execute)
+
+**Result:** Label summary card title case, mobile cards debit=red/kredit=green left-border, btn-secondary shadow diperkuat
+
 ---
-*Last updated: 2026-05-27 — Phase 19 Order Button Polish complete*
+*Last updated: 2026-05-27 — Phase 20 Finance UI Polish complete*

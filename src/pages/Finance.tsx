@@ -155,7 +155,7 @@ export default function Finance() {
       <div className="page-header">
         <div>
            <h1 className="page-title">Keuangan & Tagihan Mitra</h1>
-           <p className="text-[12px] text-slate-500 mt-0.5 font-semibold">Kelola aliran pembayaran, kredit retur, dan saldo berjalan.</p>
+           <p className="text-[12px] text-slate-500 mt-0.5 font-semibold">Kelola pembayaran dan saldo mitra.</p>
         </div>
 
         {user.role === 'admin' && (
@@ -169,7 +169,7 @@ export default function Finance() {
 
               <button
                 onClick={() => setIsChargeOpen(true)}
-                className="btn-secondary flex-1 sm:flex-none text-[11px]"
+                className="btn-secondary flex-1 sm:flex-none text-[11px] shadow-sm hover:shadow-md hover:border-slate-500"
               >
                 <Plus className="w-3.5 h-3.5" /> Tagihan Manual
               </button>
@@ -188,7 +188,7 @@ export default function Finance() {
                   <Wallet className="w-4.5 h-4.5" />
                 </div>
                 <div className="flex-1 min-w-0 text-center sm:text-left">
-                  <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block mb-0.5 truncate">Saldo Piutang {selectedMitraId === 'all' ? '(Global)' : ''}</span>
+                  <span className="text-[10px] font-bold text-slate-500 tracking-tight block mb-0.5 truncate">Saldo Piutang {selectedMitraId === 'all' ? '(Global)' : ''}</span>
                   <p className={`text-sm sm:text-xl lg:text-2xl font-black tracking-tight leading-none truncate ${currentSaldo > 0 ? 'text-red-650' : 'text-slate-900'}`}>{formatCurrency(currentSaldo)}</p>
                 </div>
               </div>
@@ -203,7 +203,7 @@ export default function Finance() {
                   <FileText className="w-4.5 h-4.5" />
                 </div>
                 <div className="flex-1 min-w-0 text-center sm:text-left">
-                  <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block mb-0.5 truncate">Tagihan Tertunda {selectedMitraId === 'all' ? '(Global)' : ''}</span>
+                  <span className="text-[10px] font-bold text-slate-500 tracking-tight block mb-0.5 truncate">Tagihan Tertunda {selectedMitraId === 'all' ? '(Global)' : ''}</span>
                   <p className="text-sm sm:text-xl lg:text-2xl font-black tracking-tight leading-none text-slate-900 truncate">{formatCurrency(pendingBills)}</p>
                 </div>
               </div>
@@ -345,7 +345,7 @@ export default function Finance() {
               variants={itemVariants}
               key={l.id}
               onClick={() => setSelectedLedger(l)}
-              className="bg-white rounded-xl border border-slate-200/60 p-3 shadow-xs relative cursor-pointer hover:border-blue-300 transition-all"
+              className={`bg-white rounded-xl border border-slate-200/60 p-3 shadow-xs relative cursor-pointer hover:border-blue-300 transition-all border-l-4 ${isDebit ? 'border-l-red-400' : 'border-l-emerald-400'}`}
             >
                <div className="flex justify-between items-center mb-1.5">
                   <div className="flex items-center gap-2">
