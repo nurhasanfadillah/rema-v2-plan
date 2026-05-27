@@ -267,22 +267,20 @@ export default function OrderDetail() {
   };
 
   const getStatusBadge = (status: string) => {
-    const specs: Record<string, { bg: string, text: string, border: string, label: string }> = {
-      draft: { bg: 'bg-slate-50 border-slate-200', text: 'text-slate-600', border: 'border-slate-200/65', label: 'Draft' },
-      waiting_confirmation: { bg: 'bg-amber-50 border-amber-200/60', text: 'text-amber-700', border: 'border-amber-200', label: 'Menunggu Konfirmasi' },
-      confirmed: { bg: 'bg-blue-50 border-blue-200/50', text: 'text-blue-700', border: 'border-blue-200', label: 'Dikonfirmasi' },
-      processing: { bg: 'bg-purple-50 border-purple-200/50', text: 'text-purple-700', border: 'border-purple-200', label: 'Proses Produksi' },
-      pressing: { bg: 'bg-pink-50 border-pink-200/50', text: 'text-pink-700', border: 'border-pink-200', label: 'Press Sablon' },
-      packing: { bg: 'bg-orange-50 border-orange-200/50', text: 'text-orange-700', border: 'border-orange-200', label: 'Sedang Packing' },
-      shipped: { bg: 'bg-emerald-50 border-emerald-200/50', text: 'text-emerald-700', border: 'border-emerald-200', label: 'Terkirim/Selesai' },
-      returned: { bg: 'bg-red-50 border-red-200/50', text: 'text-red-700', border: 'border-red-200', label: 'Pesanan Retur' },
-      cancelled: { bg: 'bg-slate-900 border-slate-800', text: 'text-slate-100', border: 'border-slate-800', label: 'Dibatalkan' },
+    const specs: Record<string, { bg: string; text: string; border: string; glow: string; label: string }> = {
+      draft:                { bg: 'bg-slate-500/15',  text: 'text-slate-300',  border: 'border-slate-500/30',  glow: '',                     label: 'Draft' },
+      waiting_confirmation: { bg: 'bg-amber-500/15',  text: 'text-amber-300',  border: 'border-amber-500/30',  glow: 'shadow-amber-500/20',  label: 'Menunggu Konfirmasi' },
+      confirmed:            { bg: 'bg-blue-500/15',   text: 'text-blue-300',   border: 'border-blue-500/30',   glow: 'shadow-blue-500/20',   label: 'Dikonfirmasi' },
+      processing:           { bg: 'bg-purple-500/15', text: 'text-purple-300', border: 'border-purple-500/30', glow: 'shadow-purple-500/20', label: 'Proses Produksi' },
+      pressing:             { bg: 'bg-rose-500/15',   text: 'text-rose-300',   border: 'border-rose-500/30',   glow: 'shadow-rose-500/20',   label: 'Press Sablon' },
+      packing:              { bg: 'bg-orange-500/15', text: 'text-orange-300', border: 'border-orange-500/30', glow: 'shadow-orange-500/20', label: 'Sedang Packing' },
+      shipped:              { bg: 'bg-emerald-500/15',text: 'text-emerald-300',border: 'border-emerald-500/30',glow: 'shadow-emerald-500/20',label: 'Terkirim/Selesai' },
+      returned:             { bg: 'bg-red-500/15',    text: 'text-red-300',    border: 'border-red-500/30',    glow: 'shadow-red-500/20',    label: 'Pesanan Retur' },
+      cancelled:            { bg: 'bg-slate-500/10',  text: 'text-slate-400',  border: 'border-slate-600/30',  glow: '',                     label: 'Dibatalkan' },
     };
-
-    const s = specs[status] || { bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200', label: status };
-
+    const s = specs[status] || { bg: 'bg-slate-500/15', text: 'text-slate-300', border: 'border-slate-500/30', glow: '', label: status };
     return (
-      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black uppercase tracking-wider ${s.bg} ${s.text} ${s.border}`}>
+      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold uppercase tracking-wide shadow-sm ${s.glow} ${s.bg} ${s.text} ${s.border}`}>
         <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
         {s.label}
       </span>
@@ -309,19 +307,30 @@ export default function OrderDetail() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2 font-mono text-[10px] font-bold text-slate-500 tracking-[0.1em] uppercase opacity-70">
-               <span className="tabular-nums">ID: {order.id.slice(0, 8).toUpperCase()}</span>
-               <span className="opacity-30">•</span>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 font-mono text-[10px] font-semibold text-slate-600 tracking-[0.08em] uppercase">
                <span className="tabular-nums">{formatDate(order.createdAt)}</span>
+               <span className="opacity-30">·</span>
+               <span className="tabular-nums opacity-60">{order.id.slice(0, 8).toUpperCase()}</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 tracking-tighter">
-              <span className="text-slate-500 font-medium">Ref:</span> <span className="font-mono text-blue-500 font-bold uppercase">{order.orderNumber}</span>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tighter font-mono">
+              {order.orderNumber}
             </h1>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 self-start sm:self-center">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+          {(user.role === 'admin' || user.role === 'mitra') && (
+            order.isBilled ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+                <CreditCard className="w-3 h-3" /> Tertagih
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold uppercase tracking-wide bg-slate-800/60 text-slate-500 border-slate-700/40">
+                <CreditCard className="w-3 h-3" /> Belum Tagih
+              </span>
+            )
+          )}
           {getStatusBadge(order.status)}
         </div>
       </div>
@@ -334,7 +343,7 @@ export default function OrderDetail() {
          <div className="bg-slate-900/40 p-6 rounded-3xl border border-white/5 shadow-xl space-y-5 backdrop-blur-sm">
             <div className="flex items-center gap-2.5 pb-3 border-b border-white/5">
               <Truck className="w-4 h-4 text-slate-500" />
-              <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Informasi Pengiriman</h2>
+              <h2 className="text-[13px] font-semibold text-slate-300 leading-none">Informasi Pengiriman</h2>
             </div>
             <div className="space-y-4 text-[13px] text-slate-300 font-medium">
                <div className="flex justify-between items-center bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/50">
@@ -377,15 +386,19 @@ export default function OrderDetail() {
               <div>
                 <div className="flex items-center gap-2.5 pb-3 border-b border-white/5 mb-5">
                   <CreditCard className="w-4 h-4 text-slate-500" />
-                  <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Rincian Tagihan</h2>
+                  <h2 className="text-[13px] font-semibold text-slate-300 leading-none">Rincian Tagihan</h2>
                 </div>
                 <div className="space-y-4 text-[13px] text-slate-300 font-medium">
                    <div className="flex justify-between items-center px-1">
                      <span className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Status Tagihan:</span>
                      {order.isBilled ? (
-                       <span className="px-2.5 py-1 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg tracking-wider italic uppercase">Sudah Ditagih</span>
+                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg tracking-wider uppercase">
+                         <CheckCircle className="w-3 h-3" /> Sudah Ditagih
+                       </span>
                      ) : (
-                       <span className="px-2.5 py-1 text-[9px] font-bold text-slate-500 bg-slate-800 border border-slate-700/50 rounded-lg tracking-wider italic uppercase">Belum Ditagih</span>
+                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[9px] font-bold text-slate-500 bg-slate-800 border border-slate-700/50 rounded-lg tracking-wider uppercase">
+                         <CreditCard className="w-3 h-3" /> Belum Ditagih
+                       </span>
                      )}
                    </div>
                    <div className="flex justify-between px-1">
@@ -407,7 +420,7 @@ export default function OrderDetail() {
       <div className="bg-slate-900/10 p-4 sm:p-6 lg:p-8 rounded-[32px] border border-white/5 shadow-2xl backdrop-blur-sm space-y-6">
          <div className="flex items-center gap-3 pb-4 border-b border-white/5">
            <Package className="w-4.5 h-4.5 text-slate-500" />
-           <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Item Pesanan</h2>
+           <h2 className="text-[13px] font-semibold text-slate-300 leading-none">Item Pesanan</h2>
          </div>
          <div className="space-y-8">
            {order.items.map((item, i) => (
@@ -534,10 +547,13 @@ export default function OrderDetail() {
            </div>
         )}
 
-        <div className="bg-slate-900/40 p-5 sm:p-6 rounded-3xl border border-white/5 shadow-2xl flex flex-col gap-6 backdrop-blur-sm">
-          <div className="flex items-center gap-2.5 pb-2">
-            <Layers className="w-4.5 h-4.5 text-slate-500" />
-            <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">Aksi & Kontrol Pesanan</h2>
+        <div className="bg-slate-900/40 p-5 sm:p-6 rounded-3xl border border-white/5 shadow-2xl flex flex-col gap-5 backdrop-blur-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-white/5">
+            <div className="flex items-center gap-2.5">
+              <Layers className="w-4 h-4 text-slate-600" />
+              <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-none">Aksi & Kontrol</h2>
+            </div>
+            <span className="text-[9px] font-bold text-slate-700 uppercase tracking-widest font-mono">{order.orderNumber}</span>
           </div>
 
           <div className="flex flex-col xl:flex-row xl:items-center gap-5 justify-between bg-slate-950/30 p-2 sm:p-4 rounded-2xl border border-white/5">
@@ -551,7 +567,7 @@ export default function OrderDetail() {
                 {({ loading }) => (
                   <>
                     <PrinterIcon className="w-4 h-4" />
-                    {loading ? 'Processing...' : 'Cetak SPK A6'}
+                    {loading ? 'Processing...' : 'Cetak SPK'}
                   </>
                 )}
               </PDFDownloadLink>
@@ -583,7 +599,7 @@ export default function OrderDetail() {
               {isDeleteEligible && (
                 <button
                   onClick={handleDeleteOrder}
-                  className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition px-4 py-3 sm:py-2.5 border border-slate-800 hover:border-red-500/30 rounded-xl cursor-pointer bg-slate-900/80 uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
+                  className="flex-1 sm:flex-none justify-center text-[11px] font-bold text-red-500/70 hover:text-red-400 hover:bg-red-500/10 transition px-4 py-3 sm:py-2.5 border border-red-900/40 hover:border-red-500/30 rounded-xl cursor-pointer bg-slate-900/80 uppercase tracking-widest leading-none shadow-sm flex items-center gap-2"
                 >
                    Hapus
                 </button>
@@ -596,9 +612,10 @@ export default function OrderDetail() {
                 <button
                   type="button"
                   onClick={() => handleUpdateStatus(normalNext)}
-                  className="px-6 py-3.5 sm:py-3 bg-blue-600 hover:bg-blue-500 text-white text-[11px] sm:text-[12px] font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-xl shadow-blue-500/10 active:scale-95 uppercase tracking-[0.08em]"
+                  className="px-7 py-3.5 sm:py-3 bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] sm:text-[12px] font-extrabold rounded-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-2xl shadow-emerald-500/40 active:scale-95 uppercase tracking-[0.08em] ring-2 ring-emerald-300/60"
                 >
-                  Lanjutkan ke {STATUS_LABELS[normalNext]}
+                  <CheckCircle className="w-4 h-4 opacity-80" />
+                  {STATUS_LABELS[normalNext]}
                 </button>
               )}
 

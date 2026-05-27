@@ -30,6 +30,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 16 | Produk Form Scroll Fix | 1 | ✅ Complete | 2026-05-27 |
 | 17 | Login UI Redesign | 1 | ✅ Complete | 2026-05-27 |
 | 18 | Orders Visual Polish | 1 | ✅ Complete | 2026-05-27 |
+| 19 | Order Button Polish | 1 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 
@@ -168,7 +169,7 @@ Phases: 1 of 1 complete (Phase 11)
 **Plans:**
 - [x] 15-01: ProductFormModal compact + ProductDetailPanel centered+no-scrollbar (execute)
 
-### Phase 17: Login UI Redesign 🔄 Planning
+### Phase 17: Login UI Redesign ✅ Complete
 
 **Goal:** Redesign halaman Login mengikuti referensi desain: single-column mobile-first, latar navy, logo centered, input bergaya kotak ikon + validasi, checkbox "Ingat saya", security badge card, footer lengkap — tanpa Face ID & PIN
 **Depends on:** Phase 16 (app stable)
@@ -178,5 +179,16 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Login page mobile-first, navy theme, input kotak-ikon biru, security badge, footer lengkap
 
+### Phase 19: Order Button Polish ✅ Complete
+
+**Goal:** Dua perubahan UI kecil di Order Detail: tombol CTA "Lanjutkan ke..." lebih vivid (emerald), label PDF dari "Cetak SPK A6" → "Cetak SPK"
+**Depends on:** Phase 18 (Orders Visual Polish)
+**Completed:** 2026-05-27
+
+**Plans:**
+- [x] 19-01: CTA button emerald + label SPK (execute)
+
+**Result:** Tombol advance status kini emerald-500 dengan shadow-2xl; label PDF dipersingkat
+
 ---
-*Last updated: 2026-05-27 — Phase 17 Login UI Redesign complete*
+*Last updated: 2026-05-27 — Phase 19 Order Button Polish complete*
