@@ -34,7 +34,8 @@ Phases: 1 of 1 complete (Phase 11)
 | 20 | Finance UI Polish | 1 | ✅ Complete | 2026-05-27 |
 | 21 | Cancellations Returns Polish | 1 | ✅ Complete | 2026-05-27 |
 | 22 | Reports Queue Polish | 1 | ✅ Complete | 2026-05-27 |
-| 23 | Finance Desktop Enterprise Polish | 2 | ✅ Complete | 2026-05-27 |
+| 23 | Finance Desktop Enterprise Polish | 3 | ✅ Complete | 2026-05-27 |
+| 24 | Order Priority (Prioritas Pesanan) | — | 🔵 Planned | — |
 
 ## Phase Details
 
@@ -153,16 +154,6 @@ Phases: 1 of 1 complete (Phase 11)
 **Plans:**
 - [x] 13-01: Bug fixes + UI/copy + feature harga satuan (execute)
 
-### Phase 23: Finance Desktop Enterprise Polish 🔵 Planning
-
-**Goal:** Upgrade UI halaman Finance desktop menuju level enterprise dashboard — sticky table header, sortable columns, quick action row menu, typography title case, semantic color system, sidebar glow/hover, topbar search + notification, summary sparkline, dan export button UI.
-**Depends on:** Phase 22 (Reports Queue Polish)
-**Status:** 🔵 Planning
-
-**Plans:**
-- [ ] 23-01: Table interaction + Typography + Color System (Finance.tsx + index.css)
-- [ ] 23-02: Sidebar glow + Topbar search/notif + Summary sparkline (Layout.tsx + Finance.tsx)
-
 ### Phase 14: Modal Akun Center ✅ Complete
 
 **Goal:** Ubah modal Detail Info Akun dari slide-in panel kanan menjadi centered overlay modal
@@ -235,8 +226,18 @@ Phases: 1 of 1 complete (Phase 11)
 **Plans:**
 - [x] 23-01: Table interaction + Typography + Color System — Finance.tsx + index.css
 - [x] 23-02: Sidebar glow + Topbar search/notif + Summary sparkline — Layout.tsx + Finance.tsx
+- [x] 23-03: PaymentModal scrollbar fix — Finance.tsx (quick-fix)
 
-**Result:** Finance desktop table sticky+sortable+action menu; typography title case; semantic colors (overdue/pending/warning/success); sidebar active glow; topbar search+notif; summary sparkline; export button UI
+**Result:** Finance desktop table sticky+sortable+action menu; typography title case; semantic colors (overdue/pending/warning/success); sidebar active glow; topbar search+notif; summary sparkline; export button UI; PaymentModal clean (no scrollbar)
+
+### Phase 24: Order Priority (Prioritas Pesanan) 🔵 Planned
+
+**Goal:** Halaman baru Prioritas Pesanan — daftar pesanan prioritas per mitra, modal tambah prioritas dengan dropdown pesanan aktif + catatan, quota limit per mitra (set di data mitra), role-based access (mitra: add/delete own; admin/staff/operational: view only), auto-filter status confirmed→pressing.
+**Depends on:** Phase 23 (app stable)
+
+**Plans:**
+- [ ] 24-01: Backend — schema `order_priorities` table + `priorityLimit` di mitras + API endpoints
+- [ ] 24-02: Frontend — halaman `/priority`, modal tambah, nav link, role-based UI
 
 ---
-*Last updated: 2026-05-27 — Phase 23 Finance Desktop Enterprise Polish complete*
+*Last updated: 2026-05-27 — Phase 23 complete, Phase 24 planned*

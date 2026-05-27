@@ -43,6 +43,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Login UI Redesign: mobile-first navy theme, input kotak-ikon, security badge, footer lengkap — Phase 17
 - [x] UI Polish lanjutan: Cancellations, Finance, Orders, AppQueue, Reports — header utility class, colored cards, mobile left-border — Phase 18–22
 - [x] Confirm dialog dark theme + login autofill fix — Phase 22
+- [x] Finance Desktop Enterprise Polish: sticky table, sortable columns, quick action row menu, sidebar glow/hover, topbar search/notif, summary sparkline, semantic color system, PaymentModal clean — Phase 23
 
 ### Active (In Progress)
 
@@ -50,7 +51,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ### Planned (Next)
 
-- (none)
+- [ ] Order Priority (Prioritas Pesanan): halaman daftar prioritas, modal tambah prioritas, quota per mitra, role-based access — Phase 24
 
 ### Out of Scope
 
@@ -113,4 +114,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-27 after Phase 22 — UI Polish selesai, semua halaman konsisten*
+*Last updated: 2026-05-27 after Phase 23 — Finance Desktop Enterprise Polish selesai*

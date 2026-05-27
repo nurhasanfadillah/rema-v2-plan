@@ -2,13 +2,13 @@
   "name": "rema-v2.3",
   "version": "2.3.0",
   "milestone": {
-    "name": "v3.4 Cancellations Returns Polish",
-    "version": "3.4.0",
-    "status": "complete"
+    "name": "v3.5 UI Polish",
+    "version": "3.5.0",
+    "status": "in_progress"
   },
   "phase": {
-    "number": 21,
-    "name": "cancellations-returns-polish",
+    "number": 23,
+    "name": "finance-desktop-enterprise-polish",
     "status": "complete"
   },
   "loop": {
