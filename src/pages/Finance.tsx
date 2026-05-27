@@ -47,6 +47,22 @@ export default function Finance() {
   const [exportOpen, setExportOpen] = useState(false);
 
   useEffect(() => {
+    Promise.all([
+      api.mitras.list(),
+      api.ledgers.list(),
+      api.orders.list(),
+    ]).then(([m, l, o]) => {
+      setMitras(m);
+      setLedgers(l);
+      setOrders(o);
+      if (user?.role === 'mitra') {
+        const active = m.find(mt => mt.userId === user.id);
+        if (active) setSelectedMitraId(active.id);
+      }
+    }).catch(() => toast.error('Gagal memuat data keuangan'));
+  }, [user]);
+
+  useEffect(() => {
     const close = () => { setActionRowId(null); setExportOpen(false); };
     document.addEventListener('click', close);
     return () => document.removeEventListener('click', close);
