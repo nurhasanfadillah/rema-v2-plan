@@ -37,7 +37,7 @@ export default function Login() {
   return (
     <div
       className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden"
-      style={{ backgroundColor: '#0a1628' }}
+      style={{ backgroundColor: '#0a1628', colorScheme: 'dark' }}
     >
       {/* Dot-grid background */}
       <div
@@ -101,6 +101,7 @@ export default function Login() {
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
                 className="w-full bg-transparent outline-none text-white text-sm placeholder:text-slate-600 font-medium tabular-nums"
+                style={{ backgroundColor: 'transparent' }}
                 placeholder="0812XXXXXXXX"
                 required
               />
@@ -133,6 +134,7 @@ export default function Login() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 className="w-full bg-transparent outline-none text-white text-sm placeholder:text-slate-600 font-mono tracking-tight"
+                style={{ backgroundColor: 'transparent' }}
                 placeholder="••••••••"
                 required
               />

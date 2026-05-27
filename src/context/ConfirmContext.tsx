@@ -56,21 +56,21 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     <ConfirmContext.Provider value={{ confirm }}>
       {children}
       {isOpen && options && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden transform transition-all">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
             <div className="p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              <h3 className="text-base font-bold text-white mb-2">
                 {options.title}
               </h3>
-              <p className="text-slate-600 text-sm whitespace-pre-line">
+              <p className="text-slate-400 text-sm whitespace-pre-line leading-relaxed">
                 {options.message}
               </p>
             </div>
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+            <div className="px-6 py-4 bg-slate-950/50 border-t border-white/5 flex justify-end gap-2">
               {options.showCancel && (
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
                   autoFocus
                 >
                   {options.cancelText}
@@ -78,12 +78,12 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
               )}
               <button
                 onClick={handleConfirm}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
-                  options.type === 'danger' 
-                    ? 'bg-red-600 hover:bg-red-700' 
+                className={`px-4 py-2 text-sm font-semibold text-white rounded-xl transition-colors ${
+                  options.type === 'danger'
+                    ? 'bg-red-600 hover:bg-red-500'
                     : options.type === 'warning'
-                    ? 'bg-amber-600 hover:bg-amber-700'
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    ? 'bg-amber-600 hover:bg-amber-500'
+                    : 'bg-blue-600 hover:bg-blue-500'
                 }`}
                 autoFocus={!options.showCancel}
               >
