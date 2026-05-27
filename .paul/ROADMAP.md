@@ -32,6 +32,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 18 | Orders Visual Polish | 1 | ✅ Complete | 2026-05-27 |
 | 19 | Order Button Polish | 1 | ✅ Complete | 2026-05-27 |
 | 20 | Finance UI Polish | 1 | ✅ Complete | 2026-05-27 |
+| 21 | Cancellations Returns Polish | 1 | ✅ Complete | 2026-05-27 |
 
 ## Phase Details
 

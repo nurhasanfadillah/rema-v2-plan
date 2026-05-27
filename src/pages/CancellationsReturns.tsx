@@ -171,14 +171,14 @@ export default function CancellationsReturns() {
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
       {/* Top Banner and Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-white/10 mt-[-8px]">
+      <div className="page-header">
         <div>
-          <h1 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
+          <h1 className="page-title flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-red-500" />
             Pembatalan & Retur
           </h1>
-          <p className="text-[11px] text-slate-400 font-medium tracking-wide">
-            Proses pembatalan dan retur pesanan mitra.
+          <p className="text-[12px] text-slate-500 mt-0.5 font-semibold">
+            Kelola pembatalan dan retur pesanan mitra.
           </p>
         </div>
 
@@ -316,27 +316,27 @@ export default function CancellationsReturns() {
       </AnimatePresence>
 
       {/* Main Responsive List */}
-      <div className="bg-slate-950 rounded-2xl border border-slate-900 overflow-hidden shadow-2xl">
-        <div className="px-5 py-4 border-b border-slate-900 bg-slate-900/30 flex items-center justify-between">
+      <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden shadow-sm">
+        <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-1.5 bg-blue-500/10 rounded-md">
-              <Activity className="w-3.5 h-3.5 text-blue-400" />
+              <Activity className="w-3.5 h-3.5 text-blue-500" />
             </div>
-            <span className="text-[11px] font-black text-slate-200 uppercase tracking-[0.15em]">Riwayat Aktivitas</span>
+            <span className="text-[13px] font-extrabold text-slate-800">Riwayat Aktivitas</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-900 rounded-full border border-slate-800">
-            <div className={`w-1.5 h-1.5 rounded-full ${displayedOrders.length > 0 ? 'bg-emerald-500' : 'bg-slate-700'}`} />
-            <span className="text-[9px] font-mono text-slate-400 font-bold tracking-tighter uppercase">{displayedOrders.length} records</span>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-100 rounded-full border border-slate-200">
+            <div className={`w-1.5 h-1.5 rounded-full ${displayedOrders.length > 0 ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+            <span className="text-[9px] font-bold text-slate-500">{displayedOrders.length} records</span>
           </div>
         </div>
 
         {displayedOrders.length === 0 ? (
           <div className="p-16 text-center">
-            <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 opacity-30">
+            <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <RefreshCw className="w-6 h-6 text-slate-400" />
             </div>
-            <h3 className="text-sm font-bold text-slate-400">Belum ada riwayat klaim</h3>
-            <p className="text-[11px] text-slate-600 mt-1">Data pembatalan atau retur akan muncul setelah diproses.</p>
+            <h3 className="text-sm font-bold text-slate-600">Belum ada riwayat klaim</h3>
+            <p className="text-[11px] text-slate-400 mt-1">Data pembatalan atau retur akan muncul setelah diproses.</p>
           </div>
         ) : (
           <>
@@ -350,26 +350,26 @@ export default function CancellationsReturns() {
                   <div
                     key={o.id}
                     onClick={() => navigate(`/orders/${o.id}`)}
-                    className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4 space-y-3 hover:border-slate-600 transition-colors cursor-pointer group"
+                    className={`bg-white border border-slate-200/60 rounded-xl p-4 space-y-3 hover:border-blue-300 transition-colors cursor-pointer group border-l-4 ${o.status === 'cancelled' ? 'border-l-red-400' : 'border-l-purple-400'}`}
                   >
                     <div className="flex justify-between items-start">
-                      <span className="font-mono text-xs font-black text-white">#{o.orderNumber}</span>
+                      <span className="font-mono text-xs font-black text-slate-900">#{o.orderNumber}</span>
                       {getStatusBadge(o.status)}
                     </div>
 
                     <div className="space-y-1.5">
                       <div className="flex justify-between items-center text-[11px]">
                         <span className="text-slate-500">Mitra</span>
-                        <span className="text-slate-200 font-bold">{partnerName}</span>
+                        <span className="text-slate-800 font-bold">{partnerName}</span>
                       </div>
                       <div className="flex justify-between items-center text-[11px]">
                         <span className="text-slate-500">Nominal</span>
-                        <span className="text-emerald-400 font-black">{o.isBilled ? formatCurrency(o.totalAmount) : '-'}</span>
+                        <span className="text-emerald-600 font-black">{o.isBilled ? formatCurrency(o.totalAmount) : '-'}</span>
                       </div>
                     </div>
 
                     {reqLog?.reason && (
-                      <div className="text-[10px] text-slate-400 italic line-clamp-1 border-t border-slate-700 pt-2">
+                      <div className="text-[10px] text-slate-500 italic line-clamp-1 border-t border-slate-100 pt-2">
                         "{reqLog.reason}"
                       </div>
                     )}
@@ -382,7 +382,7 @@ export default function CancellationsReturns() {
             <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-800/30 text-[10px] uppercase tracking-widest text-slate-500">
+                  <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-900 font-extrabold text-[10px] uppercase tracking-wider">
                     <th className="px-4 py-3 font-bold">Nomor Pesanan</th>
                     <th className="px-4 py-3 font-bold text-center">Tipe</th>
                     <th className="px-4 py-3 font-bold">Waktu Klaim</th>
@@ -392,7 +392,7 @@ export default function CancellationsReturns() {
                     <th className="px-4 py-3 text-right font-bold">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
                   {displayedOrders.map(o => {
                     const partnerName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
                     const reqLog = requests.find(r => r.orderId === o.id);
@@ -400,10 +400,10 @@ export default function CancellationsReturns() {
                       <tr
                         key={o.id}
                         onClick={() => navigate(`/orders/${o.id}`)}
-                        className="hover:bg-slate-800/20 cursor-pointer transition-colors group"
+                        className="hover:bg-slate-50/70 cursor-pointer transition-colors duration-200 group"
                       >
-                        <td className="px-4 py-2.5 font-mono text-xs font-black text-slate-200">
-                          <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 mr-2 group-hover:bg-slate-700">{o.orderNumber}</span>
+                        <td className="px-4 py-2.5 font-mono text-xs font-black text-slate-800">
+                          <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 mr-2 group-hover:bg-slate-200">{o.orderNumber}</span>
                         </td>
                         <td className="px-4 py-2.5 text-center">
                           <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm ${o.type === 'online' ? 'bg-sky-900/30 text-sky-400 border border-sky-800/50' : 'bg-amber-900/30 text-amber-500 border border-amber-800/50'}`}>
@@ -414,7 +414,7 @@ export default function CancellationsReturns() {
                           {formatDate(o.updatedAt || o.createdAt)}
                         </td>
                         {user.role !== 'mitra' && (
-                          <td className="px-4 py-2.5 text-[11px] font-extrabold text-slate-300">
+                          <td className="px-4 py-2.5 text-[11px] font-extrabold text-slate-900">
                             {partnerName}
                           </td>
                         )}

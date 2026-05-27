@@ -9,21 +9,21 @@ See: .paul/PROJECT.md (updated 2026-05-26)
 
 ## Current Position
 
-Milestone: v3.3 Finance UI Polish
-Phase: 20 (Finance UI Polish) — Complete
-Plan: 20-01 SUMMARY created
-Status: Phase 20 complete — siap transisi
-Last activity: 2026-05-27 — UNIFY 20-01 complete
+Milestone: v3.4 Cancellations Returns Polish
+Phase: 21 (Cancellations Returns Polish) — Complete
+Plan: 21-01 SUMMARY created
+Status: Phase 21 complete
+Last activity: 2026-05-27 — UNIFY 21-01 complete
 
 Progress:
-- Phase 20: [██████████] 100% (complete)
+- Phase 21: [██████████] 100% (complete)
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Phase 20 — loop complete]
+  ✓        ✓        ✓     [Phase 21 — loop complete]
 ```
 
 ## Accumulated Context
@@ -52,9 +52,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-05-27
-Stopped at: UNIFY 20-01 selesai — phase 20 complete
-Next action: git commit feat(20) → lanjut phase berikutnya
-Resume file: .paul/phases/20-finance-ui-polish/20-01-SUMMARY.md
+Stopped at: UNIFY 21-01 selesai — phase 21 complete
+Next action: phase berikutnya atau selesai
+Resume file: .paul/phases/21-cancellations-returns-polish/21-01-SUMMARY.md
 
 ---
 *STATE.md — Updated after every significant action*
