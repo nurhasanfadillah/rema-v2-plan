@@ -50,6 +50,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] UI Polish Batch 3: hapus dead code bell/search di header, panel AJUKAN jadi biru, PDF SPK label "Jenis Pesanan" + catatan desain inline, MultiFileUpload inline square grid — Phase 27
 - [x] PWA Update UX: banner notifikasi versi baru (PWAUpdateBanner) + tombol install PWA di header Layout — Phase 28
 - [x] Reports Mitra Data Isolation Fix: backend enforce filter by role (orders + ledgers API), frontend timing fix via useEffect — Phase 29
+- [x] Priority Header Mobile Fix: button "Tambah Prioritas" ke baris kedua pada mobile — Phase 30
 
 ### Active (In Progress)
 
@@ -124,4 +125,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-29 after Phase 29 — Reports Mitra Data Isolation Fix selesai*
+*Last updated: 2026-05-29 after Phase 30 — Priority Header Mobile Fix selesai*

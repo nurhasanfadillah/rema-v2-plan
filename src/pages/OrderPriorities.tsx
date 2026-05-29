@@ -112,7 +112,7 @@ export default function OrderPriorities() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 mb-6">
+      <div className="flex flex-col gap-3 mb-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
             <Zap className="w-4.5 h-4.5 text-amber-400" />
@@ -125,7 +125,7 @@ export default function OrderPriorities() {
           </div>
         </div>
         {isMitra && (
-          <button onClick={handleOpenAdd} className="btn-primary flex-shrink-0">
+          <button onClick={handleOpenAdd} className="btn-primary flex-shrink-0 self-end md:self-auto">
             <Plus className="w-4 h-4" />
             Tambah Prioritas
           </button>

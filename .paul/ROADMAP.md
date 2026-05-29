@@ -41,6 +41,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 27 | UI Polish Batch 3 | 1 | ✅ Complete | 2026-05-29 |
 | 28 | PWA Audit | 1 | ✅ Complete | 2026-05-29 |
 | 29 | Reports Mitra Data Isolation Fix | 1 | ✅ Complete | 2026-05-29 |
+| 30 | Priority Header Mobile Fix | 1 | ✅ Complete | 2026-05-29 |
 
 ## Phase Details
 
@@ -303,4 +304,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** GET /api/orders dan GET /api/ledgers otomatis filter by mitra saat role = 'mitra'; Reports.tsx useEffect set filter setelah mitras load.
 
 ---
-*Last updated: 2026-05-29 — Phase 29 complete*
+### Phase 30: Priority Header Mobile Fix ✅ Complete
+
+**Goal:** Button "Tambah Prioritas" di baris kedua pada mobile — tidak sejajar dengan judul halaman
+**Depends on:** Phase 29 (app stable)
+**Completed:** 2026-05-29
+
+**Plans:**
+- [x] 30-01: Ubah wrapper header flex-col mobile → md:flex-row desktop
+
+**Result:** Mobile: judul baris 1, button rata kanan baris 2. Desktop: tetap inline.
+
+---
+*Last updated: 2026-05-29 — Phase 30 complete*
