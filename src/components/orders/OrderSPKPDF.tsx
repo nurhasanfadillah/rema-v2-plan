@@ -110,25 +110,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: '#475569',
   },
-  noteBox: {
-    marginTop: 8,
-    padding: 8,
-    backgroundColor: '#f8fafc',
-    borderRadius: 8,
-    border: '1px solid #e2e8f0',
-  },
-  noteLabel: {
-    fontSize: 7,
-    fontWeight: 'bold',
-    color: '#64748b',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-  },
-  noteText: {
-    fontSize: 8,
-    color: '#334155',
-    lineHeight: 1.4,
-  }
 });
 
 interface OrderSPKPDFProps {
@@ -169,7 +150,7 @@ export const OrderSPKPDF: React.FC<OrderSPKPDFProps> = ({ order, mitra }) => (
           <Text style={styles.value}>{mitra?.name || 'Umum'}</Text>
         </View>
         <View style={styles.gridCol}>
-          <Text style={styles.label}>Logistik</Text>
+          <Text style={styles.label}>Jenis Pesanan</Text>
           <Text style={[styles.value, { color: order.type === 'online' ? '#3b82f6' : '#8b5cf6' }]}>
             {order.type === 'online' ? 'LABEL ONLINE' : 'OFFLINE / AMBIL'}
           </Text>
@@ -190,8 +171,10 @@ export const OrderSPKPDF: React.FC<OrderSPKPDFProps> = ({ order, mitra }) => (
           <View key={item.id} style={styles.tableRow}>
             <View style={styles.colDesc}>
               <Text style={{ fontWeight: 'bold', fontSize: 8 }}>{item.productName}</Text>
-              {item.isCustomLogo && (
-                <Text style={{ fontSize: 6, color: '#3b82f6', marginTop: 1 }}>SABLON CUSTOM DTF</Text>
+              {item.isCustomLogo ? (
+                <Text style={{ fontSize: 6, color: '#475569', marginTop: 2 }}>{item.designNotes || 'Custom Logo'}</Text>
+              ) : (
+                <Text style={{ fontSize: 6, color: '#94a3b8', marginTop: 2 }}>Polos</Text>
               )}
             </View>
             <Text style={[styles.colQty, { fontSize: 9, fontWeight: 'bold' }]}>{item.qty}</Text>
@@ -207,20 +190,6 @@ export const OrderSPKPDF: React.FC<OrderSPKPDFProps> = ({ order, mitra }) => (
           </View>
         ))}
       </View>
-
-      {/* Global Design Notes (Concatenated from all items with notes) */}
-      {order.items.some(i => i.designNotes) && (
-        <View style={styles.section}>
-          <View style={styles.noteBox}>
-            {order.items.filter(i => i.designNotes).map((item, idx) => (
-              <View key={idx} style={{ marginBottom: idx > 0 ? 4 : 0, borderTop: idx > 0 ? '1px solid #f1f5f9' : 0, paddingTop: idx > 0 ? 4 : 0 }}>
-                <Text style={styles.noteLabel}>Item {idx + 1}: {item.productName}</Text>
-                <Text style={styles.noteText}>{item.designNotes}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
 
       {/* Summary Area */}
       <View style={{ marginTop: 10, borderTop: '2px solid #0f172a', paddingTop: 10, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>

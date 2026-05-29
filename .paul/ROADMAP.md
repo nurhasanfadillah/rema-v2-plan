@@ -38,6 +38,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 24 | Order Priority (Prioritas Pesanan) | 2 | ✅ Complete | 2026-05-27 |
 | 25 | UI Polish Batch 2 | 1 | ✅ Complete | 2026-05-27 |
 | 26 | Product Description | 1 | ✅ Complete | 2026-05-29 |
+| 27 | UI Polish Batch 3 | 1 | ✅ Complete | 2026-05-29 |
 
 ## Phase Details
 
@@ -266,5 +267,16 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** `Product_Description.md` di root repo — 10 section mencakup elevator pitch, fitur bisnis, order lifecycle, 4 role, tech stack, arsitektur, infrastruktur, dan status production.
 
+### Phase 27: UI Polish Batch 3 ✅ Complete
+
+**Goal:** 5 perbaikan UI: hapus dead code bell/search di header, hapus badge orange AJUKAN + ubah tombol jadi biru, relabel PDF SPK "Logistik"→"Jenis Pesanan" + catatan desain inline, upload thumbnail square dan inline.
+**Depends on:** Phase 26 (app stable)
+**Completed:** 2026-05-29
+
+**Plans:**
+- [x] 27-01: Layout + OrderDetail + SPK PDF + MultiFileUpload
+
+**Result:** Header bersih tanpa dead code; panel AJUKAN konsisten biru; PDF SPK kolom "Jenis Pesanan" + deskripsi item 2-baris (Polos/catatan desain); MultiFileUpload inline grid aspect-square.
+
 ---
-*Last updated: 2026-05-29 — Phase 26 complete*
+*Last updated: 2026-05-29 — Phase 27 complete*

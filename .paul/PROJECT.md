@@ -47,6 +47,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Order Priority (Prioritas Pesanan): halaman /priority, modal tambah + quota warning professional, hapus own entry, nav link Zap semua role, field Batas Prioritas di form mitra — Phase 24
 
 - [x] Product_Description.md — dokumen lengkap REMA-V2 (bisnis + teknis) di root repo — Phase 26
+- [x] UI Polish Batch 3: hapus dead code bell/search di header, panel AJUKAN jadi biru, PDF SPK label "Jenis Pesanan" + catatan desain inline, MultiFileUpload inline square grid — Phase 27
 
 ### Active (In Progress)
 

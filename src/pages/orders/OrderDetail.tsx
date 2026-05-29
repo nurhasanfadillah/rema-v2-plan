@@ -9,7 +9,7 @@ import { Order, OrderStatus, Mitra, User } from '../../types';
 import { Lightbox } from '../../components/Lightbox';
 import {
   ArrowLeft, FileText, CheckCircle, AlertTriangle, Printer, Download, CreditCard,
-  Layers, Package, Calendar, User as UserIcon, Truck, ShieldAlert, Tag, ExternalLink, Image as ImageIcon,
+  Layers, Package, Calendar, User as UserIcon, Truck, ShieldAlert, ExternalLink, Image as ImageIcon,
   ChevronDown, Printer as PrinterIcon
 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -506,18 +506,15 @@ export default function OrderDetail() {
       {/* Action Controls Panel */}
       <div className="pt-4 space-y-4">
         {order.status === 'draft' && user.role === 'mitra' && (
-           <div className="bg-slate-900 p-5 rounded-3xl text-white shadow-2xl border border-orange-500/30 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-[60px] -z-10" />
+           <div className="bg-slate-900 p-5 rounded-3xl text-white shadow-2xl border border-blue-500/30 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[60px] -z-10" />
              <div className="space-y-1.5 text-center md:text-left">
-               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-lg text-[9px] uppercase font-bold tracking-[0.1em]">
-                 <ShieldAlert className="w-3.5 h-3.5" /> Menunggu Pengajuan
-               </div>
                <p className="font-bold tracking-tight text-xl text-white">Ajukan Draft Pesanan</p>
                <p className="text-[13px] text-slate-400 font-medium leading-relaxed max-w-lg">Pesanan masih draft. Ajukan agar masuk ke antrean verifikasi admin.</p>
              </div>
              <button
                onClick={() => handleUpdateStatus('waiting_confirmation')}
-               className="px-8 py-3 bg-orange-600 text-white font-bold text-[13px] rounded-xl hover:bg-orange-500 active:scale-95 transition-all shadow-xl shadow-orange-600/20 w-full md:w-auto cursor-pointer uppercase tracking-wide"
+               className="px-8 py-3 bg-blue-600 text-white font-bold text-[13px] rounded-xl hover:bg-blue-500 active:scale-95 transition-all shadow-xl shadow-blue-600/20 w-full md:w-auto cursor-pointer uppercase tracking-wide"
              >
                Ajukan Sekarang
              </button>
