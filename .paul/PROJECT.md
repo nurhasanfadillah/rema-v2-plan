@@ -15,7 +15,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Type | Application |
 | Version | 2.5.0 |
 | Status | Production — Live di https://redone.my.id |
-| Last Updated | 2026-05-26 |
+| Last Updated | 2026-05-29 |
 
 ## Requirements
 
@@ -49,6 +49,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Product_Description.md — dokumen lengkap REMA-V2 (bisnis + teknis) di root repo — Phase 26
 - [x] UI Polish Batch 3: hapus dead code bell/search di header, panel AJUKAN jadi biru, PDF SPK label "Jenis Pesanan" + catatan desain inline, MultiFileUpload inline square grid — Phase 27
 - [x] PWA Update UX: banner notifikasi versi baru (PWAUpdateBanner) + tombol install PWA di header Layout — Phase 28
+- [x] Reports Mitra Data Isolation Fix: backend enforce filter by role (orders + ledgers API), frontend timing fix via useEffect — Phase 29
 
 ### Active (In Progress)
 
@@ -98,6 +99,8 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | express.raw() per-route untuk binary upload | Global raw middleware bertabrakan dengan express.json(); for-await stream tidak reliable di Vercel serverless | 2026-05-26 | Active |
 | Quota check via API error QUOTA_EXCEEDED | Frontend tidak perlu prefetch quota — lazy check saat submit, single source of truth di backend | 2026-05-27 | Active |
 | Mount PWAUpdateBanner di wrapper div utama Layout (bukan Content Area) | Agar `fixed bottom-0` tidak terpotong `overflow-hidden` pada flex-1 inner div | 2026-05-29 | Active |
+| Backend enforce mitra filter (bukan frontend) | Frontend filter bisa di-bypass; server-side enforcement adalah satu-satunya yang reliable untuk data isolation | 2026-05-29 | Active |
+| AuthRequest type di semua route handlers | req.user butuh AuthRequest dari middleware/auth.ts — Request standar Express tidak punya user property | 2026-05-29 | Active |
 
 ## Success Metrics
 
@@ -121,4 +124,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-29 after Phase 28 — PWA Update UX selesai*
+*Last updated: 2026-05-29 after Phase 29 — Reports Mitra Data Isolation Fix selesai*

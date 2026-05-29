@@ -40,6 +40,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 26 | Product Description | 1 | ✅ Complete | 2026-05-29 |
 | 27 | UI Polish Batch 3 | 1 | ✅ Complete | 2026-05-29 |
 | 28 | PWA Audit | 1 | ✅ Complete | 2026-05-29 |
+| 29 | Reports Mitra Data Isolation Fix | 1 | ✅ Complete | 2026-05-29 |
 
 ## Phase Details
 
@@ -290,5 +291,16 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Banner update fixed-bottom muncul saat service worker mendeteksi versi baru; tombol install ikon Download di header muncul kondisional via `beforeinstallprompt` event.
 
+### Phase 29: Reports Mitra Data Isolation Fix ✅ Complete
+
+**Goal:** Fix security bug — role mitra di halaman Laporan hanya melihat data miliknya sendiri (orders + ledgers difilter by mitraId dari JWT)
+**Depends on:** Phase 28 (app stable)
+**Completed:** 2026-05-29
+
+**Plans:**
+- [x] 29-01: Backend enforce filter (orders.ts + ledgers.ts) + frontend timing fix (Reports.tsx)
+
+**Result:** GET /api/orders dan GET /api/ledgers otomatis filter by mitra saat role = 'mitra'; Reports.tsx useEffect set filter setelah mitras load.
+
 ---
-*Last updated: 2026-05-29 — Phase 28 complete*
+*Last updated: 2026-05-29 — Phase 29 complete*

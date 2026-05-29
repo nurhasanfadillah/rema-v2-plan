@@ -1,18 +1,25 @@
-import express, { type Request, type Response } from 'express';
+import express, { type Response } from 'express';
 import { and, eq, desc } from 'drizzle-orm';
 import { db } from '../../db/client.ts';
-import { ledgers } from '../../db/schema.ts';
-import { requireAuth } from '../middleware/auth.ts';
+import { ledgers, mitras } from '../../db/schema.ts';
+import { requireAuth, type AuthRequest } from '../middleware/auth.ts';
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { mitraId } = req.query;
-    const result = mitraId
+    let filterMitraId = req.query.mitraId as string | undefined;
+
+    if (req.user.role === 'mitra') {
+      const [mitra] = await db.select().from(mitras).where(eq(mitras.userId, req.user.sub)).limit(1);
+      if (!mitra) return res.status(403).json({ error: 'Mitra not found' });
+      filterMitraId = mitra.id;
+    }
+
+    const result = filterMitraId
       ? await db.select().from(ledgers)
-          .where(eq(ledgers.mitraId, mitraId as string))
+          .where(eq(ledgers.mitraId, filterMitraId))
           .orderBy(desc(ledgers.createdAt))
       : await db.select().from(ledgers).orderBy(desc(ledgers.createdAt));
     return res.json(result);
@@ -21,7 +28,7 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const body = req.body;
     if (!body.id) body.id = crypto.randomUUID();
@@ -32,7 +39,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const [updated] = await db.update(ledgers)
       .set(req.body)
@@ -45,7 +52,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.delete('/order/:orderId', async (req: Request, res: Response) => {
+router.delete('/order/:orderId', async (req: AuthRequest, res: Response) => {
   try {
     await db.delete(ledgers)
       .where(
@@ -60,7 +67,7 @@ router.delete('/order/:orderId', async (req: Request, res: Response) => {
   }
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     await db.delete(ledgers).where(eq(ledgers.id, req.params.id));
     return res.json({ success: true });

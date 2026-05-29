@@ -25,19 +25,29 @@ export default function Reports() {
   }, []);
 
   const [activeTab, setActiveTab] = useState<'finance' | 'order'>(user?.role === 'staff' ? 'order' : 'finance');
-  
+
   // Finance Filters
   const [finStart, setFinStart] = useState('');
   const [finEnd, setFinEnd] = useState('');
-  const [finMitraId, setFinMitraId] = useState<string>(user?.role === 'mitra' ? mitras.find(m => m.userId === user?.id)?.id || 'all' : 'all');
+  const [finMitraId, setFinMitraId] = useState<string>('all');
 
   // Order Filters
   const [ordStart, setOrdStart] = useState('');
   const [ordEnd, setOrdEnd] = useState('');
-  const [ordMitraId, setOrdMitraId] = useState<string>(user?.role === 'mitra' ? mitras.find(m => m.userId === user?.id)?.id || 'all' : 'all');
+  const [ordMitraId, setOrdMitraId] = useState<string>('all');
   const [ordType, setOrdType] = useState('all');
   const [ordStatus, setOrdStatus] = useState('all');
   const [ordProduct, setOrdProduct] = useState('all');
+
+  useEffect(() => {
+    if (user?.role === 'mitra' && mitras.length > 0) {
+      const myMitra = mitras.find(m => m.userId === user.id);
+      if (myMitra) {
+        setFinMitraId(myMitra.id);
+        setOrdMitraId(myMitra.id);
+      }
+    }
+  }, [mitras, user]);
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 

@@ -1,17 +1,24 @@
-import express, { type Request, type Response } from 'express';
+import express, { type Response } from 'express';
 import { eq, inArray } from 'drizzle-orm';
 import { db } from '../../db/client.ts';
-import { orders, orderItems } from '../../db/schema.ts';
-import { requireAuth } from '../middleware/auth.ts';
+import { orders, orderItems, mitras } from '../../db/schema.ts';
+import { requireAuth, type AuthRequest } from '../middleware/auth.ts';
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { mitraId } = req.query;
-    const allOrders = mitraId
-      ? await db.select().from(orders).where(eq(orders.mitraId, mitraId as string))
+    let filterMitraId = req.query.mitraId as string | undefined;
+
+    if (req.user.role === 'mitra') {
+      const [mitra] = await db.select().from(mitras).where(eq(mitras.userId, req.user.sub)).limit(1);
+      if (!mitra) return res.status(403).json({ error: 'Mitra not found' });
+      filterMitraId = mitra.id;
+    }
+
+    const allOrders = filterMitraId
+      ? await db.select().from(orders).where(eq(orders.mitraId, filterMitraId))
       : await db.select().from(orders);
 
     const orderIds = allOrders.map(o => o.id);
@@ -29,7 +36,7 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const { items, ...orderData } = req.body;
     if (!orderData.id) orderData.id = crypto.randomUUID();
@@ -55,7 +62,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const order = await db.select().from(orders).where(eq(orders.id, req.params.id)).limit(1);
     if (!order[0]) return res.status(404).json({ error: 'Order not found' });
@@ -66,7 +73,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const { items, ...orderData } = req.body;
     const orderId = req.params.id;
@@ -92,7 +99,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     await db.delete(orderItems).where(eq(orderItems.orderId, req.params.id));
     await db.delete(orders).where(eq(orders.id, req.params.id));
