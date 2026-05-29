@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, HelpCircle, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList, Zap } from 'lucide-react';
+import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, HelpCircle, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList, Zap, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
 import RunningOrders from './RunningOrders';
+import { PWAUpdateBanner } from './PWAUpdateBanner';
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -15,11 +21,27 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+
   // Close mobile drawer when route changes
   useEffect(() => {
     setMobileOpen(false);
     setProfileOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e as BeforeInstallPromptEvent);
+    };
+    const installed = () => setInstallPrompt(null);
+    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('appinstalled', installed);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('appinstalled', installed);
+    };
+  }, []);
 
   if (!user) return null;
 
@@ -236,7 +258,16 @@ export default function Layout() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-3">
-             <div 
+            {installPrompt && (
+              <button
+                onClick={() => installPrompt.prompt()}
+                className="p-2 rounded-xl text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition-all active:scale-95 cursor-pointer"
+                title="Install Aplikasi"
+              >
+                <Download className="w-4.5 h-4.5" />
+              </button>
+            )}
+             <div
                onClick={() => setProfileOpen(true)}
                className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-blue-400 font-bold text-lg shadow-inner cursor-pointer hover:bg-slate-800 hover:border-slate-700 transition-all active:scale-95 group overflow-hidden relative"
              >
@@ -254,6 +285,7 @@ export default function Layout() {
           </div>
         </main>
       </div>
+      <PWAUpdateBanner />
     </div>
   );
 }

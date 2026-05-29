@@ -39,6 +39,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 25 | UI Polish Batch 2 | 1 | ✅ Complete | 2026-05-27 |
 | 26 | Product Description | 1 | ✅ Complete | 2026-05-29 |
 | 27 | UI Polish Batch 3 | 1 | ✅ Complete | 2026-05-29 |
+| 28 | PWA Audit | 1 | ✅ Complete | 2026-05-29 |
 
 ## Phase Details
 
@@ -278,5 +279,16 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Header bersih tanpa dead code; panel AJUKAN konsisten biru; PDF SPK kolom "Jenis Pesanan" + deskripsi item 2-baris (Polos/catatan desain); MultiFileUpload inline grid aspect-square.
 
+### Phase 28: PWA Audit ✅ Complete
+
+**Goal:** Tambah dua fitur PWA: banner notifikasi saat versi baru tersedia + tombol "Perbarui Sekarang", dan tombol install PWA di header.
+**Depends on:** Phase 27 (Layout.tsx stabil)
+**Completed:** 2026-05-29
+
+**Plans:**
+- [x] 28-01: PWAUpdateBanner component + install prompt di Layout.tsx
+
+**Result:** Banner update fixed-bottom muncul saat service worker mendeteksi versi baru; tombol install ikon Download di header muncul kondisional via `beforeinstallprompt` event.
+
 ---
-*Last updated: 2026-05-29 — Phase 27 complete*
+*Last updated: 2026-05-29 — Phase 28 complete*

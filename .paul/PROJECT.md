@@ -48,6 +48,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 - [x] Product_Description.md — dokumen lengkap REMA-V2 (bisnis + teknis) di root repo — Phase 26
 - [x] UI Polish Batch 3: hapus dead code bell/search di header, panel AJUKAN jadi biru, PDF SPK label "Jenis Pesanan" + catatan desain inline, MultiFileUpload inline square grid — Phase 27
+- [x] PWA Update UX: banner notifikasi versi baru (PWAUpdateBanner) + tombol install PWA di header Layout — Phase 28
 
 ### Active (In Progress)
 
@@ -96,6 +97,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Cloudflare DNS proxy OFF untuk Vercel domain | Vercel perlu akses langsung untuk SSL cert provisioning | 2026-05-25 | Active |
 | express.raw() per-route untuk binary upload | Global raw middleware bertabrakan dengan express.json(); for-await stream tidak reliable di Vercel serverless | 2026-05-26 | Active |
 | Quota check via API error QUOTA_EXCEEDED | Frontend tidak perlu prefetch quota — lazy check saat submit, single source of truth di backend | 2026-05-27 | Active |
+| Mount PWAUpdateBanner di wrapper div utama Layout (bukan Content Area) | Agar `fixed bottom-0` tidak terpotong `overflow-hidden` pada flex-1 inner div | 2026-05-29 | Active |
 
 ## Success Metrics
 
@@ -119,4 +121,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-27 after Phase 24 — Order Priority (Prioritas Pesanan) selesai*
+*Last updated: 2026-05-29 after Phase 28 — PWA Update UX selesai*

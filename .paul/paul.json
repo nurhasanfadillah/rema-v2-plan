@@ -2,13 +2,13 @@
   "name": "rema-v2.3",
   "version": "2.3.0",
   "milestone": {
-    "name": "v3.5 UI Polish",
-    "version": "3.5.0",
+    "name": "PWA Enhancements",
+    "version": "3.6.0",
     "status": "complete"
   },
   "phase": {
-    "number": 26,
-    "name": "product-description",
+    "number": 28,
+    "name": "pwa-audit",
     "status": "complete"
   },
   "loop": {
