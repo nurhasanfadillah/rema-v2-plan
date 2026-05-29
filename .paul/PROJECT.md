@@ -46,6 +46,8 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Finance Desktop Enterprise Polish: sticky table, sortable columns, quick action row menu, sidebar glow/hover, topbar search/notif, summary sparkline, semantic color system, PaymentModal clean — Phase 23
 - [x] Order Priority (Prioritas Pesanan): halaman /priority, modal tambah + quota warning professional, hapus own entry, nav link Zap semua role, field Batas Prioritas di form mitra — Phase 24
 
+- [x] Product_Description.md — dokumen lengkap REMA-V2 (bisnis + teknis) di root repo — Phase 26
+
 ### Active (In Progress)
 
 - (none)
