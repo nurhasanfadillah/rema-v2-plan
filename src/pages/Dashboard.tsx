@@ -15,7 +15,7 @@ export default function Dashboard() {
   const [chartPeriod, setChartPeriod] = useState<'this_month' | 'this_week' | 'this_year'>('this_month');
 
   useEffect(() => {
-    api.orders.list().then(setOrders).catch(console.error);
+    api.orders.list(true).then(setOrders).catch(console.error);
     api.ledgers.list().then(setLedgers).catch(console.error);
     api.mitras.list().then(setMitras).catch(console.error);
   }, []);
@@ -214,9 +214,8 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Recent Confirmed Orders Table (admin/staff only) */}
-      {user.role !== 'mitra' && (
-        <motion.div variants={itemVariants} className="card">
+      {/* Recent Confirmed Orders Table */}
+      <motion.div variants={itemVariants} className="card">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-1 h-5 bg-green-600 rounded-full" />
             <h2 className="section-title">Pesanan Terbaru</h2>
@@ -253,7 +252,6 @@ export default function Dashboard() {
             </table>
           </div>
         </motion.div>
-      )}
 
       {/* Main Info Box */}
       <motion.div
