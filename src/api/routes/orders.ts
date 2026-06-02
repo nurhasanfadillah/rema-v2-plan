@@ -9,9 +9,10 @@ router.use(requireAuth);
 
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
+    const bypassMitra = req.query.allMitras === 'true';
     let filterMitraId = req.query.mitraId as string | undefined;
 
-    if (req.user.role === 'mitra') {
+    if (!bypassMitra && req.user.role === 'mitra') {
       const [mitra] = await db.select().from(mitras).where(eq(mitras.userId, req.user.sub)).limit(1);
       if (!mitra) return res.status(403).json({ error: 'Mitra not found' });
       filterMitraId = mitra.id;

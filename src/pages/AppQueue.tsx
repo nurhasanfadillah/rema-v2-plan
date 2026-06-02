@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { Order, Mitra } from '../types';
 import { formatDate } from '../lib/utils';
-import { Package, Clock, ShieldCheck, LayoutGrid, CheckSquare, Layers } from 'lucide-react';
+import { Package, Clock, ShieldCheck, CheckSquare, Layers } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function AppQueue() {
@@ -12,7 +12,7 @@ export default function AppQueue() {
   const [mitras, setMitras] = useState<Mitra[]>([]);
 
   useEffect(() => {
-    api.orders.list().then(setAllOrders).catch(console.error);
+    api.orders.list(true).then(setAllOrders).catch(console.error);
     api.mitras.list().then(setMitras).catch(console.error);
   }, []);
 
@@ -21,7 +21,6 @@ export default function AppQueue() {
   // Filter queue from Dikonfirmasi up to Packing
   const inQueueStatuses = ['confirmed', 'processing', 'pressing', 'packing'];
   const orders = allOrders.filter(o => inQueueStatuses.includes(o.status));
-  const activeMitra = mitras.find(m => m.userId === user.id);
 
   const getStatusBadge = (status: string) => {
     const specs: Record<string, { bg: string, text: string, border: string, label: string }> = {
@@ -140,7 +139,6 @@ export default function AppQueue() {
       {/* Mobile view (< md) - Compact Cards */}
       <div className="md:hidden space-y-2">
         {sortedOrders.map(o => {
-          const isMine = user.role === 'admin' || user.role === 'staff' || user.role === 'operational' || o.mitraId === activeMitra?.id;
           const mitraName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
           
           const statusLeftBorder = {
@@ -154,13 +152,10 @@ export default function AppQueue() {
             <motion.div
               variants={itemVariants}
               key={o.id}
-              className={`rounded-xl border border-l-4 p-2.5 shadow-sm relative transition-all active:scale-[0.99] ${statusLeftBorder} ${
-                isMine ? 'bg-white border-slate-200' : 'bg-slate-50/50 border-slate-100 opacity-80'
-              }`}
+              className={`rounded-xl border border-l-4 p-2.5 shadow-sm relative transition-all active:scale-[0.99] bg-white border-slate-200 ${statusLeftBorder}`}
             >
               <div className="flex justify-between items-center mb-1.5">
                 <div className="flex items-center gap-1.5">
-                  {isMine && <div className="w-1 h-2.5 rounded-full bg-blue-500" />}
                   <h3 className="font-mono font-black text-slate-900 text-[12px] tracking-tight">{o.orderNumber}</h3>
                 </div>
                 <div>{getStatusBadge(o.status)}</div>
@@ -173,7 +168,7 @@ export default function AppQueue() {
                 </div>
                 <div className="flex items-center gap-1 justify-end text-slate-900 font-extrabold text-[10px]">
                   <Layers className="w-2.5 h-2.5 text-slate-350" />
-                  <span className="truncate">{!isMine ? '***' : mitraName.split(' ')[0]}</span>
+                  <span className="truncate">{mitraName.split(' ')[0]}</span>
                 </div>
                 <div className="col-span-2 flex items-center justify-between mt-0.5 bg-slate-50/80 rounded px-1.5 py-0.5">
                    <span className="text-[8px] text-slate-400 font-black uppercase">Volume</span>
@@ -209,10 +204,8 @@ export default function AppQueue() {
             </thead>
             <tbody className="divide-y divide-slate-50 font-bold">
               {sortedOrders.map(o => {
-                const isMine = user.role === 'admin' || user.role === 'staff' || user.role === 'operational' || o.mitraId === activeMitra?.id;
                 const mitraName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
                 
-                // Color strip based on status
                 const statusColor = {
                   confirmed: 'border-l-blue-400',
                   processing: 'border-l-purple-400',
@@ -221,15 +214,14 @@ export default function AppQueue() {
                 }[o.status as string] || 'border-l-transparent';
 
                 return (
-                  <tr key={o.id} className={`group transition-all duration-150 border-l-2 ${statusColor} ${isMine ? 'hover:bg-slate-50/50' : 'bg-slate-50/30 opacity-75'}`}>
+                  <tr key={o.id} className={`group transition-all duration-150 border-l-2 ${statusColor} hover:bg-slate-50/50`}>
                     <td className="pl-4 pr-2 py-1.5 text-slate-400 font-mono text-[10px]">{formatDate(o.createdAt)}</td>
                     <td className="px-2 py-1.5">
                       <span className="font-mono font-black text-slate-900 bg-slate-100/50 px-1.5 py-0.5 rounded text-[10px] tracking-tight">{o.orderNumber}</span>
                     </td>
                     <td className="px-2 py-1.5">
                       <div className="flex items-center gap-1.5">
-                        {isMine && <CheckSquare className="w-2.5 h-2.5 text-blue-500" />}
-                        <span className="font-extrabold text-slate-900 text-[11px] truncate max-w-[180px]">{!isMine ? '***' : mitraName}</span>
+                        <span className="font-extrabold text-slate-900 text-[11px] truncate max-w-[180px]">{mitraName}</span>
                       </div>
                     </td>
                     <td className="px-2 py-1.5 text-center">

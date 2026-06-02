@@ -78,7 +78,8 @@ export const api = {
   },
 
   orders: {
-    list: () => request<Order[]>('GET', '/orders'),
+    list: (bypassMitraFilter?: boolean) =>
+      request<Order[]>('GET', bypassMitraFilter ? '/orders?allMitras=true' : '/orders'),
     get: (id: string) => request<Order>('GET', `/orders/${id}`),
     create: (data: Omit<Order, 'id'>) => request<Order>('POST', '/orders', data),
     update: (id: string, data: Partial<Order>) => request<Order>('PUT', `/orders/${id}`, data),
