@@ -512,10 +512,10 @@ export default function OrderDetail() {
                <p className="font-bold tracking-tight text-xl text-white">Ajukan Draft Pesanan</p>
                <p className="text-[13px] text-slate-400 font-medium leading-relaxed max-w-lg">Pesanan masih draft. Ajukan agar masuk ke antrean verifikasi admin.</p>
              </div>
-             <button
-               onClick={() => handleUpdateStatus('waiting_confirmation')}
-               className="px-8 py-3 bg-blue-600 text-white font-bold text-[13px] rounded-xl hover:bg-blue-500 active:scale-95 transition-all shadow-xl shadow-blue-600/20 w-full md:w-auto cursor-pointer uppercase tracking-wide"
-             >
+              <button
+                onClick={() => handleUpdateStatus('waiting_confirmation')}
+                className="px-8 py-3 bg-blue-500 text-white font-bold text-[13px] rounded-xl hover:bg-blue-400 active:scale-95 transition-all shadow-2xl shadow-blue-500/40 ring-2 ring-blue-400/50 w-full md:w-auto cursor-pointer uppercase tracking-wide"
+              >
                Ajukan Sekarang
              </button>
            </div>
