@@ -42,6 +42,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 28 | PWA Audit | 1 | ✅ Complete | 2026-05-29 |
 | 29 | Reports Mitra Data Isolation Fix | 1 | ✅ Complete | 2026-05-29 |
 | 30 | Priority Header Mobile Fix | 1 | ✅ Complete | 2026-05-29 |
+| 31 | Orders Product Items Display | 1 | ✅ Complete | 2026-06-03 |
 
 ## Phase Details
 
@@ -316,4 +317,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Mobile: judul baris 1, button rata kanan baris 2. Desktop: tetap inline.
 
 ---
-*Last updated: 2026-05-29 — Phase 30 complete*
+### Phase 31: Orders Product Items Display ✅ Complete
+
+**Goal:** Daftar pesanan menampilkan nama produk + qty dari setiap item pesanan (mobile card + desktop table), dengan truncation "+N lainnya" jika item > 3.
+**Depends on:** Phase 30 (app stable)
+**Completed:** 2026-06-03
+
+**Plans:**
+- [x] 31-01: renderItemsSummary helper + mobile card + desktop table column (standard)
+
+**Result:** Helper renderItemsSummary(items, maxItems=3) menampilkan productName × qty per item. Mobile card: section baru antara header dan footer. Desktop table: kolom baru "Item Pesanan" setelah "Tipe". Truncation "+N lainnya" untuk 4+ item.
+
+---
+*Last updated: 2026-06-03 — Phase 31 complete*

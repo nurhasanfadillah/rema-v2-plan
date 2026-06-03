@@ -15,7 +15,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Type | Application |
 | Version | 2.5.0 |
 | Status | Production — Live di https://redone.my.id |
-| Last Updated | 2026-05-29 |
+| Last Updated | 2026-06-03 |
 
 ## Requirements
 
@@ -51,6 +51,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] PWA Update UX: banner notifikasi versi baru (PWAUpdateBanner) + tombol install PWA di header Layout — Phase 28
 - [x] Reports Mitra Data Isolation Fix: backend enforce filter by role (orders + ledgers API), frontend timing fix via useEffect — Phase 29
 - [x] Priority Header Mobile Fix: button "Tambah Prioritas" ke baris kedua pada mobile — Phase 30
+- [x] Orders Product Items Display: nama produk × qty per item di daftar pesanan (mobile card + desktop table), truncation "+N lainnya" untuk 4+ item — Phase 31
 
 ### Active (In Progress)
 
@@ -125,4 +126,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-05-29 after Phase 30 — Priority Header Mobile Fix selesai*
+*Last updated: 2026-06-03 after Phase 31 — Orders Product Items Display selesai*

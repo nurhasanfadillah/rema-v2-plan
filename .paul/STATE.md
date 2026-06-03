@@ -5,26 +5,26 @@
 See: .paul/PROJECT.md (updated 2026-05-29)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** Bug fixes & security — 29 fase complete.
+**Current focus:** UI Enhancement — Orders list product items display
 
 ## Current Position
 
-Milestone: Bug Fixes
-Phase: 30 (Priority Header Mobile Fix) — Complete
-Plan: 30-01 complete, UNIFY complete
+Milestone: UI Enhancement
+Phase: 31 (Orders Product Items) — Complete
+Plan: 31-01 complete, UNIFY complete
 Status: Loop closed — siap untuk pekerjaan berikutnya
-Last activity: 2026-05-29 — Phase 30 complete, priority header mobile layout fix selesai
+Last activity: 2026-06-03 — Phase 31 complete, orders list menampilkan nama produk + qty per item
 
 Progress:
-- Phase 30: [██████████] 100% (1 of 1 plans complete)
-- All phases: 30 phases complete
+- Phase 31: [██████████] 100% (1 of 1 plans complete)
+- All phases: 31 phases complete
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop complete — Phase 30 closed]
+  ✓        ✓        ✓     [Loop complete — Phase 31 closed]
 ```
 
 ## Accumulated Context
@@ -44,8 +44,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Session Continuity
 
-Last session: 2026-05-29
-Stopped at: Phase 30 complete, priority header mobile fix selesai
+Last session: 2026-06-03
+Stopped at: Phase 31 complete, orders product items display selesai
 Next action: Diskusikan pekerjaan berikutnya atau deploy ke production
 Resume file: .paul/ROADMAP.md
 
