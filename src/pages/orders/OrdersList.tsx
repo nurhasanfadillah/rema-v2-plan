@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { Order, Mitra } from '../../types';
+import { Order, OrderItem, Mitra } from '../../types';
 import { formatDate, cn } from '../../lib/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Eye, Package, Calendar, User, LayoutList, Search, ArrowRight, FileSpreadsheet, ChevronLeft, ChevronRight, X } from 'lucide-react';
@@ -77,7 +77,11 @@ export default function OrdersList() {
     displayOrders = displayOrders.filter(o =>
       o.orderNumber.toLowerCase().includes(q) ||
       o.type.toLowerCase().includes(q) ||
-      (mitras.find(m => m.id === o.mitraId)?.name || '').toLowerCase().includes(q)
+      (mitras.find(m => m.id === o.mitraId)?.name || '').toLowerCase().includes(q) ||
+      o.items.some(item =>
+        item.productName.toLowerCase().includes(q) ||
+        (item.designNotes || '').toLowerCase().includes(q)
+      )
     );
   }
 
@@ -115,6 +119,26 @@ export default function OrdersList() {
       pages.push(totalPages);
     }
     return pages;
+  };
+
+  const renderItemsSummary = (items: OrderItem[], maxItems = 3) => {
+    const visible = items.slice(0, maxItems);
+    const remaining = items.length - maxItems;
+    return (
+      <div className="space-y-0.5">
+        {visible.map((item, idx) => (
+          <div key={idx} className="text-[11px] font-medium leading-tight">
+            <span className="text-slate-300">{item.productName}</span>
+            <span className="text-slate-500 ml-1">× {item.qty}</span>
+          </div>
+        ))}
+        {remaining > 0 && (
+          <div className="text-[10px] text-slate-500 font-semibold">
+            +{remaining} lainnya
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Task 1: Dark-theme glow badge
@@ -254,6 +278,9 @@ export default function OrdersList() {
                   )}
                 </div>
               </div>
+              <div className="mt-3">
+                {renderItemsSummary(o.items)}
+              </div>
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 bg-black/20 -mx-4 -mb-4 p-4 rounded-b-2xl">
                 <div className="flex items-center gap-5">
                   {/* Task 3: kurangi uppercase agresif pada label */}
@@ -296,6 +323,7 @@ export default function OrdersList() {
                 <th className="px-6 py-4">Tanggal Masuk</th>
                 {user.role !== 'mitra' && <th className="px-6 py-4">Mitra</th>}
                 <th className="px-6 py-4">Tipe</th>
+                <th className="px-6 py-4">Item Pesanan</th>
                 <th className="px-6 py-4 text-center">Total Qty</th>
                 <th className="px-6 py-4 text-right">Status</th>
               </tr>
@@ -322,6 +350,9 @@ export default function OrdersList() {
                         {o.type}
                       </span>
                     </td>
+                    <td className="px-6 py-4 max-w-[250px]">
+                      {renderItemsSummary(o.items)}
+                    </td>
                     <td className="px-6 py-4 font-bold text-center text-slate-400 tabular-nums">
                       <span className="text-slate-100">{o.totalQty}</span>
                       <span className="text-[11px] font-normal opacity-50 ml-1">pcs</span>
@@ -341,7 +372,7 @@ export default function OrdersList() {
               })}
               {paginatedOrders.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-slate-500">
+                  <td colSpan={7} className="px-6 py-16 text-center text-slate-500">
                     <FileSpreadsheet className="w-12 h-12 text-slate-700 mx-auto mb-4 opacity-40" />
                     <p className="text-sm font-medium">Belum ada data pesanan yang tersedia.</p>
                   </td>
