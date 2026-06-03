@@ -40,6 +40,7 @@ export default function OrderDetail() {
   const [mitras, setMitras] = useState<Mitra[]>([]);
   const [users, setUsers] = useState<Omit<User, 'passwordHash'>[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusUpdating, setStatusUpdating] = useState(false);
   const [lightboxState, setLightboxState] = useState<{ isOpen: boolean, images: string[], index: number }>({ isOpen: false, images: [], index: 0 });
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
 
@@ -81,9 +82,13 @@ export default function OrderDetail() {
   }
 
   const handleUpdateStatus = async (newStatus: OrderStatus) => {
+    if (statusUpdating) return;
+    setStatusUpdating(true);
+
     // 1. Restriction: Cancelled and Returned orders cannot be changed
     if (order.status === 'cancelled' || order.status === 'returned') {
       toast.error('Pesanan yang sudah dibatalkan atau diretur tidak dapat diubah statusnya.');
+      setStatusUpdating(false);
       return;
     }
 
@@ -101,6 +106,7 @@ export default function OrderDetail() {
           showCancel: false,
           type: 'warning'
         });
+        setStatusUpdating(false);
         return;
       }
     }
@@ -110,6 +116,7 @@ export default function OrderDetail() {
       const allowedRoles = ['admin', 'staff', 'mitra'];
       if (!allowedRoles.includes(user.role)) {
         toast.error('Anda tidak memiliki izin untuk melakukan pembatalan atau retur.');
+        setStatusUpdating(false);
         return;
       }
     }
@@ -124,7 +131,7 @@ export default function OrderDetail() {
       type: (isCancel || isReturn) ? 'danger' : 'info'
     });
 
-    if (!isConfirmed) return;
+    if (!isConfirmed) { setStatusUpdating(false); return; }
 
     try {
       if (newStatus === 'waiting_confirmation' && order.status === 'draft') {
@@ -134,6 +141,7 @@ export default function OrderDetail() {
           const saldo = ledgers.reduce((acc, curr) => acc + (curr.direction === 'debit' ? curr.nominal : -curr.nominal), 0);
           if (saldo > myMitraRecord.creditLimit) {
             toast.error(`Tagihan Anda saat ini: ${formatCurrency(saldo)}. Limit tagihan Anda: ${formatCurrency(myMitraRecord.creditLimit)}. Silakan lakukan pelunasan terlebih dahulu.`);
+            setStatusUpdating(false);
             return;
           }
         }
@@ -166,6 +174,8 @@ export default function OrderDetail() {
       toast.success('Status pesanan berhasil diperbarui');
     } catch (err: any) {
       toast.error(err.message || 'Gagal memperbarui status');
+    } finally {
+      setStatusUpdating(false);
     }
   };
 
@@ -585,11 +595,12 @@ export default function OrderDetail() {
               {canAdvanceNormally() && normalNext && (
                 <button
                   type="button"
+                  disabled={statusUpdating}
                   onClick={() => handleUpdateStatus(normalNext)}
-                  className="px-7 py-3.5 sm:py-3 bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] sm:text-[12px] font-extrabold rounded-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-2xl shadow-emerald-500/40 active:scale-95 uppercase tracking-[0.08em] ring-2 ring-emerald-300/60"
+                  className={`px-7 py-3.5 sm:py-3 bg-emerald-500 text-white text-[11px] sm:text-[12px] font-extrabold rounded-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-2xl shadow-emerald-500/40 active:scale-95 uppercase tracking-[0.08em] ring-2 ring-emerald-300/60 ${statusUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-400'}`}
                 >
                   <CheckCircle className="w-4 h-4 opacity-80" />
-                  {STATUS_LABELS[normalNext]}
+                  {statusUpdating ? 'Processing...' : STATUS_LABELS[normalNext]}
                 </button>
               )}
 

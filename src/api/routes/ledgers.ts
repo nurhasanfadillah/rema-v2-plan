@@ -31,6 +31,21 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const body = req.body;
+
+    if (body.source === 'order' && body.referenceId) {
+      const [existing] = await db.select().from(ledgers)
+        .where(
+          and(
+            eq(ledgers.referenceId, body.referenceId),
+            eq(ledgers.source, 'order')
+          )
+        )
+        .limit(1);
+      if (existing) {
+        return res.status(200).json(existing);
+      }
+    }
+
     if (!body.id) body.id = crypto.randomUUID();
     const [inserted] = await db.insert(ledgers).values(body).returning();
     return res.status(201).json(inserted);
