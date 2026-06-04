@@ -80,15 +80,17 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     const orderId = req.params.id;
 
     await db.update(orders).set(orderData).where(eq(orders.id, orderId));
-    await db.delete(orderItems).where(eq(orderItems.orderId, orderId));
-    if (items?.length) {
-      await db.insert(orderItems).values(
-        items.map((item: any) => ({
-          ...item,
-          id: item.id || crypto.randomUUID(),
-          orderId,
-        }))
-      );
+    if (items !== undefined) {
+      await db.delete(orderItems).where(eq(orderItems.orderId, orderId));
+      if (items.length) {
+        await db.insert(orderItems).values(
+          items.map((item: any) => ({
+            ...item,
+            id: item.id || crypto.randomUUID(),
+            orderId,
+          }))
+        );
+      }
     }
 
     const updated = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);

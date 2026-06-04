@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
@@ -8,8 +8,8 @@ import { toast } from 'react-hot-toast';
 import { useConfirm } from '../context/ConfirmContext';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  XOctagon, RefreshCw, AlertTriangle, CheckCircle, ArrowRight, Calendar,
-  User, Trash2, FileText, CheckCircle2, ShoppingBag, Landmark, Activity
+  XOctagon, RefreshCw, AlertTriangle, CheckCircle, Search, X,
+  Trash2, Activity
 } from 'lucide-react';
 
 export default function CancellationsReturns() {
@@ -40,6 +40,9 @@ export default function CancellationsReturns() {
   const [activeForm, setActiveForm] = useState<'cancellation' | 'return' | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string>('');
   const [reason, setReason] = useState<string>('');
+  const [orderSearch, setOrderSearch] = useState<string>('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   if (!user) return null;
 
@@ -72,8 +75,45 @@ export default function CancellationsReturns() {
       return;
     }
     setActiveForm(type);
-    setSelectedOrderId(list[0]?.id || '');
+    setSelectedOrderId('');
+    setOrderSearch('');
+    setShowSuggestions(false);
     setReason('');
+  };
+
+  const handleSelectOrder = (order: Order) => {
+    setSelectedOrderId(order.id);
+    setOrderSearch(order.orderNumber);
+    setShowSuggestions(false);
+  };
+
+  const handleClearOrder = () => {
+    setSelectedOrderId('');
+    setOrderSearch('');
+    setShowSuggestions(false);
+  };
+
+  const filteredSuggestions = eligibleOrders.filter(o =>
+    o.orderNumber.toLowerCase().includes(orderSearch.toLowerCase())
+  );
+
+  const handleDelete = async (order: Order) => {
+    const isConfirmed = await confirm({
+      title: 'Hapus Pesanan Permanen',
+      message: `Hapus pesanan #${order.orderNumber} beserta semua catatan keuangannya secara permanen? Data tidak dapat dikembalikan.`,
+      confirmText: 'Ya, Hapus',
+      type: 'danger',
+    });
+    if (!isConfirmed) return;
+
+    try {
+      await api.ledgers.removeByOrder(order.id);
+      await api.orders.remove(order.id);
+      setOrders(prev => prev.filter(o => o.id !== order.id));
+      toast.success(`Pesanan #${order.orderNumber} berhasil dihapus.`);
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal menghapus pesanan');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,6 +187,7 @@ export default function CancellationsReturns() {
       toast.success(`Pesanan #${orderToProcess.orderNumber} berhasil ${isCancel ? 'dibatalkan' : 'diretur'}.`);
       setActiveForm(null);
       setSelectedOrderId('');
+      setOrderSearch('');
       setReason('');
     } catch (err: any) {
       toast.error(err.message || 'Gagal memproses permintaan');
@@ -229,7 +270,7 @@ export default function CancellationsReturns() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setActiveForm(null)}
+                  onClick={() => { setActiveForm(null); setOrderSearch(''); }}
                   className="p-1.5 hover:bg-white/5 rounded-md text-slate-500 transition-colors"
                 >
                   <XOctagon className="w-4 h-4 opacity-50" />
@@ -239,23 +280,67 @@ export default function CancellationsReturns() {
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-500">Pilih ID Pesanan</label>
-                      <select
-                        value={selectedOrderId}
-                        onChange={e => setSelectedOrderId(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-bold text-slate-200 focus:border-blue-500/50 transition outline-none appearance-none"
-                        required
-                      >
-                        {eligibleOrders.map(o => {
-                          const mName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
-                          return (
-                            <option key={o.id} value={o.id} className="bg-slate-950">
-                              {o.orderNumber} - {mName} ({o.totalQty} pcs)
-                            </option>
-                          );
-                        })}
-                      </select>
+                    <div className="space-y-1.5" ref={searchRef}>
+                      <label className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-500">Cari No. Pesanan</label>
+                      <div className="relative">
+                        <div className="relative flex items-center">
+                          <Search className="absolute left-3 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+                          <input
+                            type="text"
+                            value={orderSearch}
+                            onChange={e => {
+                              setOrderSearch(e.target.value);
+                              setSelectedOrderId('');
+                              setShowSuggestions(true);
+                            }}
+                            onFocus={() => setShowSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                            placeholder="Ketik no. pesanan..."
+                            className="w-full pl-8 pr-8 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-bold text-slate-200 focus:border-blue-500/50 transition outline-none placeholder:text-slate-600"
+                          />
+                          {orderSearch && (
+                            <button
+                              type="button"
+                              onClick={handleClearOrder}
+                              className="absolute right-2 p-0.5 text-slate-500 hover:text-slate-300 transition-colors"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        {showSuggestions && orderSearch && (
+                          <div className="absolute z-20 top-full mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+                            {filteredSuggestions.length === 0 ? (
+                              <div className="px-3 py-3 text-[11px] text-slate-500 text-center">
+                                Tidak ada pesanan ditemukan
+                              </div>
+                            ) : (
+                              filteredSuggestions.map(o => {
+                                const mName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
+                                return (
+                                  <button
+                                    key={o.id}
+                                    type="button"
+                                    onMouseDown={() => handleSelectOrder(o)}
+                                    className="w-full px-3 py-2.5 text-left hover:bg-slate-800 transition-colors flex items-center justify-between gap-2 border-b border-slate-800/50 last:border-0"
+                                  >
+                                    <span className="font-mono text-xs font-black text-slate-200">{o.orderNumber}</span>
+                                    <span className="text-[10px] text-slate-500 truncate">{mName} · {o.totalQty} pcs</span>
+                                  </button>
+                                );
+                              })
+                            )}
+                          </div>
+                        )}
+
+                        {selectedOrderId && (
+                          <div className="mt-1.5 flex items-center gap-1.5 px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded-md">
+                            <CheckCircle className="w-3 h-3 text-blue-400 shrink-0" />
+                            <span className="text-[10px] font-bold text-blue-300">Pesanan dipilih</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-500">Estimasi Pengembalian</label>
@@ -296,7 +381,7 @@ export default function CancellationsReturns() {
                   <div className="flex gap-2 mt-4">
                     <button
                       type="button"
-                      onClick={() => setActiveForm(null)}
+                      onClick={() => { setActiveForm(null); setOrderSearch(''); }}
                       className="flex-1 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-bold text-[11px] transition-all cursor-pointer"
                     >
                       Batal
@@ -354,7 +439,17 @@ export default function CancellationsReturns() {
                   >
                     <div className="flex justify-between items-start">
                       <span className="font-mono text-xs font-black text-slate-900">#{o.orderNumber}</span>
-                      {getStatusBadge(o.status)}
+                      <div className="flex items-center gap-1.5">
+                        {getStatusBadge(o.status)}
+                        {['admin', 'staff'].includes(user.role) && (
+                          <button
+                            onClick={e => { e.stopPropagation(); handleDelete(o); }}
+                            className="p-1 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="space-y-1.5">
@@ -390,6 +485,7 @@ export default function CancellationsReturns() {
                     <th className="px-4 py-3 font-bold">Alasan Pengajuan</th>
                     <th className="px-4 py-3 text-right font-bold">Nominal (CR)</th>
                     <th className="px-4 py-3 text-right font-bold">Status</th>
+                    {['admin', 'staff'].includes(user.role) && <th className="px-4 py-3 w-10" />}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
@@ -429,6 +525,16 @@ export default function CancellationsReturns() {
                           )}
                         </td>
                         <td className="px-4 py-2.5 text-right">{getStatusBadge(o.status)}</td>
+                        {['admin', 'staff'].includes(user.role) && (
+                          <td className="px-4 py-2.5 text-center">
+                            <button
+                              onClick={e => { e.stopPropagation(); handleDelete(o); }}
+                              className="p-1.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     );
                   })}

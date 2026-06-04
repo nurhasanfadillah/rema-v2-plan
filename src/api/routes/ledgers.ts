@@ -1,5 +1,5 @@
 import express, { type Response } from 'express';
-import { and, eq, desc } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { db } from '../../db/client.ts';
 import { ledgers, mitras } from '../../db/schema.ts';
 import { requireAuth, type AuthRequest } from '../middleware/auth.ts';
@@ -69,13 +69,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
 router.delete('/order/:orderId', async (req: AuthRequest, res: Response) => {
   try {
-    await db.delete(ledgers)
-      .where(
-        and(
-          eq(ledgers.referenceId, req.params.orderId),
-          eq(ledgers.source, 'order')
-        )
-      );
+    await db.delete(ledgers).where(eq(ledgers.referenceId, req.params.orderId));
     return res.json({ success: true });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
