@@ -5,7 +5,7 @@ import { api } from '../../lib/api';
 import { Order, OrderItem, Mitra } from '../../types';
 import { formatDate, cn } from '../../lib/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Eye, Package, Calendar, User, LayoutList, Search, ArrowRight, FileSpreadsheet, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Plus, Calendar, LayoutList, Search, ArrowRight, FileSpreadsheet, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function OrdersList() {

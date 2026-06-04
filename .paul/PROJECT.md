@@ -52,6 +52,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Reports Mitra Data Isolation Fix: backend enforce filter by role (orders + ledgers API), frontend timing fix via useEffect — Phase 29
 - [x] Priority Header Mobile Fix: button "Tambah Prioritas" ke baris kedua pada mobile — Phase 30
 - [x] Orders Product Items Display: nama produk × qty per item di daftar pesanan (mobile card + desktop table), truncation "+N lainnya" untuk 4+ item — Phase 31
+- [x] Code Audit & Cleanup: hapus db.ts + resizeImage + 14 unused icon imports, uninstall framer-motion + @google/genai (36 packages), lazy loading 7 halaman berat + vendor-pdf/charts chunks — Phase 32
 
 ### Active (In Progress)
 
@@ -126,4 +127,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-03 after Phase 31 — Orders Product Items Display selesai*
+*Last updated: 2026-06-04 after Phase 32 — Code Audit & Cleanup selesai*

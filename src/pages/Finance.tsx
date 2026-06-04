@@ -5,7 +5,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { api } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
 import { LedgerEntry, Mitra, Order } from '../types';
-import { Plus, Wallet, FileText, ArrowDownLeft, ArrowUpRight, TrendingDown, BookOpen, Clock, Calendar, Info, Filter, ChevronDown, ChevronUp, Trash2, Edit2, X, Download, ExternalLink, Image as ImageIcon, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MoreHorizontal } from 'lucide-react';
+import { Plus, Wallet, FileText, ArrowDownLeft, ArrowUpRight, BookOpen, Clock, Calendar, Filter, ChevronDown, ChevronUp, Trash2, Edit2, X, Download, ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileUpload } from '../components/FileUpload';
 

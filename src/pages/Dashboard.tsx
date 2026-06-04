@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { formatCurrency } from '../lib/utils';
-import { Package, ShoppingCart, Activity, AlertCircle, Wallet, Users, LayoutDashboard, TrendingUp, Calendar } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import type { Order, LedgerEntry, Mitra } from '../types';

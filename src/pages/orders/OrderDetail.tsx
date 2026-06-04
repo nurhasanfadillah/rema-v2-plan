@@ -8,8 +8,8 @@ import { formatCurrency, formatDate } from '../../lib/utils';
 import { Order, OrderStatus, Mitra, User } from '../../types';
 import { Lightbox } from '../../components/Lightbox';
 import {
-  ArrowLeft, FileText, CheckCircle, AlertTriangle, Printer, Download, CreditCard,
-  Layers, Package, Calendar, User as UserIcon, Truck, ShieldAlert, ExternalLink, Image as ImageIcon,
+  ArrowLeft, FileText, CheckCircle, AlertTriangle, Download, CreditCard,
+  Layers, Package, Calendar, User as UserIcon, Truck, ExternalLink, Image as ImageIcon,
   ChevronDown, Printer as PrinterIcon
 } from 'lucide-react';
 import { motion } from 'motion/react';

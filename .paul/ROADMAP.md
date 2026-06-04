@@ -43,6 +43,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 29 | Reports Mitra Data Isolation Fix | 1 | ✅ Complete | 2026-05-29 |
 | 30 | Priority Header Mobile Fix | 1 | ✅ Complete | 2026-05-29 |
 | 31 | Orders Product Items Display | 1 | ✅ Complete | 2026-06-03 |
+| 32 | Code Audit & Cleanup | 2 | ✅ Complete | 2026-06-04 |
 
 ## Phase Details
 
@@ -329,4 +330,17 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Helper renderItemsSummary(items, maxItems=3) menampilkan productName × qty per item. Mobile card: section baru antara header dan footer. Desktop table: kolom baru "Item Pesanan" setelah "Tipe". Truncation "+N lainnya" untuk 4+ item.
 
 ---
-*Last updated: 2026-06-03 — Phase 31 complete*
+### Phase 32: Code Audit & Cleanup ✅ Complete
+
+**Goal:** Audit menyeluruh codebase — temukan dead code, unused imports, logika over-kompleks, dan peluang optimasi performa. Cleanup berdasarkan temuan audit.
+**Depends on:** Phase 31 (app stable)
+**Completed:** 2026-06-04
+
+**Plans:**
+- [x] 32-01: Audit (research) — scan seluruh src/, hasilkan AUDIT-REPORT.md (14 temuan: HIGH 4, MEDIUM 8, LOW 2)
+- [x] 32-02: Cleanup (execute) — hapus dead code, uninstall 2 packages, lazy loading + vendor chunks
+
+**Result:** db.ts (121 baris) dihapus, 14 unused icon imports bersih, framer-motion + @google/genai diuninstall (36 packages removed), lazy loading aktif untuk 7 halaman berat, vendor-pdf (1.47 MB) + vendor-charts (378 KB) terisolasi di chunk terpisah.
+
+---
+*Last updated: 2026-06-04 — Phase 32 complete*
