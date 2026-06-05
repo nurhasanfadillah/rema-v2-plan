@@ -15,7 +15,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Type | Application |
 | Version | 2.5.0 |
 | Status | Production — Live di https://redone.my.id |
-| Last Updated | 2026-06-03 |
+| Last Updated | 2026-06-04 |
 
 ## Requirements
 
