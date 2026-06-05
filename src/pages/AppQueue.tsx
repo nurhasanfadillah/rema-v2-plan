@@ -12,7 +12,7 @@ export default function AppQueue() {
   const [mitras, setMitras] = useState<Mitra[]>([]);
 
   useEffect(() => {
-    api.orders.list(true).then(setAllOrders).catch(console.error);
+    api.orders.listQueue().then(setAllOrders).catch(console.error);
     api.mitras.list().then(setMitras).catch(console.error);
   }, []);
 

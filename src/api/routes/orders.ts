@@ -7,13 +7,23 @@ import { requireAuth, type AuthRequest } from '../middleware/auth.ts';
 const router = express.Router();
 router.use(requireAuth);
 
+// Helper: resolve mitraId from JWT user sub (for role=mitra)
+async function getMitraForUser(userId: string) {
+  const [mitra] = await db.select().from(mitras).where(eq(mitras.userId, userId)).limit(1);
+  return mitra || null;
+}
+
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const bypassMitra = req.query.allMitras === 'true';
+    // allMitras bypass only allowed for admin/staff
+    const canBypass = req.user.role === 'admin' || req.user.role === 'staff';
+    const bypassMitra = canBypass && req.query.allMitras === 'true';
+    // queueView: production queue is visible to all roles (shared operational view)
+    const isQueueView = req.query.queueView === 'true';
     let filterMitraId = req.query.mitraId as string | undefined;
 
-    if (!bypassMitra && req.user.role === 'mitra') {
-      const [mitra] = await db.select().from(mitras).where(eq(mitras.userId, req.user.sub)).limit(1);
+    if (!bypassMitra && !isQueueView && req.user.role === 'mitra') {
+      const mitra = await getMitraForUser(req.user.sub);
       if (!mitra) return res.status(403).json({ error: 'Mitra not found' });
       filterMitraId = mitra.id;
     }
@@ -39,6 +49,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
+    // Only mitra can create orders
+    if (req.user.role !== 'mitra') {
+      return res.status(403).json({ error: 'Hanya mitra yang dapat membuat pesanan' });
+    }
+
     const { items, ...orderData } = req.body;
     if (!orderData.id) orderData.id = crypto.randomUUID();
 
@@ -67,6 +82,15 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const order = await db.select().from(orders).where(eq(orders.id, req.params.id)).limit(1);
     if (!order[0]) return res.status(404).json({ error: 'Order not found' });
+
+    // Ownership check: mitra can only access their own orders
+    if (req.user.role === 'mitra') {
+      const mitra = await getMitraForUser(req.user.sub);
+      if (!mitra || order[0].mitraId !== mitra.id) {
+        return res.status(403).json({ error: 'Akses ditolak' });
+      }
+    }
+
     const items = await db.select().from(orderItems).where(eq(orderItems.orderId, req.params.id));
     return res.json({ ...order[0], items });
   } catch (err: any) {
@@ -76,8 +100,24 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const { items, ...orderData } = req.body;
     const orderId = req.params.id;
+
+    // Ownership check: mitra can only update their own orders
+    if (req.user.role === 'mitra') {
+      const existing = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+      if (!existing[0]) return res.status(404).json({ error: 'Order not found' });
+      const mitra = await getMitraForUser(req.user.sub);
+      if (!mitra || existing[0].mitraId !== mitra.id) {
+        return res.status(403).json({ error: 'Akses ditolak' });
+      }
+    }
+
+    const { items, ...orderData } = req.body;
+
+    // Only admin can directly set status to cancelled/returned — others must use /api/requests
+    if ((orderData.status === 'cancelled' || orderData.status === 'returned') && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Pembatalan/retur harus melalui form pengajuan' });
+    }
 
     await db.update(orders).set(orderData).where(eq(orders.id, orderId));
     if (items !== undefined) {
@@ -104,8 +144,20 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    await db.delete(orderItems).where(eq(orderItems.orderId, req.params.id));
-    await db.delete(orders).where(eq(orders.id, req.params.id));
+    const orderId = req.params.id;
+
+    // Ownership check: mitra can only delete their own orders
+    if (req.user.role === 'mitra') {
+      const existing = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+      if (!existing[0]) return res.status(404).json({ error: 'Order not found' });
+      const mitra = await getMitraForUser(req.user.sub);
+      if (!mitra || existing[0].mitraId !== mitra.id) {
+        return res.status(403).json({ error: 'Akses ditolak' });
+      }
+    }
+
+    await db.delete(orderItems).where(eq(orderItems.orderId, orderId));
+    await db.delete(orders).where(eq(orders.id, orderId));
     return res.json({ success: true });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });

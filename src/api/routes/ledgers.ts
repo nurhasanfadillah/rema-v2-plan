@@ -1,5 +1,5 @@
 import express, { type Response } from 'express';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { db } from '../../db/client.ts';
 import { ledgers, mitras } from '../../db/schema.ts';
 import { requireAuth, type AuthRequest } from '../middleware/auth.ts';

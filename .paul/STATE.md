@@ -9,22 +9,22 @@ See: .paul/PROJECT.md (updated 2026-05-29)
 
 ## Current Position
 
-Milestone: Code Quality — ✅ Complete
-Phase: 32 (Code Audit & Cleanup) — ✅ Complete
-Plan: All 2 plans complete
-Status: Phase 32 done — roadmap complete (no more phases planned)
-Last activity: 2026-06-04 — Phase 32 complete, codebase bersih + lazy loading aktif
+Milestone: Cancellation & Return Approval Workflow
+Phase: 34 (Cancellation Return Approval) — Planning
+Plan: 34-01 complete (2/2 tasks PASS)
+Status: Loop closed — ready for Plan 34-02
+Last activity: 2026-06-05 — Backend enforcement + approve side effects selesai
 
 Progress:
-- Phase 32: [██████████] 100% (2 of 2 plans complete)
-- All phases: 32 phases complete
+- Phase 34: [█████░░░░░] 50% (1 of 2 plans complete)
+- All phases: 33 phases complete + Phase 34 in progress
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Phase 32 complete — roadmap complete]
+  ✓        ✓        ✓     [Plan 34-01 complete — ready for 34-02]
 ```
 
 ## Accumulated Context
@@ -34,6 +34,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 |----------|-------|--------|
 | Mount PWAUpdateBanner di wrapper div utama Layout (bukan Content Area) | Phase 28 | Banner fixed-bottom tidak terpotong overflow-hidden |
 | Backend enforce mitra filter (orders + ledgers API) | Phase 29 | Data isolation reliable — tidak bisa di-bypass dari frontend |
+| Role + ownership check di orders/requests API | Phase 33 | Mitra tidak bisa akses/modifikasi order mitra lain; hanya admin/staff approve requests |
 | AuthRequest type di route handlers yang akses req.user | Phase 29 | Konsisten dengan priorities.ts; fix TS type error |
 
 ### Blockers/Concerns
@@ -44,10 +45,10 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Session Continuity
 
-Last session: 2026-06-04
-Stopped at: Phase 32 complete — roadmap selesai
-Next action: Tentukan milestone/phase berikutnya, atau app siap digunakan
-Resume file: .paul/ROADMAP.md
+Last session: 2026-06-05
+Stopped at: Plan 34-01 complete — backend approve side effects + orders.ts protection
+Next action: /paul:apply .paul/phases/34-cancellation-return-approval/34-02-PLAN.md
+Resume file: .paul/phases/34-cancellation-return-approval/34-02-PLAN.md
 
 ---
 *STATE.md — Updated after every significant action*

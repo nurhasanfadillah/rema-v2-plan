@@ -9,7 +9,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   XOctagon, RefreshCw, AlertTriangle, CheckCircle, Search, X,
-  Trash2, Activity
+  Trash2, Activity, Clock
 } from 'lucide-react';
 
 export default function CancellationsReturns() {
@@ -45,6 +45,41 @@ export default function CancellationsReturns() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   if (!user) return null;
+
+  const pendingRequests = requests.filter(r => r.status === 'pending');
+  const canApprove = user.role === 'admin' || user.role === 'staff';
+
+  const handleApprove = async (request: ActionRequest) => {
+    const isConfirmed = await confirm({
+      title: 'Setujui Pengajuan',
+      message: `Setujui ${request.type === 'cancellation' ? 'pembatalan' : 'retur'} pesanan? Order akan berubah status dan tagihan dihapus.`,
+      confirmText: 'Ya, Setujui',
+      type: 'info'
+    });
+    if (!isConfirmed) return;
+    try {
+      await api.requests.update(request.id, { status: 'approved', updatedAt: Date.now() });
+      const newOrderStatus = request.type === 'cancellation' ? 'cancelled' : 'returned';
+      setRequests(prev => prev.map(r => r.id === request.id ? { ...r, status: 'approved' } : r));
+      setOrders(prev => prev.map(o => o.id === request.orderId ? { ...o, status: newOrderStatus as OrderStatus, isBilled: false } : o));
+      toast.success('Pengajuan disetujui. Pesanan telah dibatalkan/diretur.');
+    } catch (err: any) { toast.error(err.message || 'Gagal menyetujui'); }
+  };
+
+  const handleReject = async (request: ActionRequest) => {
+    const isConfirmed = await confirm({
+      title: 'Tolak Pengajuan',
+      message: 'Tolak pengajuan ini? Order tidak akan berubah.',
+      confirmText: 'Ya, Tolak',
+      type: 'danger'
+    });
+    if (!isConfirmed) return;
+    try {
+      await api.requests.update(request.id, { status: 'rejected', updatedAt: Date.now() });
+      setRequests(prev => prev.map(r => r.id === request.id ? { ...r, status: 'rejected' } : r));
+      toast('Pengajuan ditolak.', { icon: 'ℹ️' });
+    } catch (err: any) { toast.error(err.message || 'Gagal menolak'); }
+  };
 
   // Filter cancelled or returned orders for display
   let displayedOrders = orders.filter(o => ['cancelled', 'returned'].includes(o.status));
@@ -140,7 +175,7 @@ export default function CancellationsReturns() {
 
     const isConfirmed = await confirm({
       title: isCancel ? 'Konfirmasi Pembatalan' : 'Konfirmasi Retur Pesanan',
-      message: `Apakah Anda yakin ingin ${isCancel ? 'membatalkan' : 'meretur'} pesanan #${orderToProcess.orderNumber}? Tindakan ini bersifat permanen dan saldo tagihan akan otomatis disesuaikan.`,
+      message: `Pengajuan akan dikirim ke admin untuk ditinjau. Status pesanan tidak akan berubah sampai disetujui.`,
       confirmText: isCancel ? 'Ya, Batalkan' : 'Ya, Retur',
       type: 'danger'
     });
@@ -148,26 +183,12 @@ export default function CancellationsReturns() {
     if (!isConfirmed) return;
 
     try {
-      // Rollback ledger billing jika pesanan sudah dibilling
-      if (orderToProcess.isBilled) {
-        await api.ledgers.removeByOrder(orderToProcess.id);
-      }
-
-      // Update order status
-      const updatedOrder = await api.orders.update(orderToProcess.id, {
-        status: newStatus,
-        isBilled: false,
-        updatedAt: Date.now(),
-      });
-
-      // Simpan action request log
       const newRequest: Omit<ActionRequest, 'id'> = {
         type: isCancel ? 'cancellation' : 'return',
         orderId: orderToProcess.id,
         mitraId: orderToProcess.mitraId,
-        reason: reason || (isCancel ? 'Pembatalan instan melalui form' : 'Retur instan melalui form'),
-        status: 'resolved',
-        creditAmount: orderToProcess.isBilled ? orderToProcess.totalAmount : undefined,
+        reason: reason || (isCancel ? 'Pembatalan via form' : 'Retur via form'),
+        status: 'pending',
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
@@ -180,11 +201,9 @@ export default function CancellationsReturns() {
         details: `${isCancel ? 'Batal' : 'Retur'} pesanan ${orderToProcess.orderNumber} via form manajemen`,
       });
 
-      // Update local state
-      setOrders(prev => prev.map(o => o.id === orderToProcess.id ? updatedOrder : o));
       setRequests(prev => [createdRequest, ...prev]);
 
-      toast.success(`Pesanan #${orderToProcess.orderNumber} berhasil ${isCancel ? 'dibatalkan' : 'diretur'}.`);
+      toast.success('Pengajuan berhasil dikirim. Menunggu persetujuan admin.');
       setActiveForm(null);
       setSelectedOrderId('');
       setOrderSearch('');
@@ -399,6 +418,53 @@ export default function CancellationsReturns() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Pending Requests Panel */}
+      {pendingRequests.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-amber-500" />
+            <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+              Menunggu Persetujuan ({pendingRequests.length})
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {pendingRequests.map(r => {
+              const relatedOrder = orders.find(o => o.id === r.orderId);
+              const relatedMitra = mitras.find(m => m.id === r.mitraId);
+              return (
+                <div key={r.id} className="bg-white border border-amber-200/60 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-l-4 border-l-amber-400">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-800">#{relatedOrder?.orderNumber || r.orderId.slice(0, 8)}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${r.type === 'cancellation' ? 'bg-red-100 text-red-700' : 'bg-purple-100 text-purple-700'}`}>
+                        {r.type === 'cancellation' ? 'Batal' : 'Retur'}
+                      </span>
+                    </div>
+                    {canApprove && <p className="text-[11px] text-slate-500">{relatedMitra?.name || 'Mitra'}</p>}
+                    <p className="text-[11px] text-slate-600 italic">"{r.reason}"</p>
+                    <p className="text-[10px] text-slate-400">{formatDate(r.createdAt)}</p>
+                  </div>
+                  {canApprove ? (
+                    <div className="flex gap-2 shrink-0">
+                      <button onClick={() => handleApprove(r)} className="px-3 py-2 bg-emerald-500 text-white text-[11px] font-bold rounded-lg hover:bg-emerald-400 transition cursor-pointer">
+                        Setujui
+                      </button>
+                      <button onClick={() => handleReject(r)} className="px-3 py-2 bg-red-500 text-white text-[11px] font-bold rounded-lg hover:bg-red-400 transition cursor-pointer">
+                        Tolak
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg">
+                      Menunggu
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Main Responsive List */}
       <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden shadow-sm">

@@ -85,7 +85,7 @@ export interface LedgerEntry {
   referenceNumber?: string;
 }
 
-export type RequestStatus = 'submitted' | 'reviewed' | 'approved' | 'rejected' | 'resolved' | 'cancelled';
+export type RequestStatus = 'pending' | 'submitted' | 'reviewed' | 'approved' | 'rejected' | 'resolved' | 'cancelled';
 
 export interface ActionRequest {
   id: string;
