@@ -223,72 +223,72 @@ export default function Calculator() {
             </div>
           )}
 
-          {/* Harga Pokok */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
-              Harga Pokok (Rp)
-            </label>
-            <input
-              type="number"
-              value={hargaPokok || ''}
-              onChange={e => setHargaPokok(Number(e.target.value))}
-              min={0}
-              placeholder="0"
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-[12px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all placeholder-slate-600"
-            />
+          {/* Harga Pokok + Qty inline */}
+          <div className="grid grid-cols-4 gap-3">
+            <div className="col-span-3">
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
+                Harga Pokok (Rp)
+              </label>
+              <input
+                type="number"
+                value={hargaPokok || ''}
+                onChange={e => setHargaPokok(Number(e.target.value))}
+                min={0}
+                placeholder="0"
+                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-[12px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all placeholder-slate-600"
+              />
+            </div>
+            <div className="col-span-1">
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
+                Qty
+              </label>
+              <input
+                type="number"
+                value={qty}
+                onChange={e => setQty(Math.max(1, Number(e.target.value)))}
+                min={1}
+                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-[12px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+              />
+            </div>
           </div>
 
-          {/* Qty */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
-              Qty
-            </label>
-            <input
-              type="number"
-              value={qty}
-              onChange={e => setQty(Math.max(1, Number(e.target.value)))}
-              min={1}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-[12px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
-            />
+          {/* Margin + Admin MP inline */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
+                Margin (%)
+              </label>
+              <input
+                type="number"
+                value={margin}
+                onChange={e => setMargin(Number(e.target.value))}
+                min={0}
+                max={99}
+                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-[12px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
+                Admin MP (%)
+              </label>
+              <input
+                type="number"
+                value={adminMP}
+                onChange={e => setAdminMP(Number(e.target.value))}
+                min={0}
+                max={99}
+                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-[12px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+              />
+            </div>
           </div>
-
-          {/* Margin */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
-              Margin (%)
-            </label>
-            <input
-              type="number"
-              value={margin}
-              onChange={e => setMargin(Number(e.target.value))}
-              min={0}
-              max={99}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-[12px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
-            />
-            {showMarginWarning && (
-              <div className="mt-2 flex items-start gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-[11px] text-amber-400 leading-relaxed">
-                  Margin di bawah 20% kurang sehat — laba terlalu tipis untuk menutup biaya operasional.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Admin MP */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
-              Admin Marketplace (%)
-            </label>
-            <input
-              type="number"
-              value={adminMP}
-              onChange={e => setAdminMP(Number(e.target.value))}
-              min={0}
-              max={99}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-[12px] font-medium outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
-            />
-          </div>
+          {showMarginWarning && (
+            <div className="flex items-start gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-[11px] text-amber-400 leading-relaxed">
+                Margin di bawah 20% kurang sehat — laba terlalu tipis untuk menutup biaya operasional.
+              </p>
+            </div>
+          )}
 
           {/* Biaya Tambahan */}
           <div>
@@ -389,6 +389,14 @@ export default function Calculator() {
                 <span className="text-[12px] font-semibold text-slate-300">Harga Jual</span>
                 <span className="text-[12px] font-bold text-white text-right">Rp {fmt(hargaJual)}</span>
                 <span className="text-[12px] font-bold text-emerald-400 text-right">Rp {fmt(hargaJual * safeQty)}</span>
+              </div>
+
+              {/* Nominal margin */}
+              <div className="grid grid-cols-3 px-3 py-2 border-t border-slate-800/60 bg-slate-800/30">
+                <span className="text-[11px] text-slate-500 col-span-3">
+                  Margin: Rp {fmt(hargaJual - hargaPokok)} / unit
+                  {safeQty > 1 && <span className="ml-2 text-slate-600">· Total Rp {fmt((hargaJual - hargaPokok) * safeQty)}</span>}
+                </span>
               </div>
 
               {/* Harga MP */}

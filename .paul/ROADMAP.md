@@ -46,7 +46,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 32 | Code Audit & Cleanup | 2 | ✅ Complete | 2026-06-04 |
 | 33 | Security & Bug Fixes | 1 | ✅ Complete | 2026-06-05 |
 | 34 | Cancellation Return Approval | 2 | ✅ Complete | 2026-06-05 |
-| 35 | Kalkulator Harga Jual | 2 | 🔄 In Progress | — |
+| 35 | Kalkulator Harga Jual | 3 | ✅ Complete | 2026-06-06 |
 
 ## Phase Details
 
@@ -371,14 +371,18 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Submit form membuat pending ActionRequest; section "Menunggu Persetujuan" tampil untuk semua role; admin/staff punya tombol Setujui/Tolak; approve mengeksekusi perubahan order di backend. `RequestStatus` diperluas dengan 'pending'.
 
 ---
-### Phase 35: Kalkulator Harga Jual 🔄 In Progress
+### Phase 35: Kalkulator Harga Jual ✅ Complete
 
 **Goal:** Halaman `/calculator` untuk role admin dan mitra — kalkulator harga jual interaktif (harga pokok → margin → harga MP → harga final bertahap), simpan riwayat per user.
 **Depends on:** Phase 34 (codebase stabil)
+**Completed:** 2026-06-06
 
 **Plans:**
-- [ ] 35-01: Backend — schema `price_calculations` + API GET/POST/DELETE
-- [ ] 35-02: Frontend — halaman Calculator + nav link + riwayat
+- [x] 35-01: Backend — schema `price_calculations` + API GET/POST/DELETE
+- [x] 35-02: Frontend — halaman Calculator + nav link + riwayat
+- [x] 35-03: UI layout fix — Harga Pokok/Qty inline, Margin/Admin MP inline, nominal margin di output
+
+**Result:** Halaman /calculator live di /calculator — dua mode input (pilih produk / manual), kalkulasi live per unit + total qty, biaya tambahan bertahap (Rp/%), warning margin < 20%, simpan + riwayat per user.
 
 ---
 *Last updated: 2026-06-05 — Phase 35 planning*

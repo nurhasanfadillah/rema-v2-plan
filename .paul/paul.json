@@ -4,12 +4,12 @@
   "milestone": {
     "name": "Kalkulator Harga Jual",
     "version": "3.10.0",
-    "status": "in_progress"
+    "status": "complete"
   },
   "phase": {
     "number": 35,
     "name": "kalkulator-harga-jual",
-    "status": "in_progress"
+    "status": "complete"
   },
   "loop": {
     "plan": null,
