@@ -5,7 +5,7 @@ import { api } from '../../lib/api';
 import { Order, OrderItem, Mitra } from '../../types';
 import { formatDate, cn } from '../../lib/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Calendar, LayoutList, Search, ArrowRight, FileSpreadsheet, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Plus, Calendar, LayoutList, Search, FileSpreadsheet, ChevronLeft, ChevronRight, X, SlidersHorizontal, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function OrdersList() {
@@ -18,6 +18,7 @@ export default function OrdersList() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   useEffect(() => {
     Promise.all([api.orders.list(), api.mitras.list()])
@@ -125,16 +126,16 @@ export default function OrdersList() {
     const visible = items.slice(0, maxItems);
     const remaining = items.length - maxItems;
     return (
-      <div className="space-y-0.5">
+      <div className="space-y-1">
         {visible.map((item, idx) => (
-          <div key={idx} className="text-[11px] font-medium leading-tight">
-            <span className="text-slate-300">{item.productName}</span>
-            <span className="text-slate-500 ml-1">× {item.qty}</span>
+          <div key={idx} className="flex items-baseline gap-1.5 leading-tight">
+            <span className="text-[12px] font-semibold text-slate-200">{item.productName}</span>
+            <span className="text-[11px] font-bold text-slate-400 tabular-nums">×{item.qty}</span>
           </div>
         ))}
         {remaining > 0 && (
           <div className="text-[10px] text-slate-500 font-semibold">
-            +{remaining} lainnya
+            +{remaining} item lainnya
           </div>
         )}
       </div>
@@ -148,8 +149,8 @@ export default function OrdersList() {
       waiting_confirmation: { bg: 'bg-amber-500/15',  text: 'text-amber-300',  border: 'border-amber-500/30',  glow: 'shadow-amber-500/20',  dot: 'bg-amber-400',   label: 'Menunggu' },
       confirmed:            { bg: 'bg-blue-500/15',   text: 'text-blue-300',   border: 'border-blue-500/30',   glow: 'shadow-blue-500/20',   dot: 'bg-blue-400',    label: 'Dikonfirmasi' },
       processing:           { bg: 'bg-purple-500/15', text: 'text-purple-300', border: 'border-purple-500/30', glow: 'shadow-purple-500/20', dot: 'bg-purple-400',  label: 'Diproses' },
-      pressing:             { bg: 'bg-rose-500/15',   text: 'text-rose-300',   border: 'border-rose-500/30',   glow: 'shadow-rose-500/20',   dot: 'bg-rose-400',    label: 'Press Sablon' },
-      packing:              { bg: 'bg-orange-500/15', text: 'text-orange-300', border: 'border-orange-500/30', glow: 'shadow-orange-500/20', dot: 'bg-orange-400',  label: 'Packing' },
+      pressing:             { bg: 'bg-orange-500/15', text: 'text-orange-300', border: 'border-orange-500/30', glow: 'shadow-orange-500/20', dot: 'bg-orange-400',  label: 'Press Sablon' },
+      packing:              { bg: 'bg-cyan-500/15',   text: 'text-cyan-300',   border: 'border-cyan-500/30',   glow: 'shadow-cyan-500/20',   dot: 'bg-cyan-400',    label: 'Packing' },
       shipped:              { bg: 'bg-emerald-500/15',text: 'text-emerald-300',border: 'border-emerald-500/30',glow: 'shadow-emerald-500/20',dot: 'bg-emerald-400', label: 'Terkirim' },
       returned:             { bg: 'bg-red-500/15',    text: 'text-red-300',    border: 'border-red-500/30',    glow: 'shadow-red-500/20',    dot: 'bg-red-400',     label: 'Retur' },
       cancelled:            { bg: 'bg-slate-500/10',  text: 'text-slate-400',  border: 'border-slate-600/30',  glow: '',                     dot: 'bg-slate-500',   label: 'Batal' },
@@ -166,6 +167,33 @@ export default function OrdersList() {
     );
   };
 
+
+  const progressSteps = ['waiting_confirmation', 'confirmed', 'processing', 'pressing', 'packing', 'shipped'] as const;
+  const progressColors: Record<string, string> = {
+    waiting_confirmation: 'bg-amber-400',
+    confirmed: 'bg-blue-400',
+    processing: 'bg-purple-400',
+    pressing: 'bg-orange-400',
+    packing: 'bg-cyan-400',
+    shipped: 'bg-emerald-400',
+  };
+
+  const renderProgressBar = (status: string) => {
+    const currentIdx = progressSteps.indexOf(status as typeof progressSteps[number]);
+    if (currentIdx === -1) return null;
+    return (
+      <div className="flex gap-0.5 mt-3">
+        {progressSteps.map((step, idx) => (
+          <div key={step} className={cn(
+            'h-1 flex-1 rounded-full transition-all',
+            idx < currentIdx ? 'bg-slate-600' :
+            idx === currentIdx ? progressColors[step] :
+            'bg-slate-800'
+          )} />
+        ))}
+      </div>
+    );
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -197,6 +225,24 @@ export default function OrdersList() {
         )}
       </div>
 
+      {/* KPI ringkas */}
+      {!isDraftPage && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {[
+            { label: 'Total Pesanan', value: totalStats.orders, sub: `${totalStats.qty} pcs`, color: 'text-white' },
+            { label: 'Menunggu', value: (statusStats['waiting_confirmation']?.orders || 0), sub: `${statusStats['waiting_confirmation']?.qty || 0} pcs`, color: 'text-amber-300' },
+            { label: 'Diproses', value: (statusStats['processing']?.orders || 0) + (statusStats['pressing']?.orders || 0) + (statusStats['packing']?.orders || 0), sub: 'proses–packing', color: 'text-purple-300' },
+            { label: 'Terkirim', value: statusStats['shipped']?.orders || 0, sub: `${statusStats['shipped']?.qty || 0} pcs`, color: 'text-emerald-300' },
+          ].map(kpi => (
+            <div key={kpi.label} className="bg-white/5 rounded-xl border border-white/5 px-3 py-2.5">
+              <p className="text-[10px] text-slate-500 font-medium">{kpi.label}</p>
+              <p className={cn('text-xl font-black tabular-nums leading-tight mt-0.5', kpi.color)}>{kpi.value}</p>
+              <p className="text-[10px] text-slate-600 font-medium">{kpi.sub}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Control bar */}
       <div className="bg-white/5 rounded-2xl border border-white/5 p-4 shadow-2xl flex flex-col gap-3 backdrop-blur-sm">
         {/* Search row */}
@@ -226,26 +272,102 @@ export default function OrdersList() {
           </div>
         </div>
 
-        {/* Filter status — dropdown dengan qty + jumlah pesanan */}
+        {/* Filter status */}
         {!isDraftPage && (
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2">
-            <LayoutList className="w-4 h-4 text-slate-400 shrink-0" />
-            <select
-              value={statusFilter}
-              onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-              className="bg-transparent border-0 text-[12px] font-semibold text-slate-200 outline-none focus:ring-0 cursor-pointer p-0 flex-1"
+          <>
+            {/* Mobile: tombol trigger bottom sheet */}
+            <button
+              onClick={() => setShowFilterSheet(true)}
+              className="md:hidden flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 w-full text-left"
             >
-              <option value="all">Semua Status — {totalStats.orders} pesanan ({totalStats.qty} pcs)</option>
-              <option value="waiting_confirmation">Menunggu — {statusStats['waiting_confirmation']?.orders || 0} pesanan ({statusStats['waiting_confirmation']?.qty || 0} pcs)</option>
-              <option value="confirmed">Dikonfirmasi — {statusStats['confirmed']?.orders || 0} pesanan ({statusStats['confirmed']?.qty || 0} pcs)</option>
-              <option value="processing">Diproses — {statusStats['processing']?.orders || 0} pesanan ({statusStats['processing']?.qty || 0} pcs)</option>
-              <option value="pressing">Press Sablon — {statusStats['pressing']?.orders || 0} pesanan ({statusStats['pressing']?.qty || 0} pcs)</option>
-              <option value="packing">Packing — {statusStats['packing']?.orders || 0} pesanan ({statusStats['packing']?.qty || 0} pcs)</option>
-              <option value="shipped">Terkirim — {statusStats['shipped']?.orders || 0} pesanan ({statusStats['shipped']?.qty || 0} pcs)</option>
-            </select>
-          </div>
+              <SlidersHorizontal className="w-4 h-4 text-slate-400 shrink-0" />
+              <span className="text-[12px] font-semibold text-slate-200 flex-1">
+                {statusFilter === 'all' ? 'Semua Status' : {
+                  waiting_confirmation: 'Menunggu',
+                  confirmed: 'Dikonfirmasi',
+                  processing: 'Diproses',
+                  pressing: 'Press Sablon',
+                  packing: 'Packing',
+                  shipped: 'Terkirim',
+                }[statusFilter] ?? statusFilter}
+              </span>
+              <span className="text-[11px] font-bold text-slate-500 tabular-nums">
+                {totalItems} pesanan
+              </span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+            </button>
+
+            {/* Desktop: dropdown select biasa */}
+            <div className="hidden md:flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2">
+              <LayoutList className="w-4 h-4 text-slate-400 shrink-0" />
+              <select
+                value={statusFilter}
+                onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+                className="bg-transparent border-0 text-[12px] font-semibold text-slate-200 outline-none focus:ring-0 cursor-pointer p-0 flex-1"
+              >
+                <option value="all">Semua Status — {totalStats.orders} pesanan ({totalStats.qty} pcs)</option>
+                <option value="waiting_confirmation">Menunggu — {statusStats['waiting_confirmation']?.orders || 0} pesanan ({statusStats['waiting_confirmation']?.qty || 0} pcs)</option>
+                <option value="confirmed">Dikonfirmasi — {statusStats['confirmed']?.orders || 0} pesanan ({statusStats['confirmed']?.qty || 0} pcs)</option>
+                <option value="processing">Diproses — {statusStats['processing']?.orders || 0} pesanan ({statusStats['processing']?.qty || 0} pcs)</option>
+                <option value="pressing">Press Sablon — {statusStats['pressing']?.orders || 0} pesanan ({statusStats['pressing']?.qty || 0} pcs)</option>
+                <option value="packing">Packing — {statusStats['packing']?.orders || 0} pesanan ({statusStats['packing']?.qty || 0} pcs)</option>
+                <option value="shipped">Terkirim — {statusStats['shipped']?.orders || 0} pesanan ({statusStats['shipped']?.qty || 0} pcs)</option>
+              </select>
+            </div>
+          </>
         )}
       </div>
+
+      {/* Bottom sheet filter — mobile only */}
+      {showFilterSheet && (
+        <div className="fixed inset-0 z-50 md:hidden" onClick={() => setShowFilterSheet(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="absolute bottom-0 left-0 right-0 bg-slate-900 border-t border-white/10 rounded-t-3xl p-5 pb-8"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-slate-700 rounded-full mx-auto mb-5" />
+            <h3 className="text-sm font-bold text-white mb-3">Filter Status</h3>
+            <div className="space-y-1">
+              {([
+                { value: 'all', label: 'Semua Status', orders: totalStats.orders, qty: totalStats.qty },
+                { value: 'waiting_confirmation', label: 'Menunggu', orders: statusStats['waiting_confirmation']?.orders || 0, qty: statusStats['waiting_confirmation']?.qty || 0 },
+                { value: 'confirmed', label: 'Dikonfirmasi', orders: statusStats['confirmed']?.orders || 0, qty: statusStats['confirmed']?.qty || 0 },
+                { value: 'processing', label: 'Diproses', orders: statusStats['processing']?.orders || 0, qty: statusStats['processing']?.qty || 0 },
+                { value: 'pressing', label: 'Press Sablon', orders: statusStats['pressing']?.orders || 0, qty: statusStats['pressing']?.qty || 0 },
+                { value: 'packing', label: 'Packing', orders: statusStats['packing']?.orders || 0, qty: statusStats['packing']?.qty || 0 },
+                { value: 'shipped', label: 'Terkirim', orders: statusStats['shipped']?.orders || 0, qty: statusStats['shipped']?.qty || 0 },
+              ] as const).map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => { setStatusFilter(opt.value); setCurrentPage(1); setShowFilterSheet(false); }}
+                  className={cn(
+                    'w-full flex items-center justify-between px-4 py-3 rounded-xl transition-colors text-left',
+                    statusFilter === opt.value
+                      ? 'bg-blue-500/20 border border-blue-500/30'
+                      : 'hover:bg-white/5 border border-transparent'
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    {statusFilter === opt.value && <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />}
+                    {statusFilter !== opt.value && <div className="w-4 h-4 rounded-full border border-slate-600 shrink-0" />}
+                    <span className={cn('font-semibold text-[13px]', statusFilter === opt.value ? 'text-blue-300' : 'text-slate-200')}>
+                      {opt.label}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 tabular-nums">
+                    {opt.orders} order · {opt.qty} pcs
+                  </span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Mobile view (< md) */}
       <div className="md:hidden space-y-3">
@@ -259,12 +381,13 @@ export default function OrdersList() {
               className="bg-slate-900/40 rounded-2xl border border-white/5 p-4 shadow-xl relative hover:bg-slate-900/60 transition cursor-pointer hover:border-blue-500/30 active:scale-[0.99] group"
             >
               <div className="flex justify-between items-start mb-4">
-                {/* Task 4: customer name dominan */}
                 <div>
                   {user.role !== 'mitra' && (
                     <p className="font-bold text-white text-sm leading-tight">{mitraName}</p>
                   )}
-                  <p className="font-mono text-xs text-slate-500 mt-0.5">{o.orderNumber}</p>
+                  <p className="font-mono text-[11px] text-slate-500 mt-0.5">
+                    <span className="text-slate-600">Order </span>#{o.orderNumber}
+                  </p>
                   <span className="flex items-center text-[11px] text-slate-500 gap-1.5 mt-2 font-medium tabular-nums">
                     <Calendar className="w-3 h-3 opacity-60" /> {formatDate(o.createdAt)}
                   </span>
@@ -280,6 +403,7 @@ export default function OrdersList() {
               </div>
               <div className="mt-3">
                 {renderItemsSummary(o.items)}
+                {renderProgressBar(o.status)}
               </div>
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 bg-black/20 -mx-4 -mb-4 p-4 rounded-b-2xl">
                 <div className="flex items-center gap-5">
@@ -296,7 +420,7 @@ export default function OrdersList() {
                   </div>
                 </div>
                 <div className="w-8 h-8 bg-slate-800 text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-500/10 rounded-xl flex items-center justify-center transition-all duration-300 border border-slate-700 group-hover:border-blue-500/30 shadow-lg">
-                  <ArrowRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4" />
                 </div>
               </div>
             </motion.div>
