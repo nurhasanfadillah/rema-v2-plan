@@ -55,6 +55,8 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Code Audit & Cleanup: hapus db.ts + resizeImage + 14 unused icon imports, uninstall framer-motion + @google/genai (36 packages), lazy loading 7 halaman berat + vendor-pdf/charts chunks — Phase 32
 - [x] Security Bug Fixes: role + ownership enforcement di orders/requests API — mitra tidak bisa akses data mitra lain — Phase 33
 - [x] Cancellation Return Approval Workflow: alur pengajuan → pending → approve/reject oleh admin; frontend pending panel dengan role-aware UI — Phase 34
+- [x] Kalkulator Harga Jual: halaman /calculator, dua mode input, kalkulasi live, simpan riwayat — Phase 35
+- [x] Sidebar User Footer: info pengguna + logout di footer sidebar satu baris, modal ganti password inline — Phase 36
 
 ### Active (In Progress)
 

@@ -47,6 +47,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 33 | Security & Bug Fixes | 1 | ✅ Complete | 2026-06-05 |
 | 34 | Cancellation Return Approval | 2 | ✅ Complete | 2026-06-05 |
 | 35 | Kalkulator Harga Jual | 3 | ✅ Complete | 2026-06-06 |
+| 36 | Sidebar User Footer | 1 | ✅ Complete | 2026-06-06 |
 
 ## Phase Details
 
@@ -384,5 +385,16 @@ Phases: 1 of 1 complete (Phase 11)
 
 **Result:** Halaman /calculator live di /calculator — dua mode input (pilih produk / manual), kalkulasi live per unit + total qty, biaya tambahan bertahap (Rp/%), warning margin < 20%, simpan + riwayat per user.
 
+### Phase 36: Sidebar User Footer ✅ Complete
+
+**Goal:** Pindahkan info pengguna dan tombol logout ke footer sidebar dalam satu baris; klik avatar atau nama membuka modal ganti password inline.
+**Depends on:** Phase 35 (codebase stabil)
+**Completed:** 2026-06-06
+
+**Plans:**
+- [x] 36-01: Layout.tsx sidebar footer + modal ganti password inline
+
+**Result:** Footer sidebar menampilkan avatar-initial + nama + role badge + LogOut button dalam satu baris. Klik avatar/nama → modal centered ganti password (3 field, inline, tanpa navigasi). Avatar di header dihapus beserta profileOpen panel.
+
 ---
-*Last updated: 2026-06-05 — Phase 35 planning*
+*Last updated: 2026-06-06 — Phase 36 complete*

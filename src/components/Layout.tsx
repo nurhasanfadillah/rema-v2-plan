@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList, Zap, Download, Calculator } from 'lucide-react';
+import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList, Zap, Download, Calculator, Lock } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
+import { toast } from 'react-hot-toast';
 
 import RunningOrders from './RunningOrders';
 import { PWAUpdateBanner } from './PWAUpdateBanner';
@@ -15,18 +17,58 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function Layout() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [changePassOpen, setChangePassOpen] = useState(false);
+  const [cpOldPw, setCpOldPw] = useState('');
+  const [cpNewPw, setCpNewPw] = useState('');
+  const [cpConfirm, setCpConfirm] = useState('');
+  const [cpLoading, setCpLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
+  const openChangePass = () => {
+    setCpOldPw('');
+    setCpNewPw('');
+    setCpConfirm('');
+    setChangePassOpen(true);
+  };
+
+  const closeChangePass = () => {
+    setCpOldPw('');
+    setCpNewPw('');
+    setCpConfirm('');
+    setChangePassOpen(false);
+  };
+
+  const handleChangePass = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (cpNewPw.length < 8 || cpNewPw.length > 64) {
+      toast.error('Kata sandi harus 8–64 karakter.');
+      return;
+    }
+    if (cpNewPw !== cpConfirm) {
+      toast.error('Konfirmasi kata sandi tidak cocok.');
+      return;
+    }
+    setCpLoading(true);
+    try {
+      const updatedUser = await api.users.changePassword(user!.id, { oldPassword: cpOldPw, newPassword: cpNewPw });
+      updateUser(updatedUser);
+      toast.success('Password berhasil diperbarui');
+      closeChangePass();
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal memperbarui password.');
+    } finally {
+      setCpLoading(false);
+    }
+  };
+
   // Close mobile drawer when route changes
   useEffect(() => {
     setMobileOpen(false);
-    setProfileOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -117,8 +159,28 @@ export default function Layout() {
         })}
       </div>
 
-      <div className="p-4 border-t border-slate-900 bg-slate-950 min-h-[80px]">
-        {/* Footer biarkan kosong sesuai permintaan */}
+      <div className="p-3 border-t border-slate-900 bg-slate-950">
+        <div className="flex items-center gap-2.5 px-2 py-2 rounded-2xl hover:bg-slate-900/60 transition-colors group">
+          <button
+            onClick={openChangePass}
+            className="flex items-center gap-2.5 flex-1 min-w-0 text-left"
+          >
+            <div className="w-8 h-8 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-400 font-bold text-xs flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/20 transition-colors">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-semibold text-slate-200 truncate leading-tight">{user.name}</p>
+              <span className="text-[9px] font-mono text-blue-400 uppercase tracking-wider">{user.role}</span>
+            </div>
+          </button>
+          <button
+            onClick={logout}
+            title="Keluar"
+            className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors flex-shrink-0"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -164,72 +226,100 @@ export default function Layout() {
         )}
       </AnimatePresence>
 
-      {/* Profile Sidebar Drawer */}
+      {/* Modal Ganti Password */}
       <AnimatePresence>
-        {profileOpen && (
-          <div className="fixed inset-0 z-50 flex justify-end items-start p-6 pt-20">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              className="fixed inset-0 bg-slate-950/40 backdrop-blur-[2px]" 
-              onClick={() => setProfileOpen(false)} 
+        {changePassOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-[2px]"
+              onClick={closeChangePass}
             />
-            <motion.div 
-              initial={{ opacity: 0, y: -20, x: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, x: 20, scale: 0.95 }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-              className="relative w-80 max-w-[90vw] bg-slate-900 border border-slate-800 shadow-2xl rounded-3xl overflow-hidden shadow-blue-500/5"
+              className="relative w-full max-w-sm bg-slate-900 border border-slate-800 shadow-2xl rounded-3xl overflow-hidden"
             >
-              <div className="p-5 border-b border-slate-800 bg-slate-900/50">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Akun Saya</h3>
-                  <button 
-                    className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" 
-                    onClick={() => setProfileOpen(false)}
-                  >
+              <div className="p-5 border-b border-slate-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                      <KeyRound className="w-4.5 h-4.5 text-amber-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">Ganti Kata Sandi</h3>
+                      <p className="text-[11px] text-slate-400">{user.name}</p>
+                    </div>
+                  </div>
+                  <button onClick={closeChangePass} className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-extrabold text-xl flex items-center justify-center shadow-lg shadow-blue-500/5">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-base font-bold text-white truncate leading-tight mb-1">{user.name}</div>
-                    <div className="px-2 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-[9px] text-blue-400 capitalize font-mono tracking-wider font-bold inline-block">
-                      {user.role}
-                    </div>
-                  </div>
-                </div>
               </div>
 
-              <div className="p-2 space-y-1">
-                <button
-                  onClick={() => navigate('/change-password')}
-                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-amber-400 group-hover:bg-amber-500/10 transition-colors">
-                      <KeyRound className="w-4.5 h-4.5" />
-                    </div>
-                    <span className="text-[13px] font-bold">Ganti Kata Sandi</span>
+              <form onSubmit={handleChangePass} className="p-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Kata Sandi Lama</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input
+                      type="password"
+                      value={cpOldPw}
+                      onChange={e => setCpOldPw(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-slate-800 hover:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 rounded-xl outline-none transition text-sm text-white placeholder-slate-600"
+                      placeholder="Kata sandi saat ini"
+                      required
+                    />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-600" />
-                </button>
+                </div>
 
-                <div className="pt-2 px-3 pb-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Kata Sandi Baru</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input
+                      type="password"
+                      value={cpNewPw}
+                      onChange={e => setCpNewPw(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-slate-800 hover:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 rounded-xl outline-none transition text-sm text-white placeholder-slate-600"
+                      placeholder="Minimal 8 karakter"
+                      required minLength={8} maxLength={64}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Konfirmasi Kata Sandi Baru</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input
+                      type="password"
+                      value={cpConfirm}
+                      onChange={e => setCpConfirm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-slate-800 hover:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 rounded-xl outline-none transition text-sm text-white placeholder-slate-600"
+                      placeholder="Ulangi kata sandi baru"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-1">
+                  <button type="button" onClick={closeChangePass} className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition">
+                    Batal
+                  </button>
                   <button
-                    onClick={logout}
-                    className="btn-danger w-full"
+                    type="submit"
+                    disabled={cpLoading}
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <LogOut className="w-4.5 h-4.5" />
-                    Keluar
+                    {cpLoading ? 'Menyimpan...' : 'Simpan'}
                   </button>
                 </div>
-              </div>
+              </form>
             </motion.div>
           </div>
         )}
@@ -268,13 +358,6 @@ export default function Layout() {
                 <Download className="w-4.5 h-4.5" />
               </button>
             )}
-             <div
-               onClick={() => setProfileOpen(true)}
-               className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-blue-400 font-bold text-lg shadow-inner cursor-pointer hover:bg-slate-800 hover:border-slate-700 transition-all active:scale-95 group overflow-hidden relative"
-             >
-               <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-colors" />
-               {user.name.charAt(0).toUpperCase()}
-             </div>
           </div>
         </header>
 

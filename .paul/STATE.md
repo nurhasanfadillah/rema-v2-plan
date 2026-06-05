@@ -9,22 +9,22 @@ See: .paul/PROJECT.md (updated 2026-05-29)
 
 ## Current Position
 
-Milestone: Kalkulator Harga Jual
-Phase: 35 (Kalkulator Harga Jual) — Complete
-Plan: 35-03 complete (UNIFY done)
-Status: All 3 plans complete — phase ready for transition
-Last activity: 2026-06-06 — Plan 35-02 + 35-03 unified, halaman /calculator live
+Milestone: Sidebar User Footer
+Phase: 36 (Sidebar User Footer) — Complete
+Plan: 36-01 complete (UNIFY done)
+Status: All plans complete — phase ready for transition
+Last activity: 2026-06-06 — Phase 36 complete, footer sidebar + modal ganti password live
 
 Progress:
-- Phase 35: [██████████] 100% (3 of 3 plans complete)
-- All phases: 34 phases complete, Phase 35 complete
+- Phase 36: [██████████] 100% (1 of 1 plans complete)
+- All phases: 35 phases complete, Phase 36 complete
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop 35-03 closed — Phase 35 complete]
+  ✓        ✓        ✓     [Loop 36-01 closed — Phase 36 complete]
 ```
 
 ## Accumulated Context
@@ -48,9 +48,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-06-06
-Stopped at: Phase 35 complete — halaman /calculator live, semua 3 plans unified
-Next action: /paul:transition atau commit phase 35 lalu rencanakan milestone berikutnya
-Resume file: .paul/phases/35-kalkulator-harga-jual/35-03-SUMMARY.md
+Stopped at: Phase 36 complete — footer sidebar + modal ganti password live
+Next action: /paul:milestone untuk milestone berikutnya, atau /paul:plan untuk phase baru
+Resume file: .paul/phases/36-sidebar-user-footer/36-01-SUMMARY.md
 
 ---
 *STATE.md — Updated after every significant action*
