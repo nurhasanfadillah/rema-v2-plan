@@ -9,6 +9,23 @@ import type {
   OrderPriority,
 } from '../types';
 
+export type PriceCalcAdditional = { label: string; value: number; type: 'nominal' | 'persen' };
+export type PriceCalculation = {
+  id: string;
+  userId: string;
+  productId: string | null;
+  productName: string;
+  hargaPokok: number;
+  qty: number;
+  margin: number;
+  adminMP: number;
+  additionals: PriceCalcAdditional[];
+  hargaJual: number;
+  hargaMP: number;
+  hargaFinals: number[];
+  createdAt: number;
+};
+
 type SafeUser = Omit<User, 'passwordHash'>;
 
 const BASE = '/api';
@@ -39,7 +56,10 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     const err = await res.json().catch(() => ({ error: res.statusText }));
     throw new Error(err.error || res.statusText);
   }
-  return res.json() as Promise<T>;
+  if (res.status === 204) return undefined as T;
+  const text = await res.text();
+  if (!text) return undefined as T;
+  return JSON.parse(text) as T;
 }
 
 export const api = {
@@ -116,6 +136,13 @@ export const api = {
     create: (data: { orderId: string; notes?: string }) =>
       request<OrderPriority>('POST', '/priorities', data),
     remove: (id: string) => request<void>('DELETE', `/priorities/${id}`),
+  },
+
+  priceCalculations: {
+    list: () => request<PriceCalculation[]>('GET', '/price-calculations'),
+    create: (data: Omit<PriceCalculation, 'id' | 'userId' | 'createdAt'>) =>
+      request<PriceCalculation>('POST', '/price-calculations', data),
+    remove: (id: string) => request<void>('DELETE', `/price-calculations/${id}`),
   },
 
   upload: {

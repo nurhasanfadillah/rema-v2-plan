@@ -28,6 +28,7 @@ import requestsRouter from './routes/requests.ts';
 import auditLogsRouter from './routes/audit-logs.ts';
 import uploadRouter from './routes/upload.ts';
 import prioritiesRouter from './routes/priorities.ts';
+import priceCalculationsRouter from './routes/price-calculations.ts';
 
 app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
@@ -40,5 +41,6 @@ app.use('/api/requests', requestsRouter);
 app.use('/api/audit-logs', auditLogsRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/priorities', prioritiesRouter);
+app.use('/api/price-calculations', priceCalculationsRouter);
 
 export default app;

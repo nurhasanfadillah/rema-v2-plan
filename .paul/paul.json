@@ -2,14 +2,14 @@
   "name": "rema-v2.3",
   "version": "2.3.0",
   "milestone": {
-    "name": "Cancellation Return Approval",
-    "version": "3.9.0",
-    "status": "complete"
+    "name": "Kalkulator Harga Jual",
+    "version": "3.10.0",
+    "status": "in_progress"
   },
   "phase": {
-    "number": 34,
-    "name": "cancellation-return-approval",
-    "status": "complete"
+    "number": 35,
+    "name": "kalkulator-harga-jual",
+    "status": "in_progress"
   },
   "loop": {
     "plan": null,
@@ -17,7 +17,7 @@
   },
   "timestamps": {
     "created_at": "2026-05-24T00:00:00.000Z",
-    "updated_at": "2026-06-05T00:00:00.000Z"
+    "updated_at": "2026-06-06T00:00:00.000Z"
   },
   "satellite": {
     "groom": true

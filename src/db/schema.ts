@@ -111,6 +111,22 @@ export const orderPriorities = pgTable('order_priorities', {
   createdBy: text('created_by').notNull(),
 });
 
+export const priceCalculations = pgTable('price_calculations', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  productId: text('product_id'),
+  productName: text('product_name').notNull(),
+  hargaPokok: real('harga_pokok').notNull(),
+  qty: integer('qty').notNull().default(1),
+  margin: real('margin').notNull(),
+  adminMP: real('admin_mp').notNull(),
+  additionals: jsonb('additionals').$type<Array<{ label: string; value: number; type: 'nominal' | 'persen' }>>().notNull().default([]),
+  hargaJual: real('harga_jual').notNull(),
+  hargaMP: real('harga_mp').notNull(),
+  hargaFinals: jsonb('harga_finals').$type<number[]>().notNull().default([]),
+  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+});
+
 // Inferred types for use in API layer
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -138,3 +154,6 @@ export type NewAuditLog = InferInsertModel<typeof auditLogs>;
 
 export type OrderPriority = InferSelectModel<typeof orderPriorities>;
 export type NewOrderPriority = InferInsertModel<typeof orderPriorities>;
+
+export type PriceCalculation = InferSelectModel<typeof priceCalculations>;
+export type NewPriceCalculation = InferInsertModel<typeof priceCalculations>;

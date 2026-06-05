@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList, Zap, Download } from 'lucide-react';
+import { LayoutDashboard, Users, UserSquare2, Package, ShoppingCart, ListOrdered, Wallet, LogOut, Menu, X, Receipt, ChevronRight, Undo2, Activity, KeyRound, BarChart3, ClipboardList, Zap, Download, Calculator } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
@@ -55,6 +55,7 @@ export default function Layout() {
     { to: '/cancellations', icon: <Undo2 />, label: 'Pembatalan & Retur', roles: ['admin', 'staff', 'mitra'] },
     { to: '/queue', icon: <Receipt />, label: 'Antrian Produksi', roles: ['admin', 'staff', 'operational', 'mitra'] },
     { to: '/priority', icon: <Zap />, label: 'Prioritas Pesanan', roles: ['admin', 'staff', 'operational', 'mitra'] },
+    { to: '/calculator', icon: <Calculator />, label: 'Kalkulator Harga', roles: ['admin', 'mitra'] },
     { to: '/finance', icon: <Wallet />, label: 'Keuangan', roles: ['admin', 'mitra'] },
     { to: '/reports', icon: <BarChart3 />, label: 'Laporan', roles: ['admin', 'mitra', 'staff'] },
     { to: '/audit-logs', icon: <ClipboardList />, label: 'Audit Logs', roles: ['admin', 'staff'] },

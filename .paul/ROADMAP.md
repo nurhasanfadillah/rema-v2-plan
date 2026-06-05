@@ -46,6 +46,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 32 | Code Audit & Cleanup | 2 | ✅ Complete | 2026-06-04 |
 | 33 | Security & Bug Fixes | 1 | ✅ Complete | 2026-06-05 |
 | 34 | Cancellation Return Approval | 2 | ✅ Complete | 2026-06-05 |
+| 35 | Kalkulator Harga Jual | 2 | 🔄 In Progress | — |
 
 ## Phase Details
 
@@ -370,4 +371,14 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Submit form membuat pending ActionRequest; section "Menunggu Persetujuan" tampil untuk semua role; admin/staff punya tombol Setujui/Tolak; approve mengeksekusi perubahan order di backend. `RequestStatus` diperluas dengan 'pending'.
 
 ---
-*Last updated: 2026-06-05 — Phase 34 complete*
+### Phase 35: Kalkulator Harga Jual 🔄 In Progress
+
+**Goal:** Halaman `/calculator` untuk role admin dan mitra — kalkulator harga jual interaktif (harga pokok → margin → harga MP → harga final bertahap), simpan riwayat per user.
+**Depends on:** Phase 34 (codebase stabil)
+
+**Plans:**
+- [ ] 35-01: Backend — schema `price_calculations` + API GET/POST/DELETE
+- [ ] 35-02: Frontend — halaman Calculator + nav link + riwayat
+
+---
+*Last updated: 2026-06-05 — Phase 35 planning*

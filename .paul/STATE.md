@@ -9,22 +9,22 @@ See: .paul/PROJECT.md (updated 2026-05-29)
 
 ## Current Position
 
-Milestone: Cancellation & Return Approval Workflow — ✅ Complete
-Phase: 34 (Cancellation Return Approval) — Complete
-Plan: 34-02 complete (UNIFY done)
-Status: Milestone selesai — siap fase baru atau milestone baru
-Last activity: 2026-06-05 — Phase 34 complete, transisi selesai
+Milestone: Kalkulator Harga Jual
+Phase: 35 (Kalkulator Harga Jual) — In Progress
+Plan: 35-03 created, awaiting approval
+Status: PLAN created, ready for APPLY
+Last activity: 2026-06-06 — Plan 35-03 UI layout fix Calculator dibuat
 
 Progress:
-- Phase 34: [██████████] 100% (2 of 2 plans complete)
-- All phases: 34 phases complete
+- Phase 35: [█████░░░░░] 50% (1 of 2 plans complete)
+- All phases: 34 phases complete, Phase 35 in progress
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Phase 34 complete — milestone done]
+  ✓        ○        ○     [Plan 35-03 created, awaiting approval]
 ```
 
 ## Accumulated Context
@@ -47,10 +47,10 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Session Continuity
 
-Last session: 2026-06-05
-Stopped at: Phase 34 complete — Cancellation Return Approval Workflow milestone done
-Next action: Mulai milestone atau fase baru sesuai kebutuhan
-Resume file: .paul/ROADMAP.md
+Last session: 2026-06-06
+Stopped at: Plan 35-02 created — Frontend Calculator halaman + nav link + riwayat
+Next action: Review plan lalu jalankan /paul:apply .paul/phases/35-kalkulator-harga-jual/35-02-PLAN.md
+Resume file: .paul/phases/35-kalkulator-harga-jual/35-02-PLAN.md
 
 ---
 *STATE.md — Updated after every significant action*

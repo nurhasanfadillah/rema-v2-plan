@@ -25,6 +25,7 @@ const CancellationsReturns = React.lazy(() => import('./pages/CancellationsRetur
 const Reports = React.lazy(() => import('./pages/Reports'));
 const AuditLogs = React.lazy(() => import('./pages/AuditLogs'));
 const OrderPriorities = React.lazy(() => import('./pages/OrderPriorities'));
+const Calculator = React.lazy(() => import('./pages/Calculator'));
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -52,6 +53,7 @@ export default function App() {
                 <Route path="orders/:id" element={<OrderDetail />} />
                 <Route path="queue" element={<AppQueue />} />
                 <Route path="priority" element={<OrderPriorities />} />
+                <Route path="calculator" element={<Calculator />} />
                 <Route path="finance" element={<Finance />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="audit-logs" element={<AuditLogs />} />
