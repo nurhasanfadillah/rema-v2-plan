@@ -4,12 +4,12 @@
   "milestone": {
     "name": "Cancellation Return Approval",
     "version": "3.9.0",
-    "status": "in_progress"
+    "status": "complete"
   },
   "phase": {
     "number": 34,
     "name": "cancellation-return-approval",
-    "status": "in_progress"
+    "status": "complete"
   },
   "loop": {
     "plan": null,

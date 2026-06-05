@@ -53,6 +53,8 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Priority Header Mobile Fix: button "Tambah Prioritas" ke baris kedua pada mobile — Phase 30
 - [x] Orders Product Items Display: nama produk × qty per item di daftar pesanan (mobile card + desktop table), truncation "+N lainnya" untuk 4+ item — Phase 31
 - [x] Code Audit & Cleanup: hapus db.ts + resizeImage + 14 unused icon imports, uninstall framer-motion + @google/genai (36 packages), lazy loading 7 halaman berat + vendor-pdf/charts chunks — Phase 32
+- [x] Security Bug Fixes: role + ownership enforcement di orders/requests API — mitra tidak bisa akses data mitra lain — Phase 33
+- [x] Cancellation Return Approval Workflow: alur pengajuan → pending → approve/reject oleh admin; frontend pending panel dengan role-aware UI — Phase 34
 
 ### Active (In Progress)
 
@@ -104,6 +106,8 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Mount PWAUpdateBanner di wrapper div utama Layout (bukan Content Area) | Agar `fixed bottom-0` tidak terpotong `overflow-hidden` pada flex-1 inner div | 2026-05-29 | Active |
 | Backend enforce mitra filter (bukan frontend) | Frontend filter bisa di-bypass; server-side enforcement adalah satu-satunya yang reliable untuk data isolation | 2026-05-29 | Active |
 | AuthRequest type di semua route handlers | req.user butuh AuthRequest dari middleware/auth.ts — Request standar Express tidak punya user property | 2026-05-29 | Active |
+| Submit cancel/return membuat pending ActionRequest (bukan eksekusi langsung) | Approval workflow membutuhkan intermediate state — backend eksekusi hanya saat approved | 2026-06-05 | Active |
+| 'pending' ditambah ke RequestStatus union | Backend Phase 34-01 sudah support 'pending' tapi frontend type belum — lint error tanpa penambahan ini | 2026-06-05 | Active |
 
 ## Success Metrics
 
@@ -127,4 +131,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-04 after Phase 32 — Code Audit & Cleanup selesai*
+*Last updated: 2026-06-05 after Phase 34 — Cancellation Return Approval selesai*

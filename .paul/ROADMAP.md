@@ -45,7 +45,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 31 | Orders Product Items Display | 1 | ✅ Complete | 2026-06-03 |
 | 32 | Code Audit & Cleanup | 2 | ✅ Complete | 2026-06-04 |
 | 33 | Security & Bug Fixes | 1 | ✅ Complete | 2026-06-05 |
-| 34 | Cancellation Return Approval | 2 | 🔄 Planning | — |
+| 34 | Cancellation Return Approval | 2 | ✅ Complete | 2026-06-05 |
 
 ## Phase Details
 
@@ -345,4 +345,29 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** db.ts (121 baris) dihapus, 14 unused icon imports bersih, framer-motion + @google/genai diuninstall (36 packages removed), lazy loading aktif untuk 7 halaman berat, vendor-pdf (1.47 MB) + vendor-charts (378 KB) terisolasi di chunk terpisah.
 
 ---
-*Last updated: 2026-06-04 — Phase 32 complete*
+### Phase 33: Security & Bug Fixes ✅ Complete
+
+**Goal:** Audit dan perbaiki security bug — role enforcement di orders/requests API, proteksi endpoint terhadap akses cross-mitra.
+**Depends on:** Phase 32 (codebase clean)
+**Completed:** 2026-06-05
+
+**Plans:**
+- [x] 33-01: Role + ownership check di orders.ts + requests.ts API routes
+
+**Result:** Mitra tidak bisa akses/modifikasi order mitra lain; hanya admin/staff bisa approve requests. `AuthRequest` type dipakai konsisten di route handlers.
+
+---
+### Phase 34: Cancellation Return Approval ✅ Complete
+
+**Goal:** Alur pengajuan pembatalan/retur berbasis approval — mitra ajukan request, admin/staff approve/reject, bukan eksekusi langsung.
+**Depends on:** Phase 33 (security enforcement)
+**Completed:** 2026-06-05
+
+**Plans:**
+- [x] 34-01: Backend — requests.ts approve side effects (hapus ledger + update order), orders.ts protection
+- [x] 34-02: Frontend — redesign CancellationsReturns.tsx dengan pending panel + approval UI
+
+**Result:** Submit form membuat pending ActionRequest; section "Menunggu Persetujuan" tampil untuk semua role; admin/staff punya tombol Setujui/Tolak; approve mengeksekusi perubahan order di backend. `RequestStatus` diperluas dengan 'pending'.
+
+---
+*Last updated: 2026-06-05 — Phase 34 complete*
