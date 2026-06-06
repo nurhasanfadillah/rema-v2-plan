@@ -16,7 +16,7 @@ export default function OrdersList() {
   const [mitras, setMitras] = useState<Mitra[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
