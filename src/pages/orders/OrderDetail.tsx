@@ -491,11 +491,13 @@ export default function OrderDetail() {
                                  key={status}
                                  type="button"
                                  onClick={() => handleUpdateDTFStatus(item.id, status as 'belum_cetak' | 'sudah_cetak')}
-                                 className={`px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 cursor-pointer border ${
-                                   (item.dtfStatus || 'belum_cetak') === status
-                                     ? (status === 'sudah_cetak' ? 'bg-purple-600 border-purple-500 text-white shadow-xl shadow-purple-600/20' : 'bg-slate-800 border-slate-700 text-white shadow-xl shadow-slate-800/20')
-                                     : 'bg-white/5 border-white/5 text-slate-600 hover:bg-white/10'
-                                 }`}
+                                 className="px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 cursor-pointer border"
+                                 style={(() => {
+                                   const isActive = (item.dtfStatus || 'belum_cetak') === status;
+                                   if (!isActive) return { backgroundColor: 'rgba(30,41,59,0.6)', borderColor: '#334155', color: '#94a3b8' };
+                                   if (status === 'sudah_cetak') return { backgroundColor: '#059669', borderColor: '#10b981', color: '#fff', boxShadow: '0 0 20px rgba(5,150,105,0.35)' };
+                                   return { backgroundColor: '#d97706', borderColor: '#f59e0b', color: '#fff', boxShadow: '0 0 20px rgba(217,119,6,0.35)' };
+                                 })()}
                                >
                                  {status === 'sudah_cetak' ? 'Sudah Cetak' : 'Belum Cetak'}
                                </button>
