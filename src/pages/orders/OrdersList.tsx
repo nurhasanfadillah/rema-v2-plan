@@ -124,7 +124,7 @@ export default function OrdersList() {
 
   const truncate = (s: string, max = 30) => s.length > max ? s.slice(0, max) + '...' : s;
 
-  const renderItemsSummary = (items: OrderItem[], orderType: string, maxItems = 3) => {
+  const renderItemsSummary = (items: OrderItem[], maxItems = 3) => {
     const visible = items.slice(0, maxItems);
     const remaining = items.length - maxItems;
     return (
@@ -132,16 +132,14 @@ export default function OrdersList() {
         {visible.map((item, idx) => (
           <div key={idx} className="space-y-0.5">
             <div className="flex items-baseline gap-1.5 leading-tight">
-              {idx === 0 && (
-                <span className={cn(
-                  'px-1.5 py-0 rounded text-[9px] font-bold uppercase tracking-wide border shrink-0',
-                  orderType === 'online'
-                    ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
-                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                )}>
-                  {orderType}
-                </span>
-              )}
+              <span className={cn(
+                'px-1.5 py-0 rounded text-[9px] font-bold uppercase tracking-wide border shrink-0',
+                item.isCustomLogo
+                  ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                  : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+              )}>
+                {item.isCustomLogo ? 'custom' : 'polos'}
+              </span>
               <span className="text-[12px] font-semibold text-slate-200">{item.productName}</span>
               <span className="text-[11px] font-bold text-slate-400 tabular-nums">×{item.qty}</span>
             </div>
@@ -421,7 +419,7 @@ export default function OrdersList() {
                 </div>
               </div>
               <div className="mt-3">
-                {renderItemsSummary(o.items, o.type)}
+                {renderItemsSummary(o.items)}
                 {renderProgressBar(o.status)}
               </div>
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 bg-black/20 -mx-4 -mb-4 p-4 rounded-b-2xl">
@@ -478,7 +476,7 @@ export default function OrdersList() {
                     <td className="px-6 py-4 font-medium text-slate-500 tabular-nums">{formatDate(o.createdAt)}</td>
                     {user.role !== 'mitra' && <td className="px-6 py-4 font-bold text-slate-200">{mitraName}</td>}
                     <td className="px-6 py-4 max-w-[250px]">
-                      {renderItemsSummary(o.items, o.type)}
+                      {renderItemsSummary(o.items)}
                     </td>
                     <td className="px-6 py-4 font-bold text-center text-slate-400 tabular-nums">
                       <span className="text-slate-100">{o.totalQty}</span>
