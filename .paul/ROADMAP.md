@@ -48,6 +48,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 34 | Cancellation Return Approval | 2 | ✅ Complete | 2026-06-05 |
 | 35 | Kalkulator Harga Jual | 3 | ✅ Complete | 2026-06-06 |
 | 36 | Sidebar User Footer | 1 | ✅ Complete | 2026-06-06 |
+| 37 | Orders List Cleanup | 1 | ✅ Complete | 2026-06-08 |
 
 ## Phase Details
 
@@ -397,4 +398,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Footer sidebar menampilkan avatar-initial + nama + role badge + LogOut button dalam satu baris. Klik avatar/nama → modal centered ganti password (3 field, inline, tanpa navigasi). Avatar di header dihapus beserta profileOpen panel.
 
 ---
-*Last updated: 2026-06-06 — Phase 36 complete*
+### Phase 37: Orders List Cleanup ✅ Complete
+
+**Goal:** Hapus kolom "Tipe" dari daftar pesanan (desktop table + mobile card), tambahkan tipe pesanan dan catatan desain per item di bagian item pesanan dengan truncation.
+**Depends on:** Phase 36 (codebase stabil)
+**Completed:** 2026-06-08
+
+**Plans:**
+- [x] 37-01: Hapus kolom Tipe + update renderItemsSummary (quick-fix)
+
+**Result:** Kolom "Tipe" dihapus dari desktop table dan mobile card. renderItemsSummary diupdate — badge tipe (sky/amber) di item pertama, designNotes per item ditruncate ≤30 karakter dengan "...".
+
+---
+*Last updated: 2026-06-08 — Phase 37 complete*

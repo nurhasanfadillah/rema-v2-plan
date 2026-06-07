@@ -57,6 +57,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Cancellation Return Approval Workflow: alur pengajuan → pending → approve/reject oleh admin; frontend pending panel dengan role-aware UI — Phase 34
 - [x] Kalkulator Harga Jual: halaman /calculator, dua mode input, kalkulasi live, simpan riwayat — Phase 35
 - [x] Sidebar User Footer: info pengguna + logout di footer sidebar satu baris, modal ganti password inline — Phase 36
+- [x] Orders List Cleanup: hapus kolom Tipe, tampilkan badge tipe + catatan desain per item (truncated) — Phase 37
 
 ### Active (In Progress)
 

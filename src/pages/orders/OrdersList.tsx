@@ -122,15 +122,34 @@ export default function OrdersList() {
     return pages;
   };
 
-  const renderItemsSummary = (items: OrderItem[], maxItems = 3) => {
+  const truncate = (s: string, max = 30) => s.length > max ? s.slice(0, max) + '...' : s;
+
+  const renderItemsSummary = (items: OrderItem[], orderType: string, maxItems = 3) => {
     const visible = items.slice(0, maxItems);
     const remaining = items.length - maxItems;
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {visible.map((item, idx) => (
-          <div key={idx} className="flex items-baseline gap-1.5 leading-tight">
-            <span className="text-[12px] font-semibold text-slate-200">{item.productName}</span>
-            <span className="text-[11px] font-bold text-slate-400 tabular-nums">×{item.qty}</span>
+          <div key={idx} className="space-y-0.5">
+            <div className="flex items-baseline gap-1.5 leading-tight">
+              {idx === 0 && (
+                <span className={cn(
+                  'px-1.5 py-0 rounded text-[9px] font-bold uppercase tracking-wide border shrink-0',
+                  orderType === 'online'
+                    ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
+                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                )}>
+                  {orderType}
+                </span>
+              )}
+              <span className="text-[12px] font-semibold text-slate-200">{item.productName}</span>
+              <span className="text-[11px] font-bold text-slate-400 tabular-nums">×{item.qty}</span>
+            </div>
+            {item.designNotes && (
+              <div className="text-[10px] text-slate-500 italic pl-0.5">
+                {truncate(item.designNotes)}
+              </div>
+            )}
           </div>
         ))}
         {remaining > 0 && (
@@ -402,16 +421,11 @@ export default function OrdersList() {
                 </div>
               </div>
               <div className="mt-3">
-                {renderItemsSummary(o.items)}
+                {renderItemsSummary(o.items, o.type)}
                 {renderProgressBar(o.status)}
               </div>
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 bg-black/20 -mx-4 -mb-4 p-4 rounded-b-2xl">
                 <div className="flex items-center gap-5">
-                  {/* Task 3: kurangi uppercase agresif pada label */}
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-slate-500 font-medium">Tipe</span>
-                    <span className="text-[12px] font-semibold text-slate-300 capitalize mt-0.5">{o.type}</span>
-                  </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] text-slate-500 font-medium">Total</span>
                     <span className="text-[12px] font-bold text-slate-300 mt-0.5 tabular-nums">
@@ -446,7 +460,6 @@ export default function OrdersList() {
                 <th className="px-6 py-4 font-bold">Nomor Pesanan</th>
                 <th className="px-6 py-4">Tanggal Masuk</th>
                 {user.role !== 'mitra' && <th className="px-6 py-4">Mitra</th>}
-                <th className="px-6 py-4">Tipe</th>
                 <th className="px-6 py-4">Item Pesanan</th>
                 <th className="px-6 py-4 text-center">Total Qty</th>
                 <th className="px-6 py-4 text-right">Status</th>
@@ -464,18 +477,8 @@ export default function OrdersList() {
                     <td className="px-6 py-4 font-mono font-bold text-white tracking-tighter uppercase whitespace-nowrap">{o.orderNumber}</td>
                     <td className="px-6 py-4 font-medium text-slate-500 tabular-nums">{formatDate(o.createdAt)}</td>
                     {user.role !== 'mitra' && <td className="px-6 py-4 font-bold text-slate-200">{mitraName}</td>}
-                    <td className="px-6 py-4">
-                      <span className={cn(
-                        'px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wide border',
-                        o.type === 'online'
-                          ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
-                          : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                      )}>
-                        {o.type}
-                      </span>
-                    </td>
                     <td className="px-6 py-4 max-w-[250px]">
-                      {renderItemsSummary(o.items)}
+                      {renderItemsSummary(o.items, o.type)}
                     </td>
                     <td className="px-6 py-4 font-bold text-center text-slate-400 tabular-nums">
                       <span className="text-slate-100">{o.totalQty}</span>
@@ -496,7 +499,7 @@ export default function OrdersList() {
               })}
               {paginatedOrders.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-16 text-center text-slate-500">
+                  <td colSpan={6} className="px-6 py-16 text-center text-slate-500">
                     <FileSpreadsheet className="w-12 h-12 text-slate-700 mx-auto mb-4 opacity-40" />
                     <p className="text-sm font-medium">Belum ada data pesanan yang tersedia.</p>
                   </td>
