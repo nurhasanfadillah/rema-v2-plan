@@ -9,7 +9,7 @@ export default function RunningOrders() {
   const [mitras, setMitras] = useState<Mitra[]>([]);
 
   useEffect(() => {
-    api.orders.list(true).then(setOrders).catch(console.error);
+    api.orders.listQueue().then(setOrders).catch(console.error);
     api.mitras.list().then(setMitras).catch(console.error);
   }, []);
 

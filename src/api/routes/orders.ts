@@ -57,17 +57,26 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const { items, ...orderData } = req.body;
     if (!orderData.id) orderData.id = crypto.randomUUID();
 
-    // neon-http driver doesn't support transactions — sequential inserts are safe
-    // for a single-admin app with no concurrent writes
+    // neon-http driver doesn't support transactions — if orderItems insert fails,
+    // compensate by deleting the orphaned order row to prevent ghost orders.
     await db.insert(orders).values(orderData);
     if (items?.length) {
-      await db.insert(orderItems).values(
-        items.map((item: any) => ({
-          ...item,
-          id: item.id || crypto.randomUUID(),
-          orderId: orderData.id,
-        }))
-      );
+      try {
+        await db.insert(orderItems).values(
+          items.map((item: any) => ({
+            ...item,
+            id: item.id || crypto.randomUUID(),
+            orderId: orderData.id,
+            previewUrls: item.previewUrls ?? [],
+            designUrls: item.designUrls ?? [],
+          }))
+        );
+      } catch (itemsErr: any) {
+        // Compensating delete — roll back the orphaned order row
+        await db.delete(orders).where(eq(orders.id, orderData.id)).catch(() => {});
+        console.error('[orders POST] Failed to insert order items, compensating delete executed:', itemsErr?.message);
+        throw itemsErr;
+      }
     }
 
     const inserted = await db.select().from(orders).where(eq(orders.id, orderData.id)).limit(1);
@@ -123,13 +132,20 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (items !== undefined) {
       await db.delete(orderItems).where(eq(orderItems.orderId, orderId));
       if (items.length) {
-        await db.insert(orderItems).values(
-          items.map((item: any) => ({
-            ...item,
-            id: item.id || crypto.randomUUID(),
-            orderId,
-          }))
-        );
+        try {
+          await db.insert(orderItems).values(
+            items.map((item: any) => ({
+              ...item,
+              id: item.id || crypto.randomUUID(),
+              orderId,
+              previewUrls: item.previewUrls ?? [],
+              designUrls: item.designUrls ?? [],
+            }))
+          );
+        } catch (itemsErr: any) {
+          console.error('[orders PUT] Failed to re-insert order items:', itemsErr?.message);
+          throw itemsErr;
+        }
       }
     }
 
