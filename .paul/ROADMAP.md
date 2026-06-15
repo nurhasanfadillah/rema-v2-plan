@@ -49,6 +49,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 35 | Kalkulator Harga Jual | 3 | ✅ Complete | 2026-06-06 |
 | 36 | Sidebar User Footer | 1 | ✅ Complete | 2026-06-06 |
 | 37 | Orders List Cleanup | 1 | ✅ Complete | 2026-06-08 |
+| 38 | Order Creation Audit + Upload Fix | 2 | ✅ Complete | 2026-06-15 |
 
 ## Phase Details
 
@@ -411,3 +412,18 @@ Phases: 1 of 1 complete (Phase 11)
 
 ---
 *Last updated: 2026-06-08 — Phase 37 complete*
+
+### Phase 38: Order Creation Audit + Upload Fix ✅ Complete
+
+**Goal:** Hardening validasi backend pada pembuatan pesanan + naikkan batas upload file dari 10MB ke 50MB
+**Depends on:** Phase 37 (codebase stabil)
+**Completed:** 2026-06-15
+
+**Plans:**
+- [x] 38-01: Backend hardening — express.json 2MB, mitraId ownership, credit limit backend, field validation
+- [x] 38-02: Upload limit 50MB — FileUpload + MultiFileUpload + upload.ts + Vercel memory 1024MB
+
+**Result:** POST /api/orders kini memvalidasi kepemilikan mitraId, credit limit, dan field wajib di sisi server. Batas upload naik ke 50MB konsisten di frontend dan backend.
+
+---
+*Last updated: 2026-06-15 — Phase 38 complete*

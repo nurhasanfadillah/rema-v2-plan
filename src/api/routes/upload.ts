@@ -26,7 +26,7 @@ function initS3() {
   }), bucketName: bucketName!, publicUrl: publicUrl!, missing };
 }
 
-router.post('/', express.raw({ type: '*/*', limit: '10mb' }), async (req: Request, res: Response) => {
+router.post('/', express.raw({ type: '*/*', limit: '50mb' }), async (req: Request, res: Response) => {
   try {
     const { s3, bucketName, publicUrl, missing } = initS3();
     if (missing.length > 0) {

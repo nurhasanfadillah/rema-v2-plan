@@ -1,5 +1,5 @@
 import express, { type Response } from 'express';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, and } from 'drizzle-orm';
 import { db } from '../../db/client.ts';
 import { orders, orderItems, mitras } from '../../db/schema.ts';
 import { requireAuth, type AuthRequest } from '../middleware/auth.ts';
@@ -54,7 +54,41 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ error: 'Hanya mitra yang dapat membuat pesanan' });
     }
 
+    // Resolve mitra dari JWT — ensures all subsequent checks use server-side identity
+    const mitra = await getMitraForUser(req.user.sub);
+    if (!mitra) return res.status(403).json({ error: 'Akun mitra tidak ditemukan' });
+
     const { items, ...orderData } = req.body;
+
+    // Field validation
+    if (!['online', 'offline'].includes(orderData.type)) {
+      return res.status(400).json({ error: 'Tipe pesanan tidak valid' });
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Items pesanan tidak boleh kosong' });
+    }
+
+    // mitraId ownership check — prevent cross-mitra order creation
+    if (orderData.mitraId && orderData.mitraId !== mitra.id) {
+      return res.status(403).json({ error: 'mitraId tidak sesuai akun Anda' });
+    }
+    orderData.mitraId = mitra.id;
+
+    // Credit limit check: sum totalAmount of unbilled orders vs creditLimit
+    if (mitra.creditLimit) {
+      const outstandingOrders = await db.select({ totalAmount: orders.totalAmount })
+        .from(orders)
+        .where(and(eq(orders.mitraId, mitra.id), eq(orders.isBilled, false)));
+      const outstanding = outstandingOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+      const newTotal = orderData.totalAmount || 0;
+      if (outstanding + newTotal > mitra.creditLimit) {
+        return res.status(400).json({
+          error: `Tagihan berjalan: ${outstanding.toFixed(0)}. Order baru: ${newTotal.toFixed(0)}. Melebihi limit kredit: ${mitra.creditLimit.toFixed(0)}`,
+          code: 'CREDIT_LIMIT_EXCEEDED',
+        });
+      }
+    }
+
     if (!orderData.id) orderData.id = crypto.randomUUID();
 
     // neon-http driver doesn't support transactions — if orderItems insert fails,

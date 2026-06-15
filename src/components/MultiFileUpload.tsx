@@ -27,8 +27,8 @@ export function MultiFileUpload({ values = [], onChange, accept = "*/*", label =
 
   const processFiles = async (files: FileList | File[]) => {
     const validFiles = Array.from(files).filter(f => {
-      if (f.size > 10 * 1024 * 1024) {
-        toast.error(`${f.name}: ukuran file melebihi batas 10MB`);
+      if (f.size > 50 * 1024 * 1024) {
+        toast.error(`${f.name}: ukuran file melebihi batas 50MB`);
         return false;
       }
       return true;

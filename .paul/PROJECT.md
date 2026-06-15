@@ -58,6 +58,8 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Kalkulator Harga Jual: halaman /calculator, dua mode input, kalkulasi live, simpan riwayat — Phase 35
 - [x] Sidebar User Footer: info pengguna + logout di footer sidebar satu baris, modal ganti password inline — Phase 36
 - [x] Orders List Cleanup: hapus kolom Tipe, tampilkan badge tipe + catatan desain per item (truncated) — Phase 37
+- [x] Order Creation Hardening: express.json 2MB, mitraId ownership check, credit limit backend enforcement, field validation — Phase 38
+- [x] Upload file limit 50MB: FileUpload + MultiFileUpload + upload.ts + Vercel memory 1024MB — Phase 38
 
 ### Active (In Progress)
 
@@ -111,6 +113,9 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | AuthRequest type di semua route handlers | req.user butuh AuthRequest dari middleware/auth.ts — Request standar Express tidak punya user property | 2026-05-29 | Active |
 | Submit cancel/return membuat pending ActionRequest (bukan eksekusi langsung) | Approval workflow membutuhkan intermediate state — backend eksekusi hanya saat approved | 2026-06-05 | Active |
 | 'pending' ditambah ke RequestStatus union | Backend Phase 34-01 sudah support 'pending' tapi frontend type belum — lint error tanpa penambahan ini | 2026-06-05 | Active |
+| Credit limit backend check dari orders isBilled=false | Konsisten dengan logika frontend; lebih simpel dari query ledger | 2026-06-15 | Active |
+| mitraId di-override dari JWT di POST /api/orders | Tidak trust body untuk mitraId — prevent cross-mitra order creation | 2026-06-15 | Active |
+| Upload file limit 50MB (frontend + backend + Vercel 1024MB RAM) | File desain garmen sering >10MB; 50MB cukup untuk semua format (CDR, AI, PDF) | 2026-06-15 | Active |
 
 ## Success Metrics
 
@@ -134,4 +139,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-05 after Phase 34 — Cancellation Return Approval selesai*
+*Last updated: 2026-06-15 after Phase 38 — Order Creation Hardening + Upload Size Limit*

@@ -2,28 +2,29 @@
 
 ## Project Reference
 
-See: .paul/PROJECT.md (updated 2026-05-29)
+See: .paul/PROJECT.md (updated 2026-06-15)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** Orders List Cleanup — hapus kolom Tipe, tampilkan tipe + catatan desain di item pesanan
+**Current focus:** Phase 38 complete — order creation hardening + upload limit 50MB
 
 ## Current Position
 
-Milestone: Orders List Cleanup
-Phase: 37 (Orders List Cleanup) — Complete
-Plan: 37-01 complete (UNIFY done)
+Milestone: Order Creation Audit + Upload Size Fix
+Phase: 38 (Order Creation Upload Audit) — Planning
+Phase: 38 (Order Creation Audit + Upload Fix) — Complete
+Plan: 38-01 dan 38-02 complete (UNIFY done)
 Status: All plans complete — phase ready for transition
-Last activity: 2026-06-08 — Phase 37 complete, kolom Tipe dihapus + item pesanan tampilkan tipe + catatan desain
+Last activity: 2026-06-15 — Phase 38 complete, order hardening + upload 50MB
 
 Progress:
-- Phase 37: [██████████] 100% (1 of 1 plans complete)
+- Phase 38: [██████████] 100% (2 of 2 plans complete)
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop 37-01 closed — Phase 37 complete]
+  ✓        ✓        ✓     [Loop 38 closed — Phase 38 complete]
 ```
 
 ## Accumulated Context
@@ -37,6 +38,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | AuthRequest type di route handlers yang akses req.user | Phase 29 | Konsisten dengan priorities.ts; fix TS type error |
 | Submit cancel/return → pending ActionRequest (bukan eksekusi langsung) | Phase 34 | Approval workflow — backend eksekusi hanya saat admin/staff approve |
 | 'pending' ditambah ke RequestStatus union | Phase 34 | Backend support 'pending' sejak 34-01 tapi frontend type belum ada |
+| mitraId di-override dari JWT di POST /api/orders | Phase 38 | Prevent cross-mitra order creation; tidak trust body |
+| Credit limit backend dari SUM(totalAmount) orders isBilled=false | Phase 38 | Konsisten dengan logika frontend; simpel tanpa query ledger |
+| Upload limit 50MB + Vercel memory 1024MB | Phase 38 | File desain garmen sering >10MB |
 
 ### Blockers/Concerns
 - None
@@ -46,10 +50,10 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Session Continuity
 
-Last session: 2026-06-08
-Stopped at: Phase 37 complete — kolom Tipe dihapus + tipe & catatan desain di item pesanan
+Last session: 2026-06-15
+Stopped at: Phase 38 complete — order creation hardening + upload limit 50MB
 Next action: /paul:plan untuk phase baru, atau selesai
-Resume file: .paul/phases/37-orders-list-cleanup/37-01-SUMMARY.md
+Resume file: .paul/phases/38-order-creation-upload-audit/38-02-SUMMARY.md
 
 ---
 *STATE.md — Updated after every significant action*

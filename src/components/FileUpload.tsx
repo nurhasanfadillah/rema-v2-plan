@@ -26,8 +26,8 @@ export function FileUpload({ value, onChange, accept = "image/*", label = "Uploa
   };
 
   const processFile = async (file: File) => {
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Ukuran file terlalu besar. Batas maksimal adalah 10MB.');
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('Ukuran file terlalu besar. Batas maksimal adalah 50MB.');
       return;
     }
     setUploading(true);
@@ -120,7 +120,7 @@ export function FileUpload({ value, onChange, accept = "image/*", label = "Uploa
             <Upload className="w-5 h-5" />
           </div>
           <p className="text-sm text-slate-700 font-bold text-center">Tarik & Lepas File di Sini</p>
-          <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Klik atau seret file ke sini (maks. 10MB)</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-[220px] text-center font-medium">Klik atau seret file ke sini (maks. 50MB)</p>
           <input
             ref={inputRef}
             type="file"
