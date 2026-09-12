@@ -324,7 +324,7 @@ export default function OrderDetail() {
                <span className="tabular-nums opacity-60">{order.id.slice(0, 8).toUpperCase()}</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tighter font-mono">
-              {order.orderNumber}
+              {order.orderNumber}{orderMitra ? ` — ${orderMitra.name}` : ''}
             </h1>
           </div>
         </div>

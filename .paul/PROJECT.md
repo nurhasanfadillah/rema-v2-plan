@@ -62,6 +62,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Upload file limit 50MB: FileUpload + MultiFileUpload + upload.ts + Vercel memory 1024MB — Phase 38
 - [x] Reports Status Filter Fix: filter status di halaman Laporan tab Pesanan diperluas dari 6 → 10 opsi (menambahkan pressing/packing/cancelled) dan label selaras dengan STATUS_LABELS di OrderDetail — Phase 39
 - [x] Queue Filter Adjustment: halaman Antrian Produksi (`/app-queue`) hanya menampilkan 4 status alur aktif (waiting_confirmation, confirmed, processing, pressing); packing dikeluarkan; 4 pipeline cards diselaraskan (Menunggu/Dikonfirmasi/Diproses/Sablon) — Phase 40
+- [x] Order Detail: nama mitra tampil inline di header `OrderDetail.tsx` (`{orderNumber} — {mitraName}`); fallback aman saat mitra dangling; berlaku semua role; PDF SPK tidak diubah — Phase 41
 
 ### Active (In Progress)
 
@@ -122,6 +123,9 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Antrian Produksi exclude `packing` (masuk fase billing/kirim, bukan antrian aktif) | `packing` set `isBilled=true` — secara bisnis sudah lepas dari antrian produksi ke fase penagihan/pengiriman | 2026-09-13 | Active |
 | Antrian Produksi include `waiting_confirmation` di kepala alur | Operator perlu visibilitas pesanan yang belum di-confirm supaya bisa dikejar approval-nya sejak awal | 2026-09-13 | Active |
 | Label card AppQueue ringkas (Menunggu/Dikonfirmasi/Diproses/Sablon), tidak selaras dengan STATUS_LABELS penuh | Grid card kompak butuh label pendek; konteks berbeda dari dropdown/badge full di halaman lain | 2026-09-13 | Active |
+| Nama mitra tampil inline di `h1` OrderDetail (`{orderNumber} — {mitraName}`, em dash separator) | Opsi inline dipilih dibanding baris baru agar header tetap compact; em dash konsisten dengan konvensi tipografi UI | 2026-09-13 | Active |
+| Fallback aman `orderMitra ? ` — ${name}` : ''` di OrderDetail | mitraId adalah FK — seharusnya tidak dangling, tapi ternary check menghindari crash pada edge case data anomali tanpa biaya berarti | 2026-09-13 | Active |
+| PDF SPK tidak menambahkan nama mitra di Phase 41 (deferred kalau perlu) | PDF SPK sudah punya section info mitra eksplisit; tidak ada gap konteks yang perlu ditutup di PDF | 2026-09-13 | Active |
 
 ## Success Metrics
 
@@ -145,4 +149,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-09-13 after Phase 40 — Queue Filter Adjustment*
+*Last updated: 2026-09-13 after Phase 41 — Order Detail: Mitra Name in Header*

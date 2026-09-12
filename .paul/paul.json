@@ -7,8 +7,8 @@
     "status": "in_progress"
   },
   "phase": {
-    "number": 40,
-    "name": "queue-filter-adjustment",
+    "number": 41,
+    "name": "order-detail-mitra-name",
     "status": "complete"
   },
   "loop": {
@@ -17,7 +17,7 @@
   },
   "timestamps": {
     "created_at": "2026-05-24T00:00:00.000Z",
-    "updated_at": "2026-09-13T00:00:00Z"
+    "updated_at": "2026-09-13T18:18:10Z"
   },
   "satellite": {
     "groom": true

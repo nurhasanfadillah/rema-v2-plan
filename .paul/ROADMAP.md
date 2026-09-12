@@ -52,6 +52,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 38 | Order Creation Audit + Upload Fix | 2 | ✅ Complete | 2026-06-15 |
 | 39 | Reports Status Filter Fix | 1 | ✅ Complete | 2026-09-12 |
 | 40 | Queue Filter Adjustment | 1 | ✅ Complete | 2026-09-13 |
+| 41 | Order Detail: Mitra Name in Header | 1 | ✅ Complete | 2026-09-13 |
 
 ## Phase Details
 
@@ -455,4 +456,17 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** `/app-queue` fokus ke 4 status alur aktif; `packing` tidak lagi muncul di antrian; card MENUNGGU (amber, Hourglass) hadir sebagai step pertama; badge label `pressing` diselaraskan jadi "Sablon" (dari "Press Sablon").
 
 ---
-*Last updated: 2026-09-13 — Phase 40 complete*
+
+### Phase 41: Order Detail: Mitra Name in Header ✅ Complete
+
+**Goal:** Header halaman `OrderDetail.tsx` menampilkan nama mitra pemilik pesanan secara inline setelah order number — format `{orderNumber} — {mitraName}` — sehingga admin/staff/operational/mitra langsung tahu pesanan ini milik mitra siapa tanpa scroll ke section info.
+**Depends on:** Phase 40 (codebase stabil)
+**Completed:** 2026-09-13
+
+**Plans:**
+- [x] 41-01: Tambah `{orderMitra?.name}` inline di `h1` header `OrderDetail.tsx` (quick-fix)
+
+**Result:** `OrderDetail.tsx` line 327 menampilkan `{orderNumber} — {mitraName}` inline dengan em dash separator. Fallback aman `orderMitra ? ` — ${name}` : ''` menangani edge case data anomali. Berlaku sama untuk semua role. PDF SPK tidak diubah (sudah punya section info mitra eksplisit).
+
+---
+*Last updated: 2026-09-13 — Phase 41 complete*
