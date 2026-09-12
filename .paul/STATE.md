@@ -11,9 +11,9 @@ See: .paul/PROJECT.md (updated 2026-09-13)
 
 Milestone: v2.5 UI Fixes (rolling)
 Phase: 41 (Order Detail: Mitra Name in Header) — Complete
-Plan: 41-01 unified, loop closed
-Status: Ready for transition (PROJECT.md + ROADMAP.md evolve, git commit)
-Last activity: 2026-09-13 — Created .paul/phases/41-order-detail-mitra-name/41-01-SUMMARY.md
+Plan: Not started
+Status: Ready to plan next phase
+Last activity: 2026-09-13 — Phase 41 transitioned; PROJECT.md + ROADMAP.md evolved; commit d66b61d
 
 Progress:
 - Phase 41: [██████████] 100% (1 of 1 plans complete)
@@ -48,10 +48,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Fallback `orderMitra ? ` — ${name}` : ''` (tidak crash saat mitra dangling) | Phase 41 | Data mitraId adalah FK — seharusnya tidak dangling, tapi ternary check membuat kode robust terhadap edge case data anomali |
 
 ### Git State
-Last commit: 4375451 — chore(40): record git state in STATE.md after phase commit
+Last commit: d66b61d — feat(41): order detail header - tampilkan nama mitra inline
 Branch: main
 Feature branches merged: none
-Pending: Phase 41 changes not yet committed (SUMMARY + STATE + OrderDetail.tsx + PLAN + CONTEXT)
 
 ### Blockers/Concerns
 - None
@@ -63,9 +62,9 @@ Pending: Phase 41 changes not yet committed (SUMMARY + STATE + OrderDetail.tsx +
 ## Session Continuity
 
 Last session: 2026-09-13
-Stopped at: Loop 41 closed — SUMMARY dibuat, menunggu transition (PROJECT.md + ROADMAP.md evolve + git commit)
-Next action: transition Phase 41 (evolve docs, commit), lalu route ke phase berikutnya atau selesai
-Resume file: .paul/phases/41-order-detail-mitra-name/41-01-SUMMARY.md
+Stopped at: Phase 41 transition complete — committed ke git (d66b61d)
+Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
+Resume file: .paul/ROADMAP.md
 
 ---
 *STATE.md — Updated after every significant action*
