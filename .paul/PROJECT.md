@@ -60,6 +60,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Orders List Cleanup: hapus kolom Tipe, tampilkan badge tipe + catatan desain per item (truncated) — Phase 37
 - [x] Order Creation Hardening: express.json 2MB, mitraId ownership check, credit limit backend enforcement, field validation — Phase 38
 - [x] Upload file limit 50MB: FileUpload + MultiFileUpload + upload.ts + Vercel memory 1024MB — Phase 38
+- [x] Reports Status Filter Fix: filter status di halaman Laporan tab Pesanan diperluas dari 6 → 10 opsi (menambahkan pressing/packing/cancelled) dan label selaras dengan STATUS_LABELS di OrderDetail — Phase 39
 
 ### Active (In Progress)
 
@@ -116,6 +117,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Credit limit backend check dari orders isBilled=false | Konsisten dengan logika frontend; lebih simpel dari query ledger | 2026-06-15 | Active |
 | mitraId di-override dari JWT di POST /api/orders | Tidak trust body untuk mitraId — prevent cross-mitra order creation | 2026-06-15 | Active |
 | Upload file limit 50MB (frontend + backend + Vercel 1024MB RAM) | File desain garmen sering >10MB; 50MB cukup untuk semua format (CDR, AI, PDF) | 2026-06-15 | Active |
+| Filter status Reports pakai label sama dengan STATUS_LABELS OrderDetail (duplicate accepted) | Konsistensi UI seluruh app tanpa refactor extract shared constant; extraction dideferensi untuk phase terpisah | 2026-09-12 | Active |
 
 ## Success Metrics
 
@@ -139,4 +141,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-15 after Phase 38 — Order Creation Hardening + Upload Size Limit*
+*Last updated: 2026-09-12 after Phase 39 — Reports Status Filter Fix*

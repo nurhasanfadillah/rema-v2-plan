@@ -50,6 +50,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 36 | Sidebar User Footer | 1 | ✅ Complete | 2026-06-06 |
 | 37 | Orders List Cleanup | 1 | ✅ Complete | 2026-06-08 |
 | 38 | Order Creation Audit + Upload Fix | 2 | ✅ Complete | 2026-06-15 |
+| 39 | Reports Status Filter Fix | 1 | ✅ Complete | 2026-09-12 |
 
 ## Phase Details
 
@@ -427,3 +428,17 @@ Phases: 1 of 1 complete (Phase 11)
 
 ---
 *Last updated: 2026-06-15 — Phase 38 complete*
+
+### Phase 39: Reports Status Filter Fix ✅ Complete
+
+**Goal:** Filter status di halaman Laporan (tab Pesanan) menampilkan seluruh 9 status alur pesanan — tambahkan `pressing`, `packing`, `cancelled` yang hilang.
+**Depends on:** Phase 38 (codebase stabil)
+**Completed:** 2026-09-12
+
+**Plans:**
+- [x] 39-01: Lengkapi 6 → 10 opsi filter status di `Reports.tsx` (quick-fix)
+
+**Result:** Filter status di `/reports` tab Pesanan berisi 10 opsi lengkap sesuai alur bisnis. Label 4 status existing disamakan dengan `STATUS_LABELS` OrderDetail (Menunggu Konfirmasi, Proses Produksi, Terkirim/Selesai, Pesanan Retur) + 3 status baru (Press Sablon, Sedang Packing, Dibatalkan).
+
+---
+*Last updated: 2026-09-12 — Phase 39 complete*

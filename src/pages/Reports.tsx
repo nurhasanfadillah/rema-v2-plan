@@ -316,11 +316,14 @@ export default function Reports() {
                     <select value={ordStatus} onChange={e=>setOrdStatus(e.target.value)} className="w-full border-slate-200 rounded-xl px-2 py-1.5 bg-slate-50 text-xs font-bold text-slate-700">
                         <option value="all">Semua</option>
                         <option value="draft">Draft</option>
-                        <option value="waiting_confirmation">Menunggu</option>
+                        <option value="waiting_confirmation">Menunggu Konfirmasi</option>
                         <option value="confirmed">Dikonfirmasi</option>
-                        <option value="processing">Diproses</option>
-                        <option value="shipped">Dikirim</option>
-                        <option value="returned">Retur</option>
+                        <option value="processing">Proses Produksi</option>
+                        <option value="pressing">Press Sablon</option>
+                        <option value="packing">Sedang Packing</option>
+                        <option value="shipped">Terkirim/Selesai</option>
+                        <option value="returned">Pesanan Retur</option>
+                        <option value="cancelled">Dibatalkan</option>
                     </select>
                   </div>
                   <div className="col-span-2 md:col-span-1 lg:col-span-1">
