@@ -46,7 +46,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Label card AppQueue ringkas (Menunggu/Dikonfirmasi/Diproses/Sablon) | Phase 40 | Grid card kompak butuh label pendek; konteks berbeda dari dropdown/badge full |
 
 ### Git State
-Last commit: 2c49890 — feat(39): reports status filter fix - lengkapi 6->10 opsi + selaraskan label
+Last commit: a079456 — feat(40): queue filter adjustment - antrian produksi fokus 4 status aktif
 Branch: main
 Feature branches merged: none
 
