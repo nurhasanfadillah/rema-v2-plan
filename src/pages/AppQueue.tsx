@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { Order, Mitra } from '../types';
 import { formatDate } from '../lib/utils';
-import { Package, Clock, ShieldCheck, CheckSquare, Layers } from 'lucide-react';
+import { Package, Clock, ShieldCheck, CheckSquare, Layers, Hourglass } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function AppQueue() {
@@ -18,16 +18,16 @@ export default function AppQueue() {
 
   if (!user) return null;
 
-  // Filter queue from Dikonfirmasi up to Packing
-  const inQueueStatuses = ['confirmed', 'processing', 'pressing', 'packing'];
+  // Filter queue: antrian produksi aktif (waiting_confirmation → pressing)
+  const inQueueStatuses = ['waiting_confirmation', 'confirmed', 'processing', 'pressing'];
   const orders = allOrders.filter(o => inQueueStatuses.includes(o.status));
 
   const getStatusBadge = (status: string) => {
     const specs: Record<string, { bg: string, text: string, border: string, label: string }> = {
+      waiting_confirmation: { bg: 'bg-amber-50 border-amber-100', text: 'text-amber-700', border: 'border-amber-200/60', label: 'Menunggu' },
       confirmed: { bg: 'bg-blue-50 border-blue-100', text: 'text-blue-700 border-blue-250', border: 'border-blue-200/60', label: 'Dikonfirmasi' },
       processing: { bg: 'bg-purple-50 border-purple-100', text: 'text-purple-700', border: 'border-purple-200/60', label: 'Diproses' },
-      pressing: { bg: 'bg-rose-50 border-rose-100', text: 'text-rose-700 border-rose-200/60', border: 'border-rose-200/60', label: 'Press Sablon' },
-      packing: { bg: 'bg-orange-50 border-orange-100', text: 'text-orange-700 border-orange-200/60', border: 'border-orange-200/60', label: 'Packing' },
+      pressing: { bg: 'bg-rose-50 border-rose-100', text: 'text-rose-700 border-rose-200/60', border: 'border-rose-200/60', label: 'Sablon' },
     };
 
     const s = specs[status] || { bg: 'bg-slate-50 border-slate-200', text: 'text-slate-600', border: 'border-slate-200', label: status };
@@ -44,33 +44,33 @@ export default function AppQueue() {
 
   // Pipeline summary data
   const pipelineStats = [
-    { 
-      label: 'KONFIRMASI', 
+    {
+      label: 'MENUNGGU',
+      count: sortedOrders.filter(o => o.status === 'waiting_confirmation').length,
+      qty: sortedOrders.filter(o => o.status === 'waiting_confirmation').reduce((sum, o) => sum + o.totalQty, 0),
+      color: 'text-amber-400',
+      icon: <Hourglass className="w-5 h-5" />
+    },
+    {
+      label: 'DIKONFIRMASI',
       count: sortedOrders.filter(o => o.status === 'confirmed').length,
       qty: sortedOrders.filter(o => o.status === 'confirmed').reduce((sum, o) => sum + o.totalQty, 0),
       color: 'text-blue-650',
       icon: <CheckSquare className="w-5 h-5" />
     },
-    { 
-      label: 'PROSES PRODUKSI', 
+    {
+      label: 'DIPROSES',
       count: sortedOrders.filter(o => o.status === 'processing').length,
       qty: sortedOrders.filter(o => o.status === 'processing').reduce((sum, o) => sum + o.totalQty, 0),
       color: 'text-purple-650',
       icon: <Clock className="w-5 h-5" />
     },
-    { 
-      label: 'PRESS SABLON', 
+    {
+      label: 'SABLON',
       count: sortedOrders.filter(o => o.status === 'pressing').length,
       qty: sortedOrders.filter(o => o.status === 'pressing').reduce((sum, o) => sum + o.totalQty, 0),
       color: 'text-pink-650',
       icon: <Layers className="w-5 h-5" />
-    },
-    { 
-      label: 'PACKING & KIRIM', 
-      count: sortedOrders.filter(o => o.status === 'packing').length,
-      qty: sortedOrders.filter(o => o.status === 'packing').reduce((sum, o) => sum + o.totalQty, 0),
-      color: 'text-orange-650',
-      icon: <Package className="w-5 h-5" />
     }
   ];
 
@@ -142,10 +142,10 @@ export default function AppQueue() {
           const mitraName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
           
           const statusLeftBorder = {
+            waiting_confirmation: 'border-l-amber-400',
             confirmed: 'border-l-blue-400',
             processing: 'border-l-purple-400',
-            pressing: 'border-l-rose-400',
-            packing: 'border-l-orange-400'
+            pressing: 'border-l-rose-400'
           }[o.status as string] || 'border-l-slate-200';
 
           return (
@@ -207,10 +207,10 @@ export default function AppQueue() {
                 const mitraName = mitras.find(m => m.id === o.mitraId)?.name || 'Unknown';
                 
                 const statusColor = {
+                  waiting_confirmation: 'border-l-amber-400',
                   confirmed: 'border-l-blue-400',
                   processing: 'border-l-purple-400',
-                  pressing: 'border-l-rose-400',
-                  packing: 'border-l-orange-400'
+                  pressing: 'border-l-rose-400'
                 }[o.status as string] || 'border-l-transparent';
 
                 return (

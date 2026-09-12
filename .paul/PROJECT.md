@@ -61,6 +61,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Order Creation Hardening: express.json 2MB, mitraId ownership check, credit limit backend enforcement, field validation — Phase 38
 - [x] Upload file limit 50MB: FileUpload + MultiFileUpload + upload.ts + Vercel memory 1024MB — Phase 38
 - [x] Reports Status Filter Fix: filter status di halaman Laporan tab Pesanan diperluas dari 6 → 10 opsi (menambahkan pressing/packing/cancelled) dan label selaras dengan STATUS_LABELS di OrderDetail — Phase 39
+- [x] Queue Filter Adjustment: halaman Antrian Produksi (`/app-queue`) hanya menampilkan 4 status alur aktif (waiting_confirmation, confirmed, processing, pressing); packing dikeluarkan; 4 pipeline cards diselaraskan (Menunggu/Dikonfirmasi/Diproses/Sablon) — Phase 40
 
 ### Active (In Progress)
 
@@ -118,6 +119,9 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | mitraId di-override dari JWT di POST /api/orders | Tidak trust body untuk mitraId — prevent cross-mitra order creation | 2026-06-15 | Active |
 | Upload file limit 50MB (frontend + backend + Vercel 1024MB RAM) | File desain garmen sering >10MB; 50MB cukup untuk semua format (CDR, AI, PDF) | 2026-06-15 | Active |
 | Filter status Reports pakai label sama dengan STATUS_LABELS OrderDetail (duplicate accepted) | Konsistensi UI seluruh app tanpa refactor extract shared constant; extraction dideferensi untuk phase terpisah | 2026-09-12 | Active |
+| Antrian Produksi exclude `packing` (masuk fase billing/kirim, bukan antrian aktif) | `packing` set `isBilled=true` — secara bisnis sudah lepas dari antrian produksi ke fase penagihan/pengiriman | 2026-09-13 | Active |
+| Antrian Produksi include `waiting_confirmation` di kepala alur | Operator perlu visibilitas pesanan yang belum di-confirm supaya bisa dikejar approval-nya sejak awal | 2026-09-13 | Active |
+| Label card AppQueue ringkas (Menunggu/Dikonfirmasi/Diproses/Sablon), tidak selaras dengan STATUS_LABELS penuh | Grid card kompak butuh label pendek; konteks berbeda dari dropdown/badge full di halaman lain | 2026-09-13 | Active |
 
 ## Success Metrics
 
@@ -141,4 +145,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-09-12 after Phase 39 — Reports Status Filter Fix*
+*Last updated: 2026-09-13 after Phase 40 — Queue Filter Adjustment*

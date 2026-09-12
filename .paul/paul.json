@@ -7,8 +7,8 @@
     "status": "in_progress"
   },
   "phase": {
-    "number": 39,
-    "name": "reports-status-filter-fix",
+    "number": 40,
+    "name": "queue-filter-adjustment",
     "status": "complete"
   },
   "loop": {
@@ -17,7 +17,7 @@
   },
   "timestamps": {
     "created_at": "2026-05-24T00:00:00.000Z",
-    "updated_at": "2026-09-12T14:30:44Z"
+    "updated_at": "2026-09-13T00:00:00Z"
   },
   "satellite": {
     "groom": true

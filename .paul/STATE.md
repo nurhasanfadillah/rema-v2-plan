@@ -2,28 +2,28 @@
 
 ## Project Reference
 
-See: .paul/PROJECT.md (updated 2026-06-15)
+See: .paul/PROJECT.md (updated 2026-09-13)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** Phase 39 complete — filter status di Laporan disamakan dengan alur pesanan (9 status + Semua).
+**Current focus:** Phase 40 complete — halaman Antrian Produksi fokus pada 4 status alur aktif (menunggu, dikonfirmasi, diproses, sablon); packing exclude.
 
 ## Current Position
 
 Milestone: v2.5 UI Fixes (rolling)
-Phase: 39 (Reports Status Filter Fix) — Complete
+Phase: 40 (Queue Filter Adjustment) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-09-12 — Phase 39 transitioned; filter status laporan lengkap 10 opsi
+Last activity: 2026-09-13 — Phase 40 transitioned; PROJECT.md + ROADMAP.md evolved
 
 Progress:
-- Phase 39: [██████████] 100% (1 of 1 plans complete)
+- Phase 40: [██████████] 100% (1 of 1 plans complete)
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop 39 closed — Phase 39 complete]
+  ✓        ✓        ✓     [Loop 40 closed — Phase 40 complete]
 ```
 
 ## Accumulated Context
@@ -41,6 +41,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Credit limit backend dari SUM(totalAmount) orders isBilled=false | Phase 38 | Konsisten dengan logika frontend; simpel tanpa query ledger |
 | Upload limit 50MB + Vercel memory 1024MB | Phase 38 | File desain garmen sering >10MB |
 | Filter status Reports selaras dengan STATUS_LABELS OrderDetail (duplicate accepted) | Phase 39 | Konsistensi label UI tanpa refactor ekstraksi shared constant (deferred) |
+| Antrian Produksi exclude `packing` (dianggap sudah lepas dari antrian aktif) | Phase 40 | `packing` set `isBilled=true` — secara bisnis sudah masuk fase billing/kirim |
+| Antrian Produksi include `waiting_confirmation` di kepala alur | Phase 40 | Operator perlu visibilitas pesanan yang belum di-confirm agar bisa dikejar approval |
+| Label card AppQueue ringkas (Menunggu/Dikonfirmasi/Diproses/Sablon) | Phase 40 | Grid card kompak butuh label pendek; konteks berbeda dari dropdown/badge full |
 
 ### Git State
 Last commit: 2c49890 — feat(39): reports status filter fix - lengkapi 6->10 opsi + selaraskan label
@@ -56,8 +59,8 @@ Feature branches merged: none
 
 ## Session Continuity
 
-Last session: 2026-09-12
-Stopped at: Phase 39 transition complete — committed ke git
+Last session: 2026-09-13
+Stopped at: Phase 40 transition complete — committed ke git
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/ROADMAP.md
 

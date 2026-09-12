@@ -51,6 +51,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 37 | Orders List Cleanup | 1 | ✅ Complete | 2026-06-08 |
 | 38 | Order Creation Audit + Upload Fix | 2 | ✅ Complete | 2026-06-15 |
 | 39 | Reports Status Filter Fix | 1 | ✅ Complete | 2026-09-12 |
+| 40 | Queue Filter Adjustment | 1 | ✅ Complete | 2026-09-13 |
 
 ## Phase Details
 
@@ -441,4 +442,17 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Filter status di `/reports` tab Pesanan berisi 10 opsi lengkap sesuai alur bisnis. Label 4 status existing disamakan dengan `STATUS_LABELS` OrderDetail (Menunggu Konfirmasi, Proses Produksi, Terkirim/Selesai, Pesanan Retur) + 3 status baru (Press Sablon, Sedang Packing, Dibatalkan).
 
 ---
-*Last updated: 2026-09-12 — Phase 39 complete*
+
+### Phase 40: Queue Filter Adjustment ✅ Complete
+
+**Goal:** Halaman Antrian Produksi (`/app-queue`) hanya menampilkan pesanan yang sedang dalam antrian produksi aktif — 4 status: `waiting_confirmation`, `confirmed`, `processing`, `pressing`. Empat pipeline cards diselaraskan (Menunggu, Dikonfirmasi, Diproses, Sablon). Status `packing` dikeluarkan.
+**Depends on:** Phase 39 (codebase stabil)
+**Completed:** 2026-09-13
+
+**Plans:**
+- [x] 40-01: Ubah filter + 4 pipeline cards + badge/border color di `AppQueue.tsx` (quick-fix)
+
+**Result:** `/app-queue` fokus ke 4 status alur aktif; `packing` tidak lagi muncul di antrian; card MENUNGGU (amber, Hourglass) hadir sebagai step pertama; badge label `pressing` diselaraskan jadi "Sablon" (dari "Press Sablon").
+
+---
+*Last updated: 2026-09-13 — Phase 40 complete*
