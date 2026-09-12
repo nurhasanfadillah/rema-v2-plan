@@ -42,6 +42,11 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Upload limit 50MB + Vercel memory 1024MB | Phase 38 | File desain garmen sering >10MB |
 | Filter status Reports selaras dengan STATUS_LABELS OrderDetail (duplicate accepted) | Phase 39 | Konsistensi label UI tanpa refactor ekstraksi shared constant (deferred) |
 
+### Git State
+Last commit: 2c49890 — feat(39): reports status filter fix - lengkapi 6->10 opsi + selaraskan label
+Branch: main
+Feature branches merged: none
+
 ### Blockers/Concerns
 - None
 
