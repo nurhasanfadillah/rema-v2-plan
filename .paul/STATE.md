@@ -13,7 +13,7 @@ Milestone: v2.5 UI Fixes (rolling)
 Phase: 45 (Orders List: Filter DTF Hanya di Desktop) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-23 — Phase 45 transitioned; PROJECT.md + ROADMAP.md evolved
+Last activity: 2026-10-23 — Phase 45 transitioned; PROJECT.md + ROADMAP.md evolved; commit b957c80
 
 Progress:
 - Phase 45: [██████████] 100% (1 of 1 plans complete)
@@ -61,7 +61,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Chip filter DTF hanya tampil di desktop (md / 768px ke atas), disembunyikan di mobile lewat wrapper `hidden md:block` di `OrdersList.tsx` | Phase 45 | Permintaan user; menggantikan "layout sama untuk mobile dan desktop" dari keputusan Phase 44; keputusan breakpoint tetap di halaman, bukan di komponen modul |
 
 ### Git State
-Last commit: 6e61449 — feat(44): orders list - filter status cetak DTF (chip Belum/Sudah Cetak/Tanpa DTF)
+Last commit: b957c80 — feat(45): orders list - sembunyikan chip filter DTF di mobile
 Branch: main
 Feature branches merged: none
 
@@ -81,7 +81,7 @@ Feature branches merged: none
 ## Session Continuity
 
 Last session: 2026-10-23
-Stopped at: Phase 45 transition complete
+Stopped at: Phase 45 transition complete — committed ke git (b957c80)
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/phases/45-orders-dtf-filter-desktop-only/45-01-PLAN.md
 
