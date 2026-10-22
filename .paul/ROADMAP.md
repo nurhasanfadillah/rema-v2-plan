@@ -55,6 +55,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 41 | Order Detail: Mitra Name in Header | 1 | ✅ Complete | 2026-09-13 |
 | 42 | Reports: Rekap Tagihan per Produk | 1 | ✅ Complete | 2026-10-22 |
 | 43 | Reports: Rekap Produk & Qty di PDF Rekap Tagihan | 1 | ✅ Complete | 2026-10-23 |
+| 44 | Orders List: Filter Status Cetak DTF | 1 | ✅ Complete | 2026-10-23 |
 
 ## Phase Details
 
@@ -495,4 +496,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** PDF Rekap Tagihan memuat section "Rekap Produk (harga digabung)" — No | Produk | Qty + TOTAL, satu baris per produk, urut A–Z — di atas tabel rincian per harga satuan (tidak berubah). `BillingRecap.productQty` dihitung di `buildBillingRecap` per `productId` (nama terbaru); Σ qty = totalQty. Teruji 7 kasus agregasi (termasuk regresi Phase 42) + render PDF 60 produk (4 halaman). Hanya PDF: tab di layar dan `Reports.tsx` tidak berubah.
 
 ---
-*Last updated: 2026-10-23 — Phase 43 complete*
+### Phase 44: Orders List: Filter Status Cetak DTF ✅ Complete
+
+**Goal:** Halaman Daftar Pesanan (`/orders`) mendapat filter status cetak DTF — baris chip "Semua DTF / Belum Cetak / Sudah Cetak / Tanpa DTF" dengan jumlah pesanan di bawah filter status, berkombinasi (AND) dengan filter status dan pencarian yang sudah ada. Pengelompokan per pesanan: Belum Cetak = ada ≥1 item custom belum dicetak (termasuk parsial); Sudah Cetak = semua item custom sudah dicetak; Tanpa DTF = tidak ada item custom.
+**Depends on:** Phase 43 (codebase stabil)
+**Completed:** 2026-10-23
+
+**Plans:**
+- [x] 44-01: Modul `dtf-filter` (tipe + fungsi murni + chips + `index.ts`) + penyambungan di `OrdersList.tsx` (standard)
+
+**Result:** `/orders` kini menampilkan baris chip "Semua DTF / Belum Cetak / Sudah Cetak / Tanpa DTF" dengan jumlah pesanan di bawah filter status (semua role; tersembunyi di `/orders/drafts`). Kategori per pesanan dihitung `getOrderDtfCategory`: Belum Cetak = ada ≥1 item custom belum dicetak (termasuk parsial; aturan sama dengan guard Press Sablon), Sudah Cetak = semua item custom sudah dicetak, Tanpa DTF = tidak ada item custom. Filter berkombinasi (AND) dengan filter status dan pencarian; jumlah chip dihitung dari lingkup role + status terpilih. Modul baru `src/components/orders/dtf-filter/` (4 file, public API `index.ts`); fungsi murni teruji 10 kasus di Node; `OrdersList.tsx` +20/−0 baris; KPI, filter status, pencarian, paginasi, dan badge "DTF" tidak berubah.
+
+---
+*Last updated: 2026-10-23 — Phase 44 complete*

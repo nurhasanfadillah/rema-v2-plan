@@ -7,6 +7,8 @@ import { formatDate, cn } from '../../lib/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Calendar, LayoutList, Search, FileSpreadsheet, ChevronLeft, ChevronRight, X, SlidersHorizontal, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { DtfFilterChips, countOrdersByDtf, filterOrdersByDtf } from '../../components/orders/dtf-filter';
+import type { DtfFilterValue } from '../../components/orders/dtf-filter';
 
 export default function OrdersList() {
   const { user } = useAuth();
@@ -16,6 +18,7 @@ export default function OrdersList() {
   const [mitras, setMitras] = useState<Mitra[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dtfFilter, setDtfFilter] = useState<DtfFilterValue>('all');
   const [pageSize, setPageSize] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
@@ -69,8 +72,19 @@ export default function OrdersList() {
     return acc;
   }, { orders: 0, qty: 0 });
 
+  // Hitungan chip DTF: lingkup role + filter status terpilih, tanpa pencarian
+  const dtfCounts = countOrdersByDtf(
+    !isDraftPage && statusFilter !== 'all'
+      ? displayOrders.filter(o => o.status === statusFilter)
+      : displayOrders
+  );
+
   if (!isDraftPage && statusFilter !== 'all') {
     displayOrders = displayOrders.filter(o => o.status === statusFilter);
+  }
+
+  if (!isDraftPage && dtfFilter !== 'all') {
+    displayOrders = filterOrdersByDtf(displayOrders, dtfFilter);
   }
 
   if (searchQuery.trim()) {
@@ -331,6 +345,12 @@ export default function OrdersList() {
                 <option value="shipped">Terkirim — {statusStats['shipped']?.orders || 0} pesanan ({statusStats['shipped']?.qty || 0} pcs)</option>
               </select>
             </div>
+
+            <DtfFilterChips
+              value={dtfFilter}
+              counts={dtfCounts}
+              onChange={value => { setDtfFilter(value); setCurrentPage(1); }}
+            />
           </>
         )}
       </div>

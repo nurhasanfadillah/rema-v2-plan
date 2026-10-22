@@ -65,6 +65,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Order Detail: nama mitra tampil inline di header `OrderDetail.tsx` (`{orderNumber} — {mitraName}`); fallback aman saat mitra dangling; berlaku semua role; PDF SPK tidak diubah — Phase 41
 - [x] Reports Rekap Tagihan: tab baru "Rekap Tagihan" di halaman Laporan — rekap Produk · Qty · Harga · Total dari pesanan tercatat tagihan (`isBilled`), dikelompokkan per produk + harga satuan, filter mitra + periode (tanggal tagihan), ekspor PDF; tampil untuk admin + mitra (staff tidak melihat tab); modul `billing-recap` dengan public API `index.ts` — Phase 42
 - [x] Reports PDF Rekap Produk & Qty: PDF Rekap Tagihan memuat section "Rekap Produk (harga digabung)" — Produk + Qty saja, satu baris per produk (harga berbeda digabung), di atas tabel rincian per harga satuan; `productQty` dihitung di `buildBillingRecap`; hanya PDF, tab di layar tidak berubah — Phase 43
+- [x] Orders List: Filter Status Cetak DTF: baris chip "Semua DTF / Belum Cetak / Sudah Cetak / Tanpa DTF" (dengan jumlah pesanan) di halaman Daftar Pesanan, berkombinasi dengan filter status dan pencarian; Belum Cetak = ada ≥1 item custom belum dicetak (termasuk parsial), Sudah Cetak = semua item custom sudah dicetak, Tanpa DTF = tidak ada item custom; modul `dtf-filter` dengan public API `index.ts` — Phase 44
 
 ### Active (In Progress)
 
@@ -134,6 +135,10 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Modul fitur baru: folder + `index.ts` public API, file kebab-case, named export, tanpa `any` | Mengikuti CLAUDE.md global; file lama tidak di-rename dan tsconfig tidak diubah | 2026-10-22 | Active |
 | Rekap Produk (Produk + Qty, harga digabung) di PDF Rekap Tagihan: di atas tabel rincian, hanya PDF (tab di layar tidak berubah) | Fokus pada produk meskipun harga berbeda, tanpa menghilangkan rincian per harga untuk penagihan | 2026-10-23 | Active |
 | `productQty` dihitung di fungsi agregasi murni `buildBillingRecap` per `productId` (bukan di komponen PDF) | Satu sumber agregasi; Σ qty = totalQty; teruji di Node tanpa test runner | 2026-10-23 | Active |
+| Filter status cetak DTF di Daftar Pesanan berbentuk chip satu baris (bukan dropdown + bottom sheet kedua) | Kode filter status yang ada tidak disentuh; layout sama untuk mobile dan desktop (chip membungkus bila sempit) | 2026-10-23 | Active |
+| Kategori DTF per pesanan: Belum Cetak (≥1 item custom belum dicetak, termasuk parsial) / Sudah Cetak (semua item custom sudah dicetak) / Tanpa DTF (tidak ada item custom) | Aturan "belum cetak" sama persis dengan guard Press Sablon di OrderDetail; sumber kebenaran `items[].isCustomLogo`, bukan `order.hasCustomLogo` | 2026-10-23 | Active |
+| Hitungan chip DTF = lingkup role + filter status terpilih, tanpa pencarian; hitungan opsi filter status tidak memperhitungkan filter DTF | Belum + Sudah + Tanpa = Semua DTF; selaras dengan hitungan status yang juga tidak memperhitungkan pencarian | 2026-10-23 | Active |
+| Klasifikasi/penyaringan/penghitungan DTF di fungsi murni modul `src/components/orders/dtf-filter/` (hanya `import type`); state filter tetap di halaman | Pola modul Phase 42 dipakai ulang untuk fitur filter; teruji di Node tanpa test runner | 2026-10-23 | Active |
 
 ## Success Metrics
 
@@ -157,4 +162,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-10-23 after Phase 43 — Reports: Rekap Produk & Qty di PDF Rekap Tagihan*
+*Last updated: 2026-10-23 after Phase 44 — Orders List: Filter Status Cetak DTF*
