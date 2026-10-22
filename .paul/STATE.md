@@ -13,7 +13,7 @@ Milestone: v2.5 UI Fixes (rolling)
 Phase: 43 (Reports: Rekap Produk & Qty di PDF Rekap Tagihan) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-23 — Phase 43 transitioned; PROJECT.md + ROADMAP.md evolved
+Last activity: 2026-10-23 — Phase 43 transitioned; PROJECT.md + ROADMAP.md evolved; commit 044d516
 
 Progress:
 - Phase 43: [██████████] 100% (1 of 1 plans complete)
@@ -56,7 +56,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Rekap Produk tanpa kolom harga/total uang | Phase 43 | Fokus produk + qty; PDF punya TOTAL Qty |
 
 ### Git State
-Last commit: e953830 — feat(42): reports rekap tagihan per produk - tab baru + ekspor PDF
+Last commit: 044d516 — feat(43): pdf rekap tagihan - tambah rekap produk & qty (harga digabung)
 Branch: main
 Feature branches merged: none
 
@@ -72,7 +72,7 @@ Feature branches merged: none
 ## Session Continuity
 
 Last session: 2026-10-23
-Stopped at: Phase 43 transition complete — SUMMARY, PROJECT.md, ROADMAP.md, STATE.md diperbarui
+Stopped at: Phase 43 transition complete — committed ke git (044d516)
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/ROADMAP.md
 
