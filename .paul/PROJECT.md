@@ -15,7 +15,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Type | Application |
 | Version | 2.5.0 |
 | Status | Production — Live di https://redone.my.id |
-| Last Updated | 2026-06-04 |
+| Last Updated | 2026-10-22 |
 
 ## Requirements
 
@@ -63,6 +63,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Reports Status Filter Fix: filter status di halaman Laporan tab Pesanan diperluas dari 6 → 10 opsi (menambahkan pressing/packing/cancelled) dan label selaras dengan STATUS_LABELS di OrderDetail — Phase 39
 - [x] Queue Filter Adjustment: halaman Antrian Produksi (`/app-queue`) hanya menampilkan 4 status alur aktif (waiting_confirmation, confirmed, processing, pressing); packing dikeluarkan; 4 pipeline cards diselaraskan (Menunggu/Dikonfirmasi/Diproses/Sablon) — Phase 40
 - [x] Order Detail: nama mitra tampil inline di header `OrderDetail.tsx` (`{orderNumber} — {mitraName}`); fallback aman saat mitra dangling; berlaku semua role; PDF SPK tidak diubah — Phase 41
+- [x] Reports Rekap Tagihan: tab baru "Rekap Tagihan" di halaman Laporan — rekap Produk · Qty · Harga · Total dari pesanan tercatat tagihan (`isBilled`), dikelompokkan per produk + harga satuan, filter mitra + periode (tanggal tagihan), ekspor PDF; tampil untuk admin + mitra (staff tidak melihat tab); modul `billing-recap` dengan public API `index.ts` — Phase 42
 
 ### Active (In Progress)
 
@@ -126,6 +127,10 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Nama mitra tampil inline di `h1` OrderDetail (`{orderNumber} — {mitraName}`, em dash separator) | Opsi inline dipilih dibanding baris baru agar header tetap compact; em dash konsisten dengan konvensi tipografi UI | 2026-09-13 | Active |
 | Fallback aman `orderMitra ? ` — ${name}` : ''` di OrderDetail | mitraId adalah FK — seharusnya tidak dangling, tapi ternary check menghindari crash pada edge case data anomali tanpa biaya berarti | 2026-09-13 | Active |
 | PDF SPK tidak menambahkan nama mitra di Phase 41 (deferred kalau perlu) | PDF SPK sudah punya section info mitra eksplisit; tidak ada gap konteks yang perlu ditutup di PDF | 2026-09-13 | Active |
+| Rekap Tagihan sebagai tab baru di Laporan (bukan di dalam tab Keuangan/Pesanan); staff tidak melihat tab | Filter + PDF sendiri tanpa mengubah tab yang ada; konsisten dengan tab Keuangan (staff tidak melihat nominal uang) | 2026-10-22 | Active |
+| Baris rekap tagihan dikelompokkan per `productId + priceSnapshot` | Lossless: produk sama dengan harga berbeda = baris terpisah, Qty × Harga = Total tiap baris, jumlah baris = total tagihan | 2026-10-22 | Active |
+| Periode rekap tagihan = tanggal ledger debit `source:'order'`; order `isBilled` tanpa ledger dilewati | Selaras dengan filter tab Keuangan; ledger satu-satunya sumber tanggal tagihan | 2026-10-22 | Active |
+| Modul fitur baru: folder + `index.ts` public API, file kebab-case, named export, tanpa `any` | Mengikuti CLAUDE.md global; file lama tidak di-rename dan tsconfig tidak diubah | 2026-10-22 | Active |
 
 ## Success Metrics
 
@@ -149,4 +154,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-09-13 after Phase 41 — Order Detail: Mitra Name in Header*
+*Last updated: 2026-10-22 after Phase 42 — Reports: Rekap Tagihan per Produk*

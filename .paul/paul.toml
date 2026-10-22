@@ -1,0 +1,39 @@
+# ─── Identity ────────────────────────────────────────────────
+name = "rema-v2.5"
+version = "2.5.0"
+status = "active"
+path = "."
+tags = []
+
+# ─── Framework Provenance ────────────────────────────────────
+[paul]
+version = "1.4.0"
+source = "https://chrisai.cv/skool"
+
+# ─── Milestone ───────────────────────────────────────────────
+[milestone]
+name = "v2.5 UI Fixes"
+version = "2.5.0"
+status = "in_progress"
+phases = 0
+
+# ─── Phase ───────────────────────────────────────────────────
+[phase]
+number = 42
+name = "reports-billing-recap"
+status = "complete"
+plans_completed = 1
+
+# ─── Loop ────────────────────────────────────────────────────
+[loop]
+position = "IDLE"
+
+# ─── Satellite ───────────────────────────────────────────────
+[satellite]
+groom = true
+
+# ─── Stats ───────────────────────────────────────────────────
+[stats]
+total_plans = 1
+total_phases = 1
+last_activity = "2026-10-22T23:57:45+07:00"

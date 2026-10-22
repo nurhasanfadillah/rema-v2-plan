@@ -53,6 +53,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 39 | Reports Status Filter Fix | 1 | ✅ Complete | 2026-09-12 |
 | 40 | Queue Filter Adjustment | 1 | ✅ Complete | 2026-09-13 |
 | 41 | Order Detail: Mitra Name in Header | 1 | ✅ Complete | 2026-09-13 |
+| 42 | Reports: Rekap Tagihan per Produk | 1 | ✅ Complete | 2026-10-22 |
 
 ## Phase Details
 
@@ -469,4 +470,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** `OrderDetail.tsx` line 327 menampilkan `{orderNumber} — {mitraName}` inline dengan em dash separator. Fallback aman `orderMitra ? ` — ${name}` : ''` menangani edge case data anomali. Berlaku sama untuk semua role. PDF SPK tidak diubah (sudah punya section info mitra eksplisit).
 
 ---
-*Last updated: 2026-09-13 — Phase 41 complete*
+### Phase 42: Reports: Rekap Tagihan per Produk ✅ Complete
+
+**Goal:** Halaman Laporan mendapat tab baru "Rekap Tagihan" — rekap Produk · Qty · Harga · Total dari pesanan yang tercatat tagihan (`isBilled = true`), dikelompokkan per produk + harga satuan, dengan filter mitra + periode (tanggal tagihan tercatat) dan ekspor PDF. Tab tampil untuk admin dan mitra; staff tidak melihat tab.
+**Depends on:** Phase 41 (codebase stabil)
+**Completed:** 2026-10-22
+
+**Plans:**
+- [x] 42-01: Modul `billing-recap` (types + agregasi + hook + tab UI + PDF) + wiring di `Reports.tsx` (standard)
+
+**Result:** Tab "Rekap Tagihan" di `/reports` (admin + mitra; staff tidak melihat tab) menampilkan Produk · Qty · Harga · Total dari pesanan `isBilled`, dikelompokkan per produk + harga satuan, filter mitra + periode (tanggal ledger debit order), dengan ekspor PDF. Fungsi agregasi murni `buildBillingRecap` teruji 7 kasus; modul baru `src/components/reports/billing-recap/` (6 file, public API `index.ts`). Tab Keuangan dan Pesanan tidak berubah.
+
+---
+*Last updated: 2026-10-22 — Phase 42 complete*

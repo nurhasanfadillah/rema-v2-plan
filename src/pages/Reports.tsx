@@ -4,10 +4,11 @@ import { api } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
 import type { Mitra, Product, LedgerEntry, Order } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { BarChart3, Receipt, FileText, Download, Filter, Calendar, Info, X } from 'lucide-react';
+import { BarChart3, Receipt, FileText, Download, Filter, Calendar, Info, X, ClipboardList } from 'lucide-react';
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { FinanceReportPDF } from '../components/reports/FinanceReportPDF';
 import { OrderReportPDF } from '../components/reports/OrderReportPDF';
+import { BillingRecapPDF, BillingRecapTab, useBillingRecap } from '../components/reports/billing-recap';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 
 export default function Reports() {
@@ -24,7 +25,7 @@ export default function Reports() {
     api.orders.list().then(setAllOrders).catch(console.error);
   }, []);
 
-  const [activeTab, setActiveTab] = useState<'finance' | 'order'>(user?.role === 'staff' ? 'order' : 'finance');
+  const [activeTab, setActiveTab] = useState<'finance' | 'order' | 'billing'>(user?.role === 'staff' ? 'order' : 'finance');
 
   // Finance Filters
   const [finStart, setFinStart] = useState('');
@@ -138,6 +139,12 @@ export default function Reports() {
     return { items, totalQty, totalSubtotal, productRecap, chartData };
   }, [allOrders, ordStart, ordEnd, ordMitraId, ordType, ordStatus, ordProduct]);
 
+  // Rekap Tagihan (role mitra dikunci ke mitra miliknya)
+  const ownMitraId = user?.role === 'mitra' ? mitras.find(m => m.userId === user.id)?.id : undefined;
+  const billingRecap = useBillingRecap({ orders: allOrders, ledgers: allLedgers, lockedMitraId: ownMitraId });
+  const billingMitraName = mitras.find(m => m.id === billingRecap.filters.mitraId)?.name ?? 'Semua Mitra';
+  const isBillingExportDisabled = activeTab === 'billing' && billingRecap.recap.rows.length === 0;
+
   if (!user || user.role === 'operational') return <div className="p-8 text-center text-red-500 font-bold">Akses ditolak</div>;
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -148,6 +155,8 @@ export default function Reports() {
       
       const doc = activeTab === 'finance' ? (
         <FinanceReportPDF ledgers={financeData.filtered} mitras={mitras} filters={{start: finStart, end: finEnd, mitraId: finMitraId}} totalDebit={financeData.totalDebit} totalCredit={financeData.totalCredit} />
+      ) : activeTab === 'billing' ? (
+        <BillingRecapPDF recap={billingRecap.recap} filters={billingRecap.filters} mitraName={billingMitraName} />
       ) : (
         <OrderReportPDF items={orderData.items} mitras={mitras} filters={{start: ordStart, end: ordEnd, mitraId: ordMitraId, status: ordStatus, type: ordType, productId: ordProduct}} totalQty={orderData.totalQty} totalSubtotal={orderData.totalSubtotal} showSubtotal={user.role !== 'staff'} recap={orderData.productRecap} />
       );
@@ -181,26 +190,34 @@ export default function Reports() {
            <h1 className="page-title">Laporan & Analitik</h1>
            <p className="text-xs text-slate-400 mt-0.5 font-medium">Tinjauan komprehensif keuangan dan aktivitas pesanan.</p>
         </div>
-        <button onClick={() => setIsExportModalOpen(true)} className="btn-primary">
+        <button onClick={() => setIsExportModalOpen(true)} disabled={isBillingExportDisabled} className="btn-primary">
           <Download className="w-4 h-4" /> Cetak PDF
         </button>
       </div>
 
-      <div className="bg-slate-100 p-1.5 rounded-2xl flex flex-wrap gap-1 max-w-sm">
+      <div className="bg-slate-100 p-1.5 rounded-2xl flex flex-wrap gap-1 max-w-md">
          {user.role !== 'staff' && (
            <button 
              onClick={() => setActiveTab('finance')}
-             className={`flex-1 py-2 px-4 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'finance' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+             className={`flex-1 py-2 px-2 sm:px-4 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'finance' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
            >
-             <BarChart3 className="w-4 h-4"/> Keuangan
+             <BarChart3 className="w-4 h-4 hidden sm:block"/> Keuangan
            </button>
          )}
          <button 
            onClick={() => setActiveTab('order')}
-           className={`flex-1 py-2 px-4 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'order' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+           className={`flex-1 py-2 px-2 sm:px-4 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'order' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
          >
-           <Receipt className="w-4 h-4"/> Pesanan
+           <Receipt className="w-4 h-4 hidden sm:block"/> Pesanan
          </button>
+         {user.role !== 'staff' && (
+           <button
+             onClick={() => setActiveTab('billing')}
+             className={`flex-1 py-2 px-2 sm:px-4 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'billing' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+           >
+             <ClipboardList className="w-4 h-4 hidden sm:block"/> Rekap Tagihan
+           </button>
+         )}
       </div>
 
       <AnimatePresence mode="wait">
@@ -386,6 +403,20 @@ export default function Reports() {
                    )}
                 </div>
              </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'billing' && user.role !== 'staff' && (
+          <motion.div key="billing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+            <BillingRecapTab
+              filters={billingRecap.filters}
+              recap={billingRecap.recap}
+              mitras={mitras}
+              canSelectMitra={user.role === 'admin'}
+              onStartDateChange={billingRecap.setStartDate}
+              onEndDateChange={billingRecap.setEndDate}
+              onMitraIdChange={billingRecap.setMitraId}
+            />
           </motion.div>
         )}
       </AnimatePresence>

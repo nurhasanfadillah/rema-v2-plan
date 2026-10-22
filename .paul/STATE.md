@@ -5,25 +5,25 @@
 See: .paul/PROJECT.md (updated 2026-09-13)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** Phase 41 complete — header `OrderDetail.tsx` kini menampilkan nama mitra inline (`{orderNumber} — {mitraName}`).
+**Current focus:** Phase 42 complete — halaman Laporan kini punya tab "Rekap Tagihan" (Produk · Qty · Harga · Total dari pesanan tercatat tagihan) + ekspor PDF.
 
 ## Current Position
 
 Milestone: v2.5 UI Fixes (rolling)
-Phase: 41 (Order Detail: Mitra Name in Header) — Complete
+Phase: 42 (Reports: Rekap Tagihan per Produk) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-09-13 — Phase 41 transitioned; PROJECT.md + ROADMAP.md evolved; commit d66b61d
+Last activity: 2026-10-22 — Phase 42 transitioned; PROJECT.md + ROADMAP.md evolved
 
 Progress:
-- Phase 41: [██████████] 100% (1 of 1 plans complete)
+- Phase 42: [██████████] 100% (1 of 1 plans complete)
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop 41 closed — Phase 41 complete]
+  ✓        ✓        ✓     [Loop 42 closed — Phase 42 complete]
 ```
 
 ## Accumulated Context
@@ -46,6 +46,11 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Label card AppQueue ringkas (Menunggu/Dikonfirmasi/Diproses/Sablon) | Phase 40 | Grid card kompak butuh label pendek; konteks berbeda dari dropdown/badge full |
 | Nama mitra ditampilkan inline di `h1` OrderDetail (`{orderNumber} — {mitraName}`) | Phase 41 | Opsi inline (bukan baris baru) dipilih agar header tetap compact; em dash separator konsisten dengan konvensi tipografi UI |
 | Fallback `orderMitra ? ` — ${name}` : ''` (tidak crash saat mitra dangling) | Phase 41 | Data mitraId adalah FK — seharusnya tidak dangling, tapi ternary check membuat kode robust terhadap edge case data anomali |
+| Rekap Tagihan = tab baru di Laporan (bukan di tab Keuangan/Pesanan); hanya admin + mitra | Phase 42 | Filter dan PDF sendiri; tab lama tidak berubah; staff tidak melihat tab (seperti Keuangan) |
+| Baris rekap dikelompokkan per `productId + priceSnapshot` | Phase 42 | Produk sama harga beda = baris terpisah; Qty × Harga = Total tiap baris; tanpa harga rata-rata |
+| Periode rekap = tanggal ledger debit `source:'order'`; order `isBilled` tanpa ledger dilewati | Phase 42 | Selaras dengan filter tab Keuangan; total rekap = Σ debit order |
+| Fitur baru berbentuk modul folder + `index.ts` public API, file kebab-case, named export, tanpa `any` | Phase 42 | Pola acuan modul baru (CLAUDE.md global); file lama tidak di-rename; tsconfig tetap non-strict |
+| PDF rekap memakai `formatCurrency` 0 desimal | Phase 42 | Selaras tampilan layar; berbeda dari PDF lama (2 desimal) — lihat Deferred Issues |
 
 ### Git State
 Last commit: d66b61d — feat(41): order detail header - tampilkan nama mitra inline
@@ -58,11 +63,13 @@ Feature branches merged: none
 ### Deferred Issues
 - Extract `STATUS_LABELS` ke `src/lib/order-status.ts` sebagai shared constant (saat ini duplicate di OrderDetail.tsx + OrderSPKPDF.tsx + Reports.tsx).
 - Evaluasi apakah `cancelled`/`returned` harus exclude dari kalkulasi `totalQty`/`totalSubtotal`/chart di tab Pesanan (saat ini ikut, sedangkan tab Keuangan exclude `cancellation`/`return`).
+- Seragamkan format mata uang PDF: `FinanceReportPDF`/`OrderReportPDF` memakai `formatCur` 2 desimal ("Rp 1.800.000,00"), `BillingRecapPDF` memakai `formatCurrency` 0 desimal.
+- Kolom `real` (float4) pada `totalAmount`/`priceSnapshot`/`ledgers.nominal` kehilangan presisi integer di atas ±Rp 16,7 jt — pertimbangkan `numeric`/`bigint`; belum ada selisih yang dilaporkan.
 
 ## Session Continuity
 
-Last session: 2026-09-13
-Stopped at: Phase 41 transition complete — committed ke git (d66b61d)
+Last session: 2026-10-22
+Stopped at: Phase 42 transition complete — SUMMARY, PROJECT.md, ROADMAP.md, STATE.md diperbarui
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/ROADMAP.md
 
