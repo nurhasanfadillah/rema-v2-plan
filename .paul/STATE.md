@@ -13,7 +13,7 @@ Milestone: v2.5 UI Fixes (rolling)
 Phase: 44 (Orders List: Filter Status Cetak DTF) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-23 — Phase 44 transitioned; PROJECT.md + ROADMAP.md evolved
+Last activity: 2026-10-23 — Phase 44 transitioned; PROJECT.md + ROADMAP.md evolved; commit 6e61449
 
 Progress:
 - Phase 44: [██████████] 100% (1 of 1 plans complete)
@@ -60,7 +60,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Klasifikasi/penyaringan/penghitungan DTF di fungsi murni modul `src/components/orders/dtf-filter/` (hanya `import type`); state filter tetap di `OrdersList.tsx` | Phase 44 | Pola modul Phase 42 dipakai ulang untuk fitur filter; teruji 10 kasus di Node tanpa test runner |
 
 ### Git State
-Last commit: 044d516 — feat(43): pdf rekap tagihan - tambah rekap produk & qty (harga digabung)
+Last commit: 6e61449 — feat(44): orders list - filter status cetak DTF (chip Belum/Sudah Cetak/Tanpa DTF)
 Branch: main
 Feature branches merged: none
 
@@ -79,7 +79,7 @@ Feature branches merged: none
 ## Session Continuity
 
 Last session: 2026-10-23
-Stopped at: Phase 44 transition complete
+Stopped at: Phase 44 transition complete — committed ke git (6e61449)
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/ROADMAP.md
 
