@@ -13,7 +13,7 @@ Milestone: v2.5 UI Fixes (rolling)
 Phase: 42 (Reports: Rekap Tagihan per Produk) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-22 — Phase 42 transitioned; PROJECT.md + ROADMAP.md evolved
+Last activity: 2026-10-22 — Phase 42 transitioned; PROJECT.md + ROADMAP.md evolved; commit e953830
 
 Progress:
 - Phase 42: [██████████] 100% (1 of 1 plans complete)
@@ -53,7 +53,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | PDF rekap memakai `formatCurrency` 0 desimal | Phase 42 | Selaras tampilan layar; berbeda dari PDF lama (2 desimal) — lihat Deferred Issues |
 
 ### Git State
-Last commit: d66b61d — feat(41): order detail header - tampilkan nama mitra inline
+Last commit: e953830 — feat(42): reports rekap tagihan per produk - tab baru + ekspor PDF
 Branch: main
 Feature branches merged: none
 
@@ -69,7 +69,7 @@ Feature branches merged: none
 ## Session Continuity
 
 Last session: 2026-10-22
-Stopped at: Phase 42 transition complete — SUMMARY, PROJECT.md, ROADMAP.md, STATE.md diperbarui
+Stopped at: Phase 42 transition complete — committed ke git (e953830)
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/ROADMAP.md
 
