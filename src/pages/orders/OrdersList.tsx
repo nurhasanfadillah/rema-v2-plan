@@ -346,11 +346,14 @@ export default function OrdersList() {
               </select>
             </div>
 
-            <DtfFilterChips
-              value={dtfFilter}
-              counts={dtfCounts}
-              onChange={value => { setDtfFilter(value); setCurrentPage(1); }}
-            />
+            {/* Desktop only: chip filter DTF disembunyikan di mobile */}
+            <div className="hidden md:block">
+              <DtfFilterChips
+                value={dtfFilter}
+                counts={dtfCounts}
+                onChange={value => { setDtfFilter(value); setCurrentPage(1); }}
+              />
+            </div>
           </>
         )}
       </div>

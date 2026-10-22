@@ -56,6 +56,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 42 | Reports: Rekap Tagihan per Produk | 1 | ✅ Complete | 2026-10-22 |
 | 43 | Reports: Rekap Produk & Qty di PDF Rekap Tagihan | 1 | ✅ Complete | 2026-10-23 |
 | 44 | Orders List: Filter Status Cetak DTF | 1 | ✅ Complete | 2026-10-23 |
+| 45 | Orders List: Filter DTF Hanya di Desktop | 1 | ✅ Complete | 2026-10-23 |
 
 ## Phase Details
 
@@ -508,4 +509,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** `/orders` kini menampilkan baris chip "Semua DTF / Belum Cetak / Sudah Cetak / Tanpa DTF" dengan jumlah pesanan di bawah filter status (semua role; tersembunyi di `/orders/drafts`). Kategori per pesanan dihitung `getOrderDtfCategory`: Belum Cetak = ada ≥1 item custom belum dicetak (termasuk parsial; aturan sama dengan guard Press Sablon), Sudah Cetak = semua item custom sudah dicetak, Tanpa DTF = tidak ada item custom. Filter berkombinasi (AND) dengan filter status dan pencarian; jumlah chip dihitung dari lingkup role + status terpilih. Modul baru `src/components/orders/dtf-filter/` (4 file, public API `index.ts`); fungsi murni teruji 10 kasus di Node; `OrdersList.tsx` +20/−0 baris; KPI, filter status, pencarian, paginasi, dan badge "DTF" tidak berubah.
 
 ---
-*Last updated: 2026-10-23 — Phase 44 complete*
+### Phase 45: Orders List: Filter DTF Hanya di Desktop ✅ Complete
+
+**Goal:** Chip filter status cetak DTF di halaman Daftar Pesanan (`/orders`) disembunyikan di mode mobile (< md / 768px) dan hanya tampil di desktop; menggantikan bagian "layout sama untuk mobile dan desktop" dari keputusan Phase 44.
+**Depends on:** Phase 44 (chip filter DTF)
+**Completed:** 2026-10-23
+
+**Plans:**
+- [x] 45-01: Bungkus `DtfFilterChips` dengan `hidden md:block` di `OrdersList.tsx` (quick-fix)
+
+**Result:** Chip filter DTF di `/orders` tersembunyi di mode mobile (< 768px) dan hanya tampil di desktop (md ke atas) lewat wrapper `hidden md:block` di `OrdersList.tsx` (+8/−5 baris; komponen dan modul `dtf-filter` tidak berubah). Filter status, KPI, pencarian, paginasi, dan badge "DTF" tidak berubah. Menggantikan bagian "layout sama untuk mobile dan desktop" dari keputusan Phase 44.
+
+---
+*Last updated: 2026-10-23 — Phase 45 complete*
