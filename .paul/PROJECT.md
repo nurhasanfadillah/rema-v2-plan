@@ -15,7 +15,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Type | Application |
 | Version | 2.5.0 |
 | Status | Production — Live di https://redone.my.id |
-| Last Updated | 2026-10-22 |
+| Last Updated | 2026-10-23 |
 
 ## Requirements
 
@@ -64,6 +64,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Queue Filter Adjustment: halaman Antrian Produksi (`/app-queue`) hanya menampilkan 4 status alur aktif (waiting_confirmation, confirmed, processing, pressing); packing dikeluarkan; 4 pipeline cards diselaraskan (Menunggu/Dikonfirmasi/Diproses/Sablon) — Phase 40
 - [x] Order Detail: nama mitra tampil inline di header `OrderDetail.tsx` (`{orderNumber} — {mitraName}`); fallback aman saat mitra dangling; berlaku semua role; PDF SPK tidak diubah — Phase 41
 - [x] Reports Rekap Tagihan: tab baru "Rekap Tagihan" di halaman Laporan — rekap Produk · Qty · Harga · Total dari pesanan tercatat tagihan (`isBilled`), dikelompokkan per produk + harga satuan, filter mitra + periode (tanggal tagihan), ekspor PDF; tampil untuk admin + mitra (staff tidak melihat tab); modul `billing-recap` dengan public API `index.ts` — Phase 42
+- [x] Reports PDF Rekap Produk & Qty: PDF Rekap Tagihan memuat section "Rekap Produk (harga digabung)" — Produk + Qty saja, satu baris per produk (harga berbeda digabung), di atas tabel rincian per harga satuan; `productQty` dihitung di `buildBillingRecap`; hanya PDF, tab di layar tidak berubah — Phase 43
 
 ### Active (In Progress)
 
@@ -131,6 +132,8 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Baris rekap tagihan dikelompokkan per `productId + priceSnapshot` | Lossless: produk sama dengan harga berbeda = baris terpisah, Qty × Harga = Total tiap baris, jumlah baris = total tagihan | 2026-10-22 | Active |
 | Periode rekap tagihan = tanggal ledger debit `source:'order'`; order `isBilled` tanpa ledger dilewati | Selaras dengan filter tab Keuangan; ledger satu-satunya sumber tanggal tagihan | 2026-10-22 | Active |
 | Modul fitur baru: folder + `index.ts` public API, file kebab-case, named export, tanpa `any` | Mengikuti CLAUDE.md global; file lama tidak di-rename dan tsconfig tidak diubah | 2026-10-22 | Active |
+| Rekap Produk (Produk + Qty, harga digabung) di PDF Rekap Tagihan: di atas tabel rincian, hanya PDF (tab di layar tidak berubah) | Fokus pada produk meskipun harga berbeda, tanpa menghilangkan rincian per harga untuk penagihan | 2026-10-23 | Active |
+| `productQty` dihitung di fungsi agregasi murni `buildBillingRecap` per `productId` (bukan di komponen PDF) | Satu sumber agregasi; Σ qty = totalQty; teruji di Node tanpa test runner | 2026-10-23 | Active |
 
 ## Success Metrics
 
@@ -154,4 +157,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-10-22 after Phase 42 — Reports: Rekap Tagihan per Produk*
+*Last updated: 2026-10-23 after Phase 43 — Reports: Rekap Produk & Qty di PDF Rekap Tagihan*

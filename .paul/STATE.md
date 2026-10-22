@@ -5,25 +5,25 @@
 See: .paul/PROJECT.md (updated 2026-09-13)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** Phase 42 complete — halaman Laporan kini punya tab "Rekap Tagihan" (Produk · Qty · Harga · Total dari pesanan tercatat tagihan) + ekspor PDF.
+**Current focus:** Phase 43 complete — PDF Rekap Tagihan kini memuat "Rekap Produk" (Produk + Qty saja, harga berbeda digabung) di atas tabel rincian.
 
 ## Current Position
 
 Milestone: v2.5 UI Fixes (rolling)
-Phase: 42 (Reports: Rekap Tagihan per Produk) — Complete
+Phase: 43 (Reports: Rekap Produk & Qty di PDF Rekap Tagihan) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-22 — Phase 42 transitioned; PROJECT.md + ROADMAP.md evolved; commit e953830
+Last activity: 2026-10-23 — Phase 43 transitioned; PROJECT.md + ROADMAP.md evolved
 
 Progress:
-- Phase 42: [██████████] 100% (1 of 1 plans complete)
+- Phase 43: [██████████] 100% (1 of 1 plans complete)
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop 42 closed — Phase 42 complete]
+  ✓        ✓        ✓     [Loop 43 closed — Phase 43 complete]
 ```
 
 ## Accumulated Context
@@ -51,6 +51,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Periode rekap = tanggal ledger debit `source:'order'`; order `isBilled` tanpa ledger dilewati | Phase 42 | Selaras dengan filter tab Keuangan; total rekap = Σ debit order |
 | Fitur baru berbentuk modul folder + `index.ts` public API, file kebab-case, named export, tanpa `any` | Phase 42 | Pola acuan modul baru (CLAUDE.md global); file lama tidak di-rename; tsconfig tetap non-strict |
 | PDF rekap memakai `formatCurrency` 0 desimal | Phase 42 | Selaras tampilan layar; berbeda dari PDF lama (2 desimal) — lihat Deferred Issues |
+| Rekap Produk (Produk + Qty, harga digabung) ditaruh di ATAS tabel rincian PDF; hanya PDF, tab di layar tidak berubah | Phase 43 | Pilihan user; PDF tetap memuat rincian per harga; tanpa mode ekspor tambahan |
+| `productQty` dihitung di `buildBillingRecap` per `productId` (nama terbaru, urut A–Z), bukan di komponen PDF | Phase 43 | Satu sumber agregasi; Σ productQty = totalQty; teruji di Node |
+| Rekap Produk tanpa kolom harga/total uang | Phase 43 | Fokus produk + qty; PDF punya TOTAL Qty |
 
 ### Git State
 Last commit: e953830 — feat(42): reports rekap tagihan per produk - tab baru + ekspor PDF
@@ -68,8 +71,8 @@ Feature branches merged: none
 
 ## Session Continuity
 
-Last session: 2026-10-22
-Stopped at: Phase 42 transition complete — committed ke git (e953830)
+Last session: 2026-10-23
+Stopped at: Phase 43 transition complete — SUMMARY, PROJECT.md, ROADMAP.md, STATE.md diperbarui
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/ROADMAP.md
 

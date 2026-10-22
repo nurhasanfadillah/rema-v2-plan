@@ -1,5 +1,5 @@
 import type { LedgerEntry, Order } from '../../../types';
-import type { BillingRecap, BillingRecapFilters, BillingRecapRow } from './billing-recap-types';
+import type { BillingProductQty, BillingRecap, BillingRecapFilters, BillingRecapRow } from './billing-recap-types';
 
 interface BilledOrder {
   order: Order;
@@ -37,6 +37,7 @@ export function buildBillingRecap(
   billedOrders.sort((a, b) => a.billedAt - b.billedAt);
 
   const rowsByKey = new Map<string, BillingRecapRow>();
+  const qtyByProduct = new Map<string, BillingProductQty>();
   for (const { order } of billedOrders) {
     for (const item of order.items) {
       const key = `${item.productId}::${item.priceSnapshot}`;
@@ -56,6 +57,18 @@ export function buildBillingRecap(
           total: subtotal,
         });
       }
+
+      const productEntry = qtyByProduct.get(item.productId);
+      if (productEntry) {
+        productEntry.qty += item.qty;
+        productEntry.productName = item.productName;
+      } else {
+        qtyByProduct.set(item.productId, {
+          productId: item.productId,
+          productName: item.productName,
+          qty: item.qty,
+        });
+      }
     }
   }
 
@@ -63,8 +76,11 @@ export function buildBillingRecap(
     (a, b) => a.productName.localeCompare(b.productName, 'id') || a.unitPrice - b.unitPrice,
   );
 
+  const productQty = [...qtyByProduct.values()].sort((a, b) => a.productName.localeCompare(b.productName, 'id'));
+
   return {
     rows,
+    productQty,
     totalQty: rows.reduce((sum, row) => sum + row.qty, 0),
     totalAmount: rows.reduce((sum, row) => sum + row.total, 0),
     orderCount: billedOrders.length,

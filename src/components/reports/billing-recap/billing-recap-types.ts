@@ -13,8 +13,15 @@ export interface BillingRecapRow {
   total: number;
 }
 
+export interface BillingProductQty {
+  productId: string;
+  productName: string;
+  qty: number;
+}
+
 export interface BillingRecap {
   rows: BillingRecapRow[];
+  productQty: BillingProductQty[];
   totalQty: number;
   totalAmount: number;
   orderCount: number;

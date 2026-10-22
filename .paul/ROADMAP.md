@@ -54,6 +54,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 40 | Queue Filter Adjustment | 1 | ✅ Complete | 2026-09-13 |
 | 41 | Order Detail: Mitra Name in Header | 1 | ✅ Complete | 2026-09-13 |
 | 42 | Reports: Rekap Tagihan per Produk | 1 | ✅ Complete | 2026-10-22 |
+| 43 | Reports: Rekap Produk & Qty di PDF Rekap Tagihan | 1 | ✅ Complete | 2026-10-23 |
 
 ## Phase Details
 
@@ -482,4 +483,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Tab "Rekap Tagihan" di `/reports` (admin + mitra; staff tidak melihat tab) menampilkan Produk · Qty · Harga · Total dari pesanan `isBilled`, dikelompokkan per produk + harga satuan, filter mitra + periode (tanggal ledger debit order), dengan ekspor PDF. Fungsi agregasi murni `buildBillingRecap` teruji 7 kasus; modul baru `src/components/reports/billing-recap/` (6 file, public API `index.ts`). Tab Keuangan dan Pesanan tidak berubah.
 
 ---
-*Last updated: 2026-10-22 — Phase 42 complete*
+### Phase 43: Reports: Rekap Produk & Qty di PDF Rekap Tagihan ✅ Complete
+
+**Goal:** PDF Rekap Tagihan mendapat section "Rekap Produk" — Produk + Qty saja, harga berbeda digabung per produk — di atas tabel rincian per harga satuan. Hanya PDF; tab di layar tidak berubah.
+**Depends on:** Phase 42 (modul `billing-recap`)
+**Completed:** 2026-10-23
+
+**Plans:**
+- [x] 43-01: `productQty` di `buildBillingRecap` + section Rekap Produk di `billing-recap-pdf.tsx` (standard)
+
+**Result:** PDF Rekap Tagihan memuat section "Rekap Produk (harga digabung)" — No | Produk | Qty + TOTAL, satu baris per produk, urut A–Z — di atas tabel rincian per harga satuan (tidak berubah). `BillingRecap.productQty` dihitung di `buildBillingRecap` per `productId` (nama terbaru); Σ qty = totalQty. Teruji 7 kasus agregasi (termasuk regresi Phase 42) + render PDF 60 produk (4 halaman). Hanya PDF: tab di layar dan `Reports.tsx` tidak berubah.
+
+---
+*Last updated: 2026-10-23 — Phase 43 complete*

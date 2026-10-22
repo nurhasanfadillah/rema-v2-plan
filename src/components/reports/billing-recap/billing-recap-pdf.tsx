@@ -35,6 +35,11 @@ const styles = StyleSheet.create({
   text: { fontSize: 8, color: '#475569' },
   textBold: { fontWeight: 'bold', color: '#0f172a' },
   textRight: { textAlign: 'right' },
+  sectionTitle: { fontSize: 11, fontWeight: 'bold', color: '#0f172a', marginBottom: 6 },
+  recapSpacing: { marginBottom: 16 },
+  recapColNo: { width: '10%' },
+  recapColName: { width: '70%' },
+  recapColQty: { width: '20%' },
   footnote: { marginTop: 12, fontSize: 8, color: '#94a3b8' },
 });
 
@@ -71,6 +76,32 @@ export function BillingRecapPDF({ recap, filters, mitraName }: BillingRecapPDFPr
           </View>
         </View>
 
+        {recap.productQty.length > 0 && (
+          <View style={styles.recapSpacing}>
+            <Text style={styles.sectionTitle} minPresenceAhead={40}>Rekap Produk (harga digabung)</Text>
+            <View style={styles.table}>
+              <View style={styles.row}>
+                <View style={[styles.cell, styles.cellHeader, styles.recapColNo]}><Text style={styles.textHeader}>No</Text></View>
+                <View style={[styles.cell, styles.cellHeader, styles.recapColName]}><Text style={styles.textHeader}>Produk</Text></View>
+                <View style={[styles.cell, styles.cellHeader, styles.recapColQty]}><Text style={[styles.textHeader, styles.textRight]}>Qty</Text></View>
+              </View>
+              {recap.productQty.map((product, index) => (
+                <View style={styles.row} key={product.productId} wrap={false}>
+                  <View style={[styles.cell, styles.recapColNo]}><Text style={styles.text}>{index + 1}</Text></View>
+                  <View style={[styles.cell, styles.recapColName]}><Text style={styles.text}>{product.productName}</Text></View>
+                  <View style={[styles.cell, styles.recapColQty]}><Text style={[styles.text, styles.textRight]}>{product.qty}</Text></View>
+                </View>
+              ))}
+              <View style={styles.row} wrap={false}>
+                <View style={[styles.cell, styles.cellFooter, styles.recapColNo]} />
+                <View style={[styles.cell, styles.cellFooter, styles.recapColName]}><Text style={[styles.text, styles.textBold]}>TOTAL</Text></View>
+                <View style={[styles.cell, styles.cellFooter, styles.recapColQty]}><Text style={[styles.text, styles.textBold, styles.textRight]}>{recap.totalQty}</Text></View>
+              </View>
+            </View>
+          </View>
+        )}
+
+        <Text style={styles.sectionTitle} minPresenceAhead={40}>Rincian per Harga Satuan</Text>
         <View style={styles.table}>
           <View style={styles.row}>
             <View style={[styles.cell, styles.cellHeader, styles.colNo]}><Text style={styles.textHeader}>No</Text></View>
@@ -98,7 +129,7 @@ export function BillingRecapPDF({ recap, filters, mitraName }: BillingRecapPDFPr
         </View>
 
         <Text style={styles.footnote}>
-          Hanya pesanan yang sudah tercatat tagihan (Packing atau lebih; batal/retur tidak termasuk). Periode mengacu tanggal tagihan tercatat. Debit manual tidak termasuk dalam rekap.
+          Hanya pesanan yang sudah tercatat tagihan (Packing atau lebih; batal/retur tidak termasuk). Periode mengacu tanggal tagihan tercatat. Debit manual tidak termasuk dalam rekap. Rekap Produk menggabungkan harga satuan yang berbeda.
         </Text>
       </Page>
     </Document>

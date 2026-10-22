@@ -5,4 +5,4 @@ export { BillingRecapTab } from './billing-recap-tab';
 export type { BillingRecapTabProps } from './billing-recap-tab';
 export { useBillingRecap } from './use-billing-recap';
 export type { UseBillingRecapParams, UseBillingRecapResult } from './use-billing-recap';
-export type { BillingRecap, BillingRecapFilters, BillingRecapRow } from './billing-recap-types';
+export type { BillingProductQty, BillingRecap, BillingRecapFilters, BillingRecapRow } from './billing-recap-types';
