@@ -55,8 +55,10 @@ export default defineConfig(() => {
     build: {
       rollupOptions: {
         output: {
+          // @react-pdf/renderer sengaja tidak didaftarkan di sini: manualChunks ikut menarik react/jsx-runtime
+          // ke chunk PDF, sehingga entry & semua halaman mengimpornya saat startup (~490 kB gzip di jalur kritis).
+          // Tanpa entri ini chunk PDF otomatis lazy (hanya dimuat Reports/OrderDetail).
           manualChunks: {
-            'vendor-pdf': ['@react-pdf/renderer'],
             'vendor-charts': ['recharts'],
           },
         },

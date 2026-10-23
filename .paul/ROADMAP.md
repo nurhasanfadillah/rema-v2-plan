@@ -57,6 +57,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 43 | Reports: Rekap Produk & Qty di PDF Rekap Tagihan | 1 | ✅ Complete | 2026-10-23 |
 | 44 | Orders List: Filter Status Cetak DTF | 1 | ✅ Complete | 2026-10-23 |
 | 45 | Orders List: Filter DTF Hanya di Desktop | 1 | ✅ Complete | 2026-10-23 |
+| 47 | Build: Chunk PDF Lazy di Produksi | 1 | ✅ Complete | 2026-10-23 |
 
 ## Phase Details
 
@@ -521,4 +522,16 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Chip filter DTF di `/orders` tersembunyi di mode mobile (< 768px) dan hanya tampil di desktop (md ke atas) lewat wrapper `hidden md:block` di `OrdersList.tsx` (+8/−5 baris; komponen dan modul `dtf-filter` tidak berubah). Filter status, KPI, pencarian, paginasi, dan badge "DTF" tidak berubah. Menggantikan bagian "layout sama untuk mobile dan desktop" dari keputusan Phase 44.
 
 ---
-*Last updated: 2026-10-23 — Phase 45 complete*
+### Phase 47: Build: Chunk PDF Lazy di Produksi ✅ Complete
+
+**Goal:** Chunk `@react-pdf/renderer` (±1,47 MB / 492 kB gzip) benar-benar lazy di build produksi — tidak lagi di-preload `index.html` atau di-import entry saat startup, hanya diminta saat Laporan atau Detail Pesanan dibuka. Nomor Phase 46 dicadangkan untuk fitur ekspor PDF Mitra (sesi lain); perbaikan chunking ini independen dari fitur itu.
+**Depends on:** Phase 32 (isolasi chunk `vendor-pdf` / `vendor-charts`)
+**Completed:** 2026-10-23
+
+**Plans:**
+- [x] 47-01: Hapus entri `'vendor-pdf'` dari `manualChunks` di `vite.config.ts` (quick-fix)
+
+**Result:** `manualChunks` bentuk objek menarik `react/jsx-runtime` ke chunk PDF, sehingga entry dan 8 halaman lazy meng-import chunk 1,47 MB secara statis. Setelah entri dihapus, library PDF menjadi chunk `react-pdf.browser-*.js` yang hanya di-import statis oleh Reports dan OrderDetail; `index.html` tinggal satu `modulepreload` (`vendor-charts`). JS jalur kritis 771,56 → 279,59 kB gzip (−63,8%), entry +0,68 kB, `vendor-charts` dan precache PWA (31 entri) praktis sama. Smoke test di `vite preview` (mock API lokal): Cetak PDF Laporan (Keuangan, Pesanan, Rekap Tagihan), Cetak SPK, dan Resi Offline tetap menghasilkan PDF valid; chunk PDF baru diminta saat halaman itu dibuka.
+
+---
+*Last updated: 2026-10-23 — Phase 47 complete*

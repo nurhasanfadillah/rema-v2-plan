@@ -67,6 +67,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Reports PDF Rekap Produk & Qty: PDF Rekap Tagihan memuat section "Rekap Produk (harga digabung)" — Produk + Qty saja, satu baris per produk (harga berbeda digabung), di atas tabel rincian per harga satuan; `productQty` dihitung di `buildBillingRecap`; hanya PDF, tab di layar tidak berubah — Phase 43
 - [x] Orders List: Filter Status Cetak DTF: baris chip "Semua DTF / Belum Cetak / Sudah Cetak / Tanpa DTF" (dengan jumlah pesanan) di halaman Daftar Pesanan, berkombinasi dengan filter status dan pencarian; Belum Cetak = ada ≥1 item custom belum dicetak (termasuk parsial), Sudah Cetak = semua item custom sudah dicetak, Tanpa DTF = tidak ada item custom; modul `dtf-filter` dengan public API `index.ts` — Phase 44
 - [x] Orders List: Filter DTF Hanya di Desktop: chip filter status cetak DTF disembunyikan di mode mobile (< 768px) dan hanya tampil di desktop lewat wrapper `hidden md:block` di `OrdersList.tsx` — Phase 45
+- [x] Build: Chunk PDF Lazy: entri `vendor-pdf` dihapus dari `manualChunks` di `vite.config.ts`, sehingga `@react-pdf/renderer` menjadi chunk lazy yang hanya di-import Reports + OrderDetail — tidak lagi di-preload `index.html` / di-import entry; JS jalur kritis 771,56 → 279,59 kB gzip (−63,8%), entry +0,68 kB — Phase 47
 
 ### Active (In Progress)
 
@@ -141,6 +142,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Hitungan chip DTF = lingkup role + filter status terpilih, tanpa pencarian; hitungan opsi filter status tidak memperhitungkan filter DTF | Belum + Sudah + Tanpa = Semua DTF; selaras dengan hitungan status yang juga tidak memperhitungkan pencarian | 2026-10-23 | Active |
 | Klasifikasi/penyaringan/penghitungan DTF di fungsi murni modul `src/components/orders/dtf-filter/` (hanya `import type`); state filter tetap di halaman | Pola modul Phase 42 dipakai ulang untuk fitur filter; teruji di Node tanpa test runner | 2026-10-23 | Active |
 | Chip filter DTF hanya tampil di desktop (md / 768px ke atas); disembunyikan di mobile lewat wrapper `hidden md:block` di `OrdersList.tsx`, bukan di komponen modul | Permintaan user; mobile cukup filter status; keputusan breakpoint tetap di halaman bersama kontrol `md:` lain; menggantikan "layout sama untuk mobile dan desktop" dari keputusan Phase 44 | 2026-10-23 | Active |
+| `@react-pdf/renderer` tidak didaftarkan di `manualChunks` (hanya `vendor-charts` yang tetap); chunk PDF dibiarkan otomatis oleh Rollup | `manualChunks` bentuk objek menarik `react/jsx-runtime` ke chunk PDF, sehingga entry + semua halaman meng-import chunk 1,47 MB secara statis dan di-preload di `index.html`; tanpa entri itu chunk `react-pdf.browser` hanya dimuat oleh Reports/OrderDetail (entry +0,68 kB); recharts tetap eager karena Dashboard memakainya | 2026-10-23 | Active |
 
 ## Success Metrics
 
@@ -164,4 +166,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-10-23 after Phase 45 — Orders List: Filter DTF Hanya di Desktop*
+*Last updated: 2026-10-23 after Phase 47 — Build: Chunk PDF Lazy di Produksi*
