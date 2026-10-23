@@ -67,7 +67,7 @@ Branch: claude/charming-clarke-4d6351 (worktree; belum di-merge ke main)
 Feature branches merged: none
 
 ### Blockers/Concerns
-- Phase 46 (ekspor PDF halaman Mitra) dikerjakan di sesi/branch lain dan belum ada di branch ini; Phase 47 memakai nomor berikutnya agar tidak bentrok. Saat kedua branch digabung, `.paul/STATE.md`, `ROADMAP.md`, `PROJECT.md`, `paul.toml`, dan `ledger.toml` kemungkinan konflik teks — gabungkan kedua entri (urut Phase 46, 47) dan hitung ulang `stats.total_*`.
+- None
 
 ### Deferred Issues
 - Extract `STATUS_LABELS` ke `src/lib/order-status.ts` sebagai shared constant (saat ini duplicate di OrderDetail.tsx + OrderSPKPDF.tsx + Reports.tsx).
