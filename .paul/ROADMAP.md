@@ -57,6 +57,7 @@ Phases: 1 of 1 complete (Phase 11)
 | 43 | Reports: Rekap Produk & Qty di PDF Rekap Tagihan | 1 | ✅ Complete | 2026-10-23 |
 | 44 | Orders List: Filter Status Cetak DTF | 1 | ✅ Complete | 2026-10-23 |
 | 45 | Orders List: Filter DTF Hanya di Desktop | 1 | ✅ Complete | 2026-10-23 |
+| 46 | Mitras: Ekspor PDF (Daftar Mitra + PDF per Mitra) | 2 | ✅ Complete | 2026-10-23 |
 
 ## Phase Details
 
@@ -521,4 +522,17 @@ Phases: 1 of 1 complete (Phase 11)
 **Result:** Chip filter DTF di `/orders` tersembunyi di mode mobile (< 768px) dan hanya tampil di desktop (md ke atas) lewat wrapper `hidden md:block` di `OrdersList.tsx` (+8/−5 baris; komponen dan modul `dtf-filter` tidak berubah). Filter status, KPI, pencarian, paginasi, dan badge "DTF" tidak berubah. Menggantikan bagian "layout sama untuk mobile dan desktop" dari keputusan Phase 44.
 
 ---
-*Last updated: 2026-10-23 — Phase 45 complete*
+### Phase 46: Mitras: Ekspor PDF (Daftar Mitra + PDF per Mitra) ✅ Complete
+
+**Goal:** Halaman Manajemen Mitra (`/mitras`, admin) mendapat ekspor PDF: (1) tombol "Cetak PDF" di header yang mengunduh "Laporan Daftar Mitra" — semua mitra dengan Total Penjualan, Jumlah Pesanan, Saldo Piutang, Limit Kredit, Status, dan baris TOTAL; (2) tombol "Cetak PDF" di panel "Detail Info Mitra" yang mengunduh PDF satu mitra dengan isi sama seperti panel (1 halaman, tanpa daftar transaksi). Angka identik dengan layar (satu fungsi hitung bersama); library PDF dimuat lewat `import()` saat tombol diklik.
+**Depends on:** Phase 45 (codebase stabil); discovery: `.paul/phases/46-mitras-pdf-export/DISCOVERY.md`
+**Completed:** 2026-10-23
+
+**Plans:**
+- [x] 46-01: Modul `mitra-export` (tipe, fungsi hitung/ringkasan murni, sanitasi teks PDF, PDF Daftar Mitra, ekspor `import()` dinamis, hook) + tombol Cetak PDF di header `Mitras.tsx` (standard)
+- [x] 46-02: PDF per mitra dari panel Detail Info Mitra (tipe + `buildMitraDetail`, PDF 1 halaman, ekspor `import()` dinamis, hook, tombol di Tindakan panel) (standard)
+
+**Result:** Halaman Manajemen Mitra (`/mitras`) punya dua ekspor PDF: tombol "Cetak PDF" di header mengunduh "Laporan Daftar Mitra" (semua mitra aktif + arsip urut A–Z, 4 kotak ringkasan, tabel 7 kolom, baris TOTAL, header tabel berulang antarhalaman, "Halaman X / Y"), dan tombol "Cetak PDF" di bagian Tindakan panel Detail Info Mitra mengunduh PDF 1 halaman per mitra (isi = panel: nama, status, penanggung jawab + kontak, limit, tiga statistik). Angka identik layar lewat satu fungsi `calculateMitraStats`; nama berisi emoji/CJK dibersihkan (`toPdfSafeText`); library PDF lazy lewat `import()` (entry +1,8 kB di 46-01 dan +1,95 kB di 46-02, `vendor-pdf` tidak berubah). Modul baru `src/components/mitras/mitra-export/` (14 file, public API `index.ts`); fungsi murni teruji 46 + 27 assertion Node, render PDF teruji 38 + 44 assertion, uji klik browser dengan API tiruan (termasuk jalur galat dan daftar kosong); layar tidak berubah selain dua tombol baru.
+
+---
+*Last updated: 2026-10-23 — Phase 46 complete*

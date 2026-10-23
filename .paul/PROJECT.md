@@ -67,6 +67,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Reports PDF Rekap Produk & Qty: PDF Rekap Tagihan memuat section "Rekap Produk (harga digabung)" — Produk + Qty saja, satu baris per produk (harga berbeda digabung), di atas tabel rincian per harga satuan; `productQty` dihitung di `buildBillingRecap`; hanya PDF, tab di layar tidak berubah — Phase 43
 - [x] Orders List: Filter Status Cetak DTF: baris chip "Semua DTF / Belum Cetak / Sudah Cetak / Tanpa DTF" (dengan jumlah pesanan) di halaman Daftar Pesanan, berkombinasi dengan filter status dan pencarian; Belum Cetak = ada ≥1 item custom belum dicetak (termasuk parsial), Sudah Cetak = semua item custom sudah dicetak, Tanpa DTF = tidak ada item custom; modul `dtf-filter` dengan public API `index.ts` — Phase 44
 - [x] Orders List: Filter DTF Hanya di Desktop: chip filter status cetak DTF disembunyikan di mode mobile (< 768px) dan hanya tampil di desktop lewat wrapper `hidden md:block` di `OrdersList.tsx` — Phase 45
+- [x] Mitras: Ekspor PDF: tombol "Cetak PDF" di header Manajemen Mitra mengunduh "Laporan Daftar Mitra" (semua mitra A–Z, ringkasan, tabel 7 kolom, baris TOTAL, header berulang antarhalaman, "Halaman X / Y") dan tombol "Cetak PDF" di panel Detail Info Mitra mengunduh PDF 1 halaman per mitra (isi = panel); angka identik layar lewat `calculateMitraStats`; nama emoji/CJK dibersihkan (`toPdfSafeText`); library PDF lazy lewat `import()`; modul `mitra-export` dengan public API `index.ts` — Phase 46
 
 ### Active (In Progress)
 
@@ -141,6 +142,11 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Hitungan chip DTF = lingkup role + filter status terpilih, tanpa pencarian; hitungan opsi filter status tidak memperhitungkan filter DTF | Belum + Sudah + Tanpa = Semua DTF; selaras dengan hitungan status yang juga tidak memperhitungkan pencarian | 2026-10-23 | Active |
 | Klasifikasi/penyaringan/penghitungan DTF di fungsi murni modul `src/components/orders/dtf-filter/` (hanya `import type`); state filter tetap di halaman | Pola modul Phase 42 dipakai ulang untuk fitur filter; teruji di Node tanpa test runner | 2026-10-23 | Active |
 | Chip filter DTF hanya tampil di desktop (md / 768px ke atas); disembunyikan di mobile lewat wrapper `hidden md:block` di `OrdersList.tsx`, bukan di komponen modul | Permintaan user; mobile cukup filter status; keputusan breakpoint tetap di halaman bersama kontrol `md:` lain; menggantikan "layout sama untuk mobile dan desktop" dari keputusan Phase 44 | 2026-10-23 | Active |
+| `calculateMitraStats` (rumus lama tak berubah) = satu sumber angka layar + PDF Manajemen Mitra; `getMitraStats` jadi pembungkus tipis | Angka PDF harus identik dengan layar; teruji terhadap rumus lama pada data acak | 2026-10-23 | Active |
+| Library PDF di halaman eager (Mitras): hanya berkas PDF yang meng-import `@react-pdf/renderer` (sekaligus pembuat blob), ekspor lewat `import()` dinamis, barrel tanpa komponen PDF, jalur eager bebas `date-fns` | Mitras di-import eager; `date-fns format()` di jalur eager menambah entry +22,7 kB dan import dinamis namespace library menambah chunk `vendor-pdf` +2 kB (keduanya terukur dan diperbaiki) | 2026-10-23 | Active |
+| Karakter di luar WinAnsi dibuang (`toPdfSafeText`), nama kosong → "-"; bukan font Unicode/CDN emoji | Helvetica bawaan mencetak emoji/CJK sebagai karakter acak; aman offline tanpa bobot font | 2026-10-23 | Active |
+| PDF per mitra = isi panel (1 halaman, tanpa daftar transaksi); angka dari `stats` panel tanpa hitung ulang; limit = nilai tersimpan | Pilihan user; tidak menduplikasi Laporan › Keuangan | 2026-10-23 | Active |
+| Tombol "Cetak PDF" di header (Daftar Mitra) dan di Tindakan panel (per mitra); satu `isExporting` + penjaga klik bersama lewat satu hook | Dua ekspor tidak boleh berjalan paralel; konsisten dengan "Cetak PDF" di Laporan | 2026-10-23 | Active |
 
 ## Success Metrics
 
@@ -164,4 +170,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-10-23 after Phase 45 — Orders List: Filter DTF Hanya di Desktop*
+*Last updated: 2026-10-23 after Phase 46 — Mitras: Ekspor PDF (Daftar Mitra + PDF per Mitra)*

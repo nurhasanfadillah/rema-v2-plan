@@ -5,25 +5,25 @@
 See: .paul/PROJECT.md (updated 2026-09-13)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** Phase 45 complete — chip filter DTF di Daftar Pesanan kini hanya tampil di desktop (disembunyikan di mobile).
+**Current focus:** Phase 46 complete — Manajemen Mitra punya ekspor PDF Daftar Mitra (tombol di header) dan PDF per mitra (tombol di panel Detail Info Mitra).
 
 ## Current Position
 
 Milestone: v2.5 UI Fixes (rolling)
-Phase: 45 (Orders List: Filter DTF Hanya di Desktop) — Complete
+Phase: 46 (Mitras: Ekspor PDF) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-23 — Phase 45 transitioned; PROJECT.md + ROADMAP.md evolved; commit b957c80
+Last activity: 2026-10-23 — Phase 46 transitioned; PROJECT.md + ROADMAP.md evolved
 
 Progress:
-- Phase 45: [██████████] 100% (1 of 1 plans complete)
+- Phase 46: [██████████] 100% (2 of 2 plans complete)
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop 45 closed — Phase 45 complete]
+  ✓        ✓        ✓     [Loop 46-02 closed — Phase 46 complete]
 ```
 
 ## Accumulated Context
@@ -59,6 +59,14 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Hitungan chip DTF = lingkup role + filter status terpilih, tanpa pencarian; hitungan opsi filter status tidak memperhitungkan filter DTF | Phase 44 | Belum + Sudah + Tanpa = Semua DTF; selaras dengan hitungan status yang juga tidak memperhitungkan pencarian |
 | Klasifikasi/penyaringan/penghitungan DTF di fungsi murni modul `src/components/orders/dtf-filter/` (hanya `import type`); state filter tetap di `OrdersList.tsx` | Phase 44 | Pola modul Phase 42 dipakai ulang untuk fitur filter; teruji 10 kasus di Node tanpa test runner |
 | Chip filter DTF hanya tampil di desktop (md / 768px ke atas), disembunyikan di mobile lewat wrapper `hidden md:block` di `OrdersList.tsx` | Phase 45 | Permintaan user; menggantikan "layout sama untuk mobile dan desktop" dari keputusan Phase 44; keputusan breakpoint tetap di halaman, bukan di komponen modul |
+| Phase 46 dipecah 2 plan: 46-01 fondasi modul `mitra-export` + PDF Daftar Mitra, 46-02 PDF per mitra dari panel Detail Info Mitra (isi = sama dengan panel, 1 halaman, tanpa daftar transaksi) | Phase 46 | Pilihan user; 46-02 memakai modul `mitra-export` |
+| `calculateMitraStats` (rumus lama tak berubah) = satu sumber angka layar + PDF Manajemen Mitra; `getMitraStats` jadi pembungkus tipis | Phase 46 | Angka PDF identik layar; teruji terhadap rumus lama pada data acak; semantik "Total Penjualan" (draft/returned ikut) tidak berubah |
+| PDF Daftar Mitra mirror layar: semua mitra (aktif + arsip), urut A–Z, kolom "Jumlah Pesanan", limit kosong = "Unlimited", HP ikut, catatan kaki definisi | Phase 46 | Default dari DISCOVERY; urutan layar tetap mengikuti urutan API |
+| Library PDF di halaman eager: hanya `mitra-list-pdf.tsx` yang meng-import `@react-pdf/renderer` (+ `createMitraListPdfBlob`), ekspor memuatnya lewat `import()`, barrel tidak mengekspor komponen PDF, jalur eager bebas `date-fns` (`formatFileDate`) | Phase 46 | Entry +1,8 kB dan `vendor-pdf` identik baseline; benar sebelum maupun sesudah Phase 47 |
+| Karakter di luar WinAnsi dibuang (`toPdfSafeText`), nama kosong → "-"; bukan font Unicode/CDN emoji | Phase 46 | Aman offline tanpa bobot font; Helvetica bawaan mencetak emoji/CJK sebagai karakter acak |
+| Tombol "Cetak PDF" di `page-header` Mitras (`btn-primary`, ikon Download, `ml-auto`); hook ekspor dipanggil sebelum gate admin | Phase 46 | Konsisten dengan Laporan; tidak mengulang pelanggaran aturan hooks di `OrdersList.tsx` |
+| `buildMitraDetail` hanya memetakan `stats` yang sama dengan panel (tanpa hitung ulang); PDF per mitra memakai limit tersimpan, judul "Detail Info Mitra", label "Jumlah Pesanan" | Phase 46 | Angka PDF = angka panel; limit yang baru diketik tetapi belum disimpan tidak ikut tercetak |
+| Tombol Cetak PDF per mitra di Tindakan panel (baris penuh di atas Hapus Mitra, hanya mode lihat); satu `isExporting` + penjaga `useRef` dibagi dengan tombol header lewat `runExport` bersama; nama berkas `Mitra_<NAMA_AMAN>_<tanggal>.pdf` | Phase 46 | Dua ekspor saling mengunci; nama berkas aman untuk aksen/emoji/CJK |
 
 ### Git State
 Last commit: b957c80 — feat(45): orders list - sembunyikan chip filter DTF di mobile
@@ -66,7 +74,7 @@ Branch: main
 Feature branches merged: none
 
 ### Blockers/Concerns
-- None
+- Phase 47 (chunk PDF lazy) ada di branch `claude/charming-clarke-4d6351` (belum di-push/digabung; verifikasinya di 47-01-SUMMARY pada branch itu). Phase 46 kini ter-commit di `main`, jadi saat digabung `.paul/ROADMAP.md`, `STATE.md`, `PROJECT.md`, `paul.toml`, dan `ledger.toml` akan bentrok ringan — selesaikan manual. Kodenya (`vite.config.ts`) tidak bentrok dengan modul `mitra-export`.
 
 ### Deferred Issues
 - Extract `STATUS_LABELS` ke `src/lib/order-status.ts` sebagai shared constant (saat ini duplicate di OrderDetail.tsx + OrderSPKPDF.tsx + Reports.tsx).
@@ -77,13 +85,18 @@ Feature branches merged: none
 - `OrdersList.tsx` memanggil `React.useEffect` setelah `if (!user) return null` (pelanggaran aturan hooks yang sudah ada sebelum Phase 44) — pindahkan hook ke atas early return.
 - Hitungan opsi filter status di `OrdersList.tsx` belum memperhitungkan filter DTF: memilih "Belum Cetak" lalu status "Press Sablon" bisa menghasilkan 0 walau opsi menampilkan angka > 0 (chip DTF menunjukkan alasannya).
 - Filter DTF yang sedang aktif tetap menyaring daftar bila jendela desktop dipersempit di bawah 768px (chip tersembunyi, tidak ada kontrol untuk melepasnya sampai halaman dimuat ulang atau jendela dilebarkan) — pertimbangkan reset ke 'all' saat viewport mobile (matchMedia).
+- Ekstrak helper unduh Blob bersama: `Reports.tsx` (`handleExport`) menyalin pola anchor + `createObjectURL` secara inline dan langsung `revokeObjectURL`; `mitra-export/download-blob.ts` sudah memakai jeda 1 detik (Phase 46).
+- Batasan WinAnsi pada PDF lama: teks bebas (SPK `designNotes`, nama produk/mitra) berisi emoji/CJK tercetak sebagai karakter acak — pertimbangkan membagikan `toPdfSafeText` (modul `mitra-export`) ke `OrderSPKPDF` dan PDF lain.
+- "Total Penjualan" di Manajemen Mitra dan PDF Daftar Mitra (`calculateMitraStats`) ikut menghitung draft dan returned (hanya `cancelled` dikeluarkan) — terkait item evaluasi `cancelled`/`returned` di atas.
+- Urutan baris layar Manajemen Mitra mengikuti urutan API (query tanpa `ORDER BY`), sedangkan PDF Daftar Mitra urut A–Z — pertimbangkan menyamakan.
+- `MitraDetailPanel` di `Mitras.tsx` memakai `mitraUser?: any` (sudah ada sebelum Phase 46) — ganti dengan tipe `SafeUser`.
 
 ## Session Continuity
 
 Last session: 2026-10-23
-Stopped at: Phase 45 transition complete — committed ke git (b957c80)
+Stopped at: Phase 46 transition complete — committed ke git
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
-Resume file: .paul/phases/45-orders-dtf-filter-desktop-only/45-01-PLAN.md
+Resume file: .paul/phases/46-mitras-pdf-export/46-02-PLAN.md
 
 ---
 *STATE.md — Updated after every significant action*

@@ -5,8 +5,9 @@ import { useConfirm } from '../context/ConfirmContext';
 import { api } from '../lib/api';
 import { Mitra, User, Order, LedgerEntry } from '../types';
 import { formatCurrency } from '../lib/utils';
-import { Save, Edit2, Archive, Trash2, X, Sparkles, AlertCircle, Award, ChevronRight } from 'lucide-react';
+import { Save, Edit2, Archive, Trash2, X, Sparkles, AlertCircle, Award, ChevronRight, Download } from 'lucide-react';
 import { FileUpload } from '../components/FileUpload';
+import { buildMitraDetail, buildMitraSummary, calculateMitraStats, useMitraPdfExport } from '../components/mitras/mitra-export';
 import { motion, AnimatePresence } from 'motion/react';
 
 type SafeUser = Omit<User, 'passwordHash'>;
@@ -34,18 +35,16 @@ export default function Mitras() {
     }).catch(() => toast.error('Gagal memuat data mitra'));
   }, []);
 
+  const { isExporting, exportMitraList, exportMitraDetail } = useMitraPdfExport();
+
   if (user?.role !== 'admin') return <div className="p-8 text-center text-red-500 font-bold">Akses Ditolak</div>;
 
-  const getMitraStats = (mitraId: string) => {
-    const mitraOrders = orders.filter(o => o.mitraId === mitraId && o.status !== 'cancelled');
-    const totalOrders = mitraOrders.length;
-    const totalSales = mitraOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+  const getMitraStats = (mitraId: string) => calculateMitraStats(mitraId, orders, ledgerEntries);
 
-    const mitraLedgers = ledgerEntries.filter(l => l.mitraId === mitraId);
-    const saldoPiutang = mitraLedgers.reduce((acc, curr) => acc + (curr.direction === 'debit' ? curr.nominal : -curr.nominal), 0);
+  const handleExportPdf = () => exportMitraList(buildMitraSummary({ mitras, users, orders, ledgers: ledgerEntries }));
 
-    return { totalOrders, totalSales, saldoPiutang };
-  };
+  const handleExportDetailPdf = (mitra: Mitra) =>
+    exportMitraDetail(buildMitraDetail({ mitra, account: users.find(u => u.id === mitra.userId), stats: getMitraStats(mitra.id) }));
 
   const handleUpdateLimit = async (mitraId: string, newLimit: string) => {
     let limitVal: number | null = parseInt(newLimit.replace(/\D/g, ''));
@@ -146,6 +145,9 @@ export default function Mitras() {
           <h1 className="page-title">Manajemen Mitra</h1>
           <p className="text-[11px] text-slate-500 mt-1 font-medium opacity-80">Pantau limit kredit, profil mitra, dan statistik performa.</p>
         </div>
+        <button type="button" onClick={handleExportPdf} disabled={mitras.length === 0 || isExporting} className="btn-primary ml-auto">
+          <Download className="w-4 h-4" /> {isExporting ? 'Membuat PDF...' : 'Cetak PDF'}
+        </button>
       </div>
 
       {mitras.length === 0 ? (
@@ -285,6 +287,8 @@ export default function Mitras() {
             onUpdateLimit={handleUpdateLimit}
             mitraUser={users.find(u => u.id === selectedMitra.userId)}
             stats={getMitraStats(selectedMitra.id)}
+            onExportPdf={() => handleExportDetailPdf(selectedMitra)}
+            isExporting={isExporting}
           />
         )}
       </AnimatePresence>
@@ -300,6 +304,8 @@ function MitraDetailPanel({
   onToggleArchive,
   onDelete,
   onUpdateLimit,
+  onExportPdf,
+  isExporting,
   mitraUser,
   stats
 }: {
@@ -310,6 +316,8 @@ function MitraDetailPanel({
   onToggleArchive: () => void,
   onDelete: () => void,
   onUpdateLimit: (id: string, limit: string) => void,
+  onExportPdf: () => void,
+  isExporting: boolean,
   mitraUser?: any,
   stats: { totalOrders: number, totalSales: number, saldoPiutang: number }
 }) {
@@ -426,6 +434,9 @@ function MitraDetailPanel({
                     <button onClick={onToggleArchive} className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition-all cursor-pointer active:scale-95 border ${mitra.isArchived ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border-orange-500/20'}`}>
                       <Archive className="w-3 h-3" />
                       {mitra.isArchived ? 'Buka Akses' : 'Batasi Akses'}
+                    </button>
+                    <button type="button" onClick={onExportPdf} disabled={isExporting} className="col-span-2 flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-all cursor-pointer active:scale-95 border border-blue-500/20 disabled:opacity-50 disabled:pointer-events-none">
+                      <Download className="w-3 h-3" /> {isExporting ? 'Membuat PDF...' : 'Cetak PDF'}
                     </button>
                     <button onClick={onDelete} className="col-span-2 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-all cursor-pointer active:scale-95 font-extrabold uppercase tracking-wider border border-red-500/20">
                       <Trash2 className="w-3 h-3" /> Hapus Mitra
