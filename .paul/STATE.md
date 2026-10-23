@@ -13,7 +13,7 @@ Milestone: v2.5 UI Fixes (rolling)
 Phase: 46 (Mitras: Ekspor PDF) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-23 — Phase 46 transitioned; PROJECT.md + ROADMAP.md evolved
+Last activity: 2026-10-23 — Phase 46 transitioned; PROJECT.md + ROADMAP.md evolved; commit 3a0e205
 
 Progress:
 - Phase 46: [██████████] 100% (2 of 2 plans complete)
@@ -69,7 +69,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Tombol Cetak PDF per mitra di Tindakan panel (baris penuh di atas Hapus Mitra, hanya mode lihat); satu `isExporting` + penjaga `useRef` dibagi dengan tombol header lewat `runExport` bersama; nama berkas `Mitra_<NAMA_AMAN>_<tanggal>.pdf` | Phase 46 | Dua ekspor saling mengunci; nama berkas aman untuk aksen/emoji/CJK |
 
 ### Git State
-Last commit: b957c80 — feat(45): orders list - sembunyikan chip filter DTF di mobile
+Last commit: 3a0e205 — feat(46): mitras - ekspor PDF Daftar Mitra + PDF per mitra
 Branch: main
 Feature branches merged: none
 
@@ -94,7 +94,7 @@ Feature branches merged: none
 ## Session Continuity
 
 Last session: 2026-10-23
-Stopped at: Phase 46 transition complete — committed ke git
+Stopped at: Phase 46 transition complete — committed ke git (3a0e205)
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/phases/46-mitras-pdf-export/46-02-PLAN.md
 
