@@ -68,6 +68,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 - [x] Orders List: Filter Status Cetak DTF: baris chip "Semua DTF / Belum Cetak / Sudah Cetak / Tanpa DTF" (dengan jumlah pesanan) di halaman Daftar Pesanan, berkombinasi dengan filter status dan pencarian; Belum Cetak = ada ≥1 item custom belum dicetak (termasuk parsial), Sudah Cetak = semua item custom sudah dicetak, Tanpa DTF = tidak ada item custom; modul `dtf-filter` dengan public API `index.ts` — Phase 44
 - [x] Orders List: Filter DTF Hanya di Desktop: chip filter status cetak DTF disembunyikan di mode mobile (< 768px) dan hanya tampil di desktop lewat wrapper `hidden md:block` di `OrdersList.tsx` — Phase 45
 - [x] Mitras: Ekspor PDF: tombol "Cetak PDF" di header Manajemen Mitra mengunduh "Laporan Daftar Mitra" (semua mitra A–Z, ringkasan, tabel 7 kolom, baris TOTAL, header berulang antarhalaman, "Halaman X / Y") dan tombol "Cetak PDF" di panel Detail Info Mitra mengunduh PDF 1 halaman per mitra (isi = panel); angka identik layar lewat `calculateMitraStats`; nama emoji/CJK dibersihkan (`toPdfSafeText`); library PDF lazy lewat `import()`; modul `mitra-export` dengan public API `index.ts` — Phase 46
+- [x] Build: Chunk PDF Lazy: entri `vendor-pdf` dihapus dari `manualChunks` di `vite.config.ts`, sehingga `@react-pdf/renderer` menjadi chunk lazy yang hanya di-import statis oleh chunk lazy (Reports, OrderDetail, dan setelah digabung dengan Phase 46 juga `mitra-list-pdf`/`mitra-detail-pdf`) — tidak lagi di-preload `index.html` / di-import entry; JS jalur kritis 771,56 → 279,59 kB gzip (−63,8%), entry +0,68 kB — Phase 47
 
 ### Active (In Progress)
 
@@ -147,6 +148,7 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 | Karakter di luar WinAnsi dibuang (`toPdfSafeText`), nama kosong → "-"; bukan font Unicode/CDN emoji | Helvetica bawaan mencetak emoji/CJK sebagai karakter acak; aman offline tanpa bobot font | 2026-10-23 | Active |
 | PDF per mitra = isi panel (1 halaman, tanpa daftar transaksi); angka dari `stats` panel tanpa hitung ulang; limit = nilai tersimpan | Pilihan user; tidak menduplikasi Laporan › Keuangan | 2026-10-23 | Active |
 | Tombol "Cetak PDF" di header (Daftar Mitra) dan di Tindakan panel (per mitra); satu `isExporting` + penjaga klik bersama lewat satu hook | Dua ekspor tidak boleh berjalan paralel; konsisten dengan "Cetak PDF" di Laporan | 2026-10-23 | Active |
+| `@react-pdf/renderer` tidak didaftarkan di `manualChunks` (hanya `vendor-charts` yang tetap); chunk PDF dibiarkan otomatis oleh Rollup | `manualChunks` bentuk objek menarik `react/jsx-runtime` ke chunk PDF, sehingga entry + semua halaman meng-import chunk 1,47 MB secara statis dan di-preload di `index.html`; tanpa entri itu chunk `react-pdf.browser` hanya dimuat oleh chunk lazy (Reports, OrderDetail, ekspor PDF Mitra; entry +0,68 kB); recharts tetap eager karena Dashboard memakainya | 2026-10-23 | Active |
 
 ## Success Metrics
 
@@ -170,4 +172,4 @@ Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data pe
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-10-23 after Phase 46 — Mitras: Ekspor PDF (Daftar Mitra + PDF per Mitra)*
+*Last updated: 2026-10-23 after Phase 47 — Build: Chunk PDF Lazy di Produksi (digabung setelah Phase 46 — Mitras: Ekspor PDF)*

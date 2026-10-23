@@ -5,25 +5,26 @@
 See: .paul/PROJECT.md (updated 2026-09-13)
 
 **Core value:** Admin dapat mengelola pesanan dan keuangan mitra secara real-time dengan data persisten di cloud, bukan di browser.
-**Current focus:** Phase 46 complete — Manajemen Mitra punya ekspor PDF Daftar Mitra (tombol di header) dan PDF per mitra (tombol di panel Detail Info Mitra).
+**Current focus:** Phase 46 dan Phase 47 complete dan digabung di `main` — Manajemen Mitra punya ekspor PDF (Daftar Mitra di header, per mitra di panel Detail Info Mitra) dan chunk `@react-pdf/renderer` kini benar-benar lazy di build produksi (entri `vendor-pdf` dihapus dari `manualChunks`; JS jalur kritis −63,8% gzip).
 
 ## Current Position
 
 Milestone: v2.5 UI Fixes (rolling)
-Phase: 46 (Mitras: Ekspor PDF) — Complete
+Phase: 47 (Build: Chunk PDF Lazy di Produksi) — Complete; Phase 46 (Mitras: Ekspor PDF) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-23 — Phase 46 transitioned; PROJECT.md + ROADMAP.md evolved; commit 3a0e205
+Last activity: 2026-10-23 — Branch Phase 47 digabung ke main (Phase 46: commit 3a0e205, Phase 47: commit dd88e98)
 
 Progress:
 - Phase 46: [██████████] 100% (2 of 2 plans complete)
+- Phase 47: [██████████] 100% (1 of 1 plans complete)
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop 46-02 closed — Phase 46 complete]
+  ✓        ✓        ✓     [Loop 46-02 dan 47-01 closed — Phase 46 dan 47 complete, digabung]
 ```
 
 ## Accumulated Context
@@ -67,6 +68,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Tombol "Cetak PDF" di `page-header` Mitras (`btn-primary`, ikon Download, `ml-auto`); hook ekspor dipanggil sebelum gate admin | Phase 46 | Konsisten dengan Laporan; tidak mengulang pelanggaran aturan hooks di `OrdersList.tsx` |
 | `buildMitraDetail` hanya memetakan `stats` yang sama dengan panel (tanpa hitung ulang); PDF per mitra memakai limit tersimpan, judul "Detail Info Mitra", label "Jumlah Pesanan" | Phase 46 | Angka PDF = angka panel; limit yang baru diketik tetapi belum disimpan tidak ikut tercetak |
 | Tombol Cetak PDF per mitra di Tindakan panel (baris penuh di atas Hapus Mitra, hanya mode lihat); satu `isExporting` + penjaga `useRef` dibagi dengan tombol header lewat `runExport` bersama; nama berkas `Mitra_<NAMA_AMAN>_<tanggal>.pdf` | Phase 46 | Dua ekspor saling mengunci; nama berkas aman untuk aksen/emoji/CJK |
+| `@react-pdf/renderer` tidak didaftarkan di `manualChunks` (hanya `vendor-charts` yang tetap); chunk PDF dibiarkan otomatis oleh Rollup | Phase 47 | `manualChunks` bentuk objek menarik `react/jsx-runtime` ke chunk PDF → entry + semua halaman meng-import chunk 1,47 MB secara statis; tanpa entri itu chunk `react-pdf.browser` hanya dimuat chunk lazy (Reports, OrderDetail, ekspor PDF Mitra; entry +0,68 kB, jalur kritis −491,97 kB gzip); jangan dikembalikan |
 
 ### Git State
 Last commit: 3a0e205 — feat(46): mitras - ekspor PDF Daftar Mitra + PDF per mitra
@@ -74,7 +76,7 @@ Branch: main
 Feature branches merged: none
 
 ### Blockers/Concerns
-- Phase 47 (chunk PDF lazy) ada di branch `claude/charming-clarke-4d6351` (belum di-push/digabung; verifikasinya di 47-01-SUMMARY pada branch itu). Phase 46 kini ter-commit di `main`, jadi saat digabung `.paul/ROADMAP.md`, `STATE.md`, `PROJECT.md`, `paul.toml`, dan `ledger.toml` akan bentrok ringan — selesaikan manual. Kodenya (`vite.config.ts`) tidak bentrok dengan modul `mitra-export`.
+- None
 
 ### Deferred Issues
 - Extract `STATUS_LABELS` ke `src/lib/order-status.ts` sebagai shared constant (saat ini duplicate di OrderDetail.tsx + OrderSPKPDF.tsx + Reports.tsx).
@@ -90,13 +92,14 @@ Feature branches merged: none
 - "Total Penjualan" di Manajemen Mitra dan PDF Daftar Mitra (`calculateMitraStats`) ikut menghitung draft dan returned (hanya `cancelled` dikeluarkan) — terkait item evaluasi `cancelled`/`returned` di atas.
 - Urutan baris layar Manajemen Mitra mengikuti urutan API (query tanpa `ORDER BY`), sedangkan PDF Daftar Mitra urut A–Z — pertimbangkan menyamakan.
 - `MitraDetailPanel` di `Mitras.tsx` memakai `mitraUser?: any` (sudah ada sebelum Phase 46) — ganti dengan tipe `SafeUser`.
+- `Reports.tsx` dan `OrderDetail.tsx` masih meng-import `@react-pdf/renderer` secara statis: pengguna tanpa cache service worker menunggu chunk PDF (±492 kB gzip) saat pertama kali membuka Laporan/Detail Pesanan — jika jeda itu mengganggu, muat library lewat `import()` dinamis saat tombol Cetak diklik (pola yang sudah dipakai modul `mitra-export`) atau pindahkan tombol PDF ke komponen lazy (butuh perubahan komponen halaman; di luar scope Phase 47).
 
 ## Session Continuity
 
 Last session: 2026-10-23
-Stopped at: Phase 46 transition complete — committed ke git (3a0e205)
+Stopped at: Branch Phase 47 digabung ke main (Phase 46 dan 47 complete) — committed ke git
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
-Resume file: .paul/phases/46-mitras-pdf-export/46-02-PLAN.md
+Resume file: .paul/phases/46-mitras-pdf-export/46-02-SUMMARY.md
 
 ---
 *STATE.md — Updated after every significant action*
