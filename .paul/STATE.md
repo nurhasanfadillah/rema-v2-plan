@@ -13,7 +13,7 @@ Milestone: v2.5 UI Fixes (rolling)
 Phase: 47 (Build: Chunk PDF Lazy di Produksi) — Complete
 Plan: Not started
 Status: Ready to plan next phase
-Last activity: 2026-10-23 — Phase 47 transitioned; PROJECT.md + ROADMAP.md evolved
+Last activity: 2026-10-23 — Phase 47 transitioned; PROJECT.md + ROADMAP.md evolved; commit dd88e98
 
 Progress:
 - Phase 47: [██████████] 100% (1 of 1 plans complete)
@@ -62,8 +62,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | `@react-pdf/renderer` tidak didaftarkan di `manualChunks` (hanya `vendor-charts` yang tetap); chunk PDF dibiarkan otomatis oleh Rollup | Phase 47 | `manualChunks` bentuk objek menarik `react/jsx-runtime` ke chunk PDF → entry + semua halaman meng-import chunk 1,47 MB secara statis; tanpa entri itu chunk `react-pdf.browser` hanya dimuat Reports/OrderDetail (entry +0,68 kB, jalur kritis −491,97 kB gzip); jangan dikembalikan |
 
 ### Git State
-Last commit: b957c80 — feat(45): orders list - sembunyikan chip filter DTF di mobile
-Branch: main
+Last commit: dd88e98 — perf(47): build - chunk @react-pdf/renderer lazy (hapus vendor-pdf dari manualChunks)
+Branch: claude/charming-clarke-4d6351 (worktree; belum di-merge ke main)
 Feature branches merged: none
 
 ### Blockers/Concerns
@@ -83,7 +83,7 @@ Feature branches merged: none
 ## Session Continuity
 
 Last session: 2026-10-23
-Stopped at: Phase 47 transition complete
+Stopped at: Phase 47 transition complete — committed ke git (dd88e98)
 Next action: /paul:discuss atau /paul:plan untuk phase baru, atau selesai
 Resume file: .paul/phases/47-pdf-chunk-lazy-loading/47-01-SUMMARY.md
 
