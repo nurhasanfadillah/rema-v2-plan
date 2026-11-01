@@ -9,10 +9,30 @@ import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { FinanceReportPDF } from '../components/reports/FinanceReportPDF';
 import { OrderReportPDF } from '../components/reports/OrderReportPDF';
 import { BillingRecapPDF, BillingRecapTab, useBillingRecap } from '../components/reports/billing-recap';
-import { ProcessingTimeReportPDF, type ProcessingTimeReportRow } from '../components/reports/ProcessingTimeReportPDF';
+import { ProcessingTimeReportPDF, type ProcessingKpiSummary, type ProcessingTimeReportRow } from '../components/reports/ProcessingTimeReportPDF';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 
 const PROCESSING_TIME_PAGE_SIZE = 20;
+const PROCESSING_KPI_STANDARDS = [
+  { key: 'micro', category: 'Mikro', qty: '1 pcs', target: 1, tolerance: 2 },
+  { key: 'verySmall', category: 'Sangat kecil', qty: '2–10 pcs', target: 2, tolerance: 3 },
+  { key: 'small', category: 'Kecil', qty: '11–50 pcs', target: 3, tolerance: 4 },
+  { key: 'medium', category: 'Menengah', qty: '51–100 pcs', target: 4, tolerance: 5 },
+  { key: 'large', category: 'Besar', qty: '101–250 pcs', target: 5, tolerance: 7 },
+  { key: 'bulk', category: 'Partai besar', qty: '251–500 pcs', target: 7, tolerance: 9 },
+  { key: 'veryLarge', category: 'Partai sangat besar', qty: '501–1.000 pcs', target: 10, tolerance: 12 },
+  { key: 'massProduction', category: 'Mass production', qty: '> 1.000 pcs', target: 14, tolerance: 17 },
+] as const;
+type ProcessingKpiCategoryCounts = Record<(typeof PROCESSING_KPI_STANDARDS)[number]['key'], number>;
+const EMPTY_PROCESSING_KPI_SUMMARY: ProcessingKpiSummary = { excellent: 0, evaluation: 0, failed: 0 };
+const EMPTY_PROCESSING_KPI_CATEGORY_COUNTS: ProcessingKpiCategoryCounts = {
+  micro: 0, verySmall: 0, small: 0, medium: 0, large: 0, bulk: 0, veryLarge: 0, massProduction: 0,
+};
+const PROCESSING_KPI_STATUS_DISPLAY = {
+  excellent: { label: 'Excellent', color: 'bg-emerald-100 text-emerald-700' },
+  evaluation: { label: 'Perlu evaluasi', color: 'bg-amber-100 text-amber-700' },
+  failed: { label: 'Tidak memenuhi KPI', color: 'bg-red-100 text-red-700' },
+} as const;
 
 export default function Reports() {
   const { user } = useAuth();
@@ -179,6 +199,8 @@ export default function Reports() {
   const [processingTimeRows, setProcessingTimeRows] = useState<ProcessingTimeReportRow[]>([]);
   const [processingTimeTotalCount, setProcessingTimeTotalCount] = useState(0);
   const [processingTimeAverageDays, setProcessingTimeAverageDays] = useState(0);
+  const [processingKpiSummary, setProcessingKpiSummary] = useState<ProcessingKpiSummary>(EMPTY_PROCESSING_KPI_SUMMARY);
+  const [processingKpiCategoryCounts, setProcessingKpiCategoryCounts] = useState<ProcessingKpiCategoryCounts>(EMPTY_PROCESSING_KPI_CATEGORY_COUNTS);
   const [isLoadingProcessingTime, setIsLoadingProcessingTime] = useState(false);
   const [processingTimeError, setProcessingTimeError] = useState('');
 
@@ -187,6 +209,8 @@ export default function Reports() {
       setProcessingTimeRows([]);
       setProcessingTimeTotalCount(0);
       setProcessingTimeAverageDays(0);
+      setProcessingKpiSummary(EMPTY_PROCESSING_KPI_SUMMARY);
+      setProcessingKpiCategoryCounts(EMPTY_PROCESSING_KPI_CATEGORY_COUNTS);
       setProcessingTimeError('');
       setIsLoadingProcessingTime(false);
       return;
@@ -198,15 +222,16 @@ export default function Reports() {
     setProcessingTimeRows([]);
     setProcessingTimeTotalCount(0);
     setProcessingTimeAverageDays(0);
+    setProcessingKpiSummary(EMPTY_PROCESSING_KPI_SUMMARY);
+    setProcessingKpiCategoryCounts(EMPTY_PROCESSING_KPI_CATEGORY_COUNTS);
     api.orders.processingTime(processStart, processEnd, processMitraId, processingTimePage, PROCESSING_TIME_PAGE_SIZE)
       .then(result => {
         if (isCurrentRequest) {
-          setProcessingTimeRows(result.rows.map(row => ({
-            ...row,
-            durationDays: Math.max(0, (row.packedAt - row.orderedAt) / 86_400_000),
-          })));
+          setProcessingTimeRows(result.rows.map(row => ({ ...row, durationDays: Math.max(1, Math.ceil(row.durationDays)) })));
           setProcessingTimeTotalCount(result.totalCount);
           setProcessingTimeAverageDays(result.averageDays);
+          setProcessingKpiSummary(result.kpiSummary);
+          setProcessingKpiCategoryCounts(result.kpiCategoryCounts);
         }
       })
       .catch(error => {
@@ -233,20 +258,16 @@ export default function Reports() {
       setIsExporting(true);
       let exportProcessingRows = [...processingTimeRows];
       let exportProcessingAverage = processingTimeAverageDays;
+      let exportProcessingKpiSummary = processingKpiSummary;
 
       if (activeTab === 'processingTime') {
         const firstPage = await api.orders.processingTime(processStart, processEnd, processMitraId, 1, 100);
-        exportProcessingRows = firstPage.rows.map(row => ({
-          ...row,
-          durationDays: Math.max(0, (row.packedAt - row.orderedAt) / 86_400_000),
-        }));
+        exportProcessingRows = firstPage.rows.map(row => ({ ...row, durationDays: Math.max(1, Math.ceil(row.durationDays)) }));
         exportProcessingAverage = firstPage.averageDays;
+        exportProcessingKpiSummary = firstPage.kpiSummary;
         for (let page = 2; page <= Math.ceil(firstPage.totalCount / firstPage.pageSize); page += 1) {
           const nextPage = await api.orders.processingTime(processStart, processEnd, processMitraId, page, 100);
-          exportProcessingRows.push(...nextPage.rows.map(row => ({
-            ...row,
-            durationDays: Math.max(0, (row.packedAt - row.orderedAt) / 86_400_000),
-          })));
+          exportProcessingRows.push(...nextPage.rows.map(row => ({ ...row, durationDays: Math.max(1, Math.ceil(row.durationDays)) })));
         }
       }
       
@@ -255,7 +276,7 @@ export default function Reports() {
       ) : activeTab === 'billing' ? (
         <BillingRecapPDF recap={billingRecap.recap} filters={billingRecap.filters} mitraName={billingMitraName} />
       ) : activeTab === 'processingTime' ? (
-        <ProcessingTimeReportPDF rows={exportProcessingRows} averageDays={exportProcessingAverage} filters={{ start: processStart, end: processEnd, mitraName: processMitraId === 'all' ? 'Semua Mitra' : mitras.find(m => m.id === processMitraId)?.name ?? 'Mitra' }} />
+        <ProcessingTimeReportPDF rows={exportProcessingRows} averageDays={exportProcessingAverage} kpiSummary={exportProcessingKpiSummary} filters={{ start: processStart, end: processEnd, mitraName: processMitraId === 'all' ? 'Semua Mitra' : mitras.find(m => m.id === processMitraId)?.name ?? 'Mitra' }} />
       ) : (
         <OrderReportPDF items={orderData.items} mitras={mitras} filters={{start: ordStart, end: ordEnd, mitraId: ordMitraId, status: ordStatus, type: ordType, productId: ordProduct}} totalQty={orderData.totalQty} totalSubtotal={orderData.totalSubtotal} showSubtotal={user.role !== 'staff'} recap={orderData.productRecap} />
       );
@@ -534,7 +555,6 @@ export default function Reports() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {user.role === 'admin' && (
                   <div className="col-span-2 md:col-span-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Mitra</label>
                     <select value={processMitraId} onChange={e => { setProcessMitraId(e.target.value); setProcessingTimePage(1); }} className="w-full border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-sm font-bold text-slate-700">
                       <option value="all">Semua Mitra</option>
                       {mitras.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -542,26 +562,79 @@ export default function Reports() {
                   </div>
                 )}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tanggal Pesanan Mulai</label>
                   <input type="date" required value={processStart} onChange={e => { setProcessStart(e.target.value); setProcessingTimePage(1); }} className="w-full border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-sm font-bold text-slate-700" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tanggal Pesanan Akhir</label>
                   <input type="date" required value={processEnd} onChange={e => { setProcessEnd(e.target.value); setProcessingTimePage(1); }} className="w-full border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-sm font-bold text-slate-700" />
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Rata-rata Waktu Sampai Packing</span>
-                <p className="text-3xl font-black text-blue-600">{!isProcessFilterReady || isLoadingProcessingTime ? '—' : processingTimeAverageDays.toLocaleString('id-ID', { maximumFractionDigits: 2 })} <span className="text-sm text-slate-500 font-bold">hari</span></p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">RATA-RATA</span>
+                <p className="text-2xl sm:text-3xl font-black text-blue-600">{!isProcessFilterReady || isLoadingProcessingTime ? '—' : processingTimeAverageDays.toLocaleString('id-ID', { maximumFractionDigits: 0 })} <span className="text-sm text-slate-500 font-bold">hari</span></p>
               </div>
               <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Pesanan Terukur</span>
-                <p className="text-3xl font-black text-slate-900">{!isProcessFilterReady || isLoadingProcessingTime ? '—' : processingTimeRows.length} <span className="text-sm text-slate-500 font-bold">pesanan</span></p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">PESANAN</span>
+                <p className="text-2xl sm:text-3xl font-black text-slate-900">{!isProcessFilterReady || isLoadingProcessingTime ? '—' : processingTimeTotalCount.toLocaleString('id-ID')} <span className="text-sm text-slate-500 font-bold">pesanan</span></p>
               </div>
             </div>
+
+            <section className="space-y-4" aria-label="Ringkasan KPI waktu proses">
+              <h2 className="text-sm font-bold text-slate-700">Ringkasan KPI sesuai filter</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {([
+                  ['excellent', 'Hijau · Excellent', 'Sesuai target'],
+                  ['evaluation', 'Kuning · Perlu evaluasi', 'Melebihi target, masih dalam toleransi'],
+                  ['failed', 'Merah · Tidak memenuhi KPI', 'Melebihi batas toleransi'],
+                ] as const).map(([status, label, description]) => (
+                  <div key={status} className="rounded-2xl border border-slate-200/60 bg-white p-4 shadow-sm">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</span>
+                    <p className="mt-1 text-2xl font-black text-slate-900">
+                      {!isProcessFilterReady || isLoadingProcessingTime ? '—' : processingKpiSummary[status].toLocaleString('id-ID')}
+                      <span className="ml-1 text-xs font-bold text-slate-500">pesanan</span>
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-500">{description}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+                <div className="border-b border-slate-100 px-4 py-3">
+                  <h3 className="text-xs font-bold text-slate-700">Standar SLA usulan awal</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[560px] text-left text-xs">
+                    <thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                      <tr>
+                        <th className="px-4 py-2">Kategori</th>
+                        <th className="px-4 py-2">Qty</th>
+                        <th className="px-4 py-2 text-right">Target</th>
+                        <th className="px-4 py-2 text-right">Batas toleransi</th>
+                        <th className="px-4 py-2 text-right">Pesanan</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {PROCESSING_KPI_STANDARDS.map(standard => (
+                        <tr key={standard.key}>
+                          <td className="px-4 py-2 font-semibold text-slate-700">{standard.category}</td>
+                          <td className="px-4 py-2 text-slate-500">{standard.qty}</td>
+                          <td className="px-4 py-2 text-right text-slate-600">{standard.target} hari</td>
+                          <td className="px-4 py-2 text-right text-slate-600">{standard.tolerance} hari</td>
+                          <td className="px-4 py-2 text-right font-bold text-slate-700">
+                            {!isProcessFilterReady || isLoadingProcessingTime ? '—' : processingKpiCategoryCounts[standard.key].toLocaleString('id-ID')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="border-t border-slate-100 px-4 py-3 text-[11px] leading-relaxed text-slate-500">
+                  KPI ini merupakan usulan SLA awal berdasarkan pola laporan Oktober 2026, belum standar yang terbukti tercapai. Hari dihitung sebagai hari kalender. Pesanan custom kompleks, yang memerlukan pengadaan material, atau proses khusus perlu SLA tersendiri.
+                </p>
+              </div>
+            </section>
 
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
               <div className="p-4 border-b border-slate-100">
@@ -569,34 +642,42 @@ export default function Reports() {
                 <p className="text-xs text-slate-400 mt-1">Durasi dihitung dari tanggal pesanan dibuat sampai tagihan pesanan tercatat.</p>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[640px]">
+                <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider">
                     <tr>
                       <th className="px-4 py-3">No. Pesanan</th>
-                      <th className="px-4 py-3">Mitra</th>
-                      <th className="px-4 py-3">Tanggal Pesanan</th>
-                      <th className="px-4 py-3">Masuk Packing</th>
+                      <th className="hidden md:table-cell px-4 py-3">Mitra</th>
+                      <th className="hidden md:table-cell px-4 py-3">Tanggal Pesanan</th>
+                      <th className="hidden md:table-cell px-4 py-3">Masuk Packing</th>
+                      <th className="px-4 py-3 text-right">Total Qty</th>
                       <th className="px-4 py-3 text-right">Durasi</th>
+                      <th className="px-4 py-3">Status KPI</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {isLoadingProcessingTime ? (
-                      <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">Memuat data sesuai filter tanggal...</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-400">Memuat data sesuai filter tanggal...</td></tr>
                     ) : processingTimeError ? (
-                      <tr><td colSpan={5} className="px-4 py-10 text-center text-red-500">{processingTimeError}</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-10 text-center text-red-500">{processingTimeError}</td></tr>
                     ) : !isProcessFilterReady ? (
-                      <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">Pilih tanggal mulai dan tanggal akhir untuk memuat laporan.</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-400">Pilih tanggal mulai dan tanggal akhir untuk memuat laporan.</td></tr>
                     ) : processingTimeRows.map(row => (
                       <tr key={row.orderNumber}>
                         <td className="px-4 py-3 font-bold text-slate-800">{row.orderNumber}</td>
-                        <td className="px-4 py-3 text-slate-600">{row.mitraName}</td>
-                        <td className="px-4 py-3 text-slate-600">{formatDate(row.orderedAt)}</td>
-                        <td className="px-4 py-3 text-slate-600">{formatDate(row.packedAt)}</td>
-                        <td className="px-4 py-3 text-right font-black text-blue-600">{row.durationDays.toLocaleString('id-ID', { maximumFractionDigits: 2 })} hari</td>
+                        <td className="hidden md:table-cell px-4 py-3 text-slate-600">{row.mitraName}</td>
+                        <td className="hidden md:table-cell px-4 py-3 text-slate-600">{formatDate(row.orderedAt)}</td>
+                        <td className="hidden md:table-cell px-4 py-3 text-slate-600">{formatDate(row.packedAt)}</td>
+                        <td className="px-4 py-3 text-right text-slate-600">{row.totalQty.toLocaleString('id-ID')}</td>
+                        <td className="px-4 py-3 text-right font-black text-blue-600">{row.durationDays.toLocaleString('id-ID', { maximumFractionDigits: 0 })} hari</td>
+                        <td className="px-4 py-3">
+                          <span title={`${row.kpiCategory}: target ${row.targetDays} hari, toleransi ${row.toleranceDays} hari`} className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-bold ${PROCESSING_KPI_STATUS_DISPLAY[row.kpiStatus].color}`}>
+                            {PROCESSING_KPI_STATUS_DISPLAY[row.kpiStatus].label}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                     {isProcessFilterReady && !isLoadingProcessingTime && !processingTimeError && processingTimeRows.length === 0 && (
-                      <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">Belum ada tagihan otomatis pesanan pada filter ini.</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-400">Belum ada tagihan otomatis pesanan pada filter ini.</td></tr>
                     )}
                   </tbody>
                 </table>

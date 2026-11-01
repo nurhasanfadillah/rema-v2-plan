@@ -7,6 +7,48 @@ import { requireAuth, type AuthRequest } from '../middleware/auth.ts';
 const router = express.Router();
 router.use(requireAuth);
 
+const processingDurationDays = sql<number>`(
+  greatest(1,
+    (to_timestamp(${ledgers.createdAt}::double precision / 1000) AT TIME ZONE 'Asia/Jakarta')::date
+    - (to_timestamp(${orders.createdAt}::double precision / 1000) AT TIME ZONE 'Asia/Jakarta')::date
+  )
+)`.mapWith(Number);
+const processingKpiCategory = sql<string>`case
+  when ${orders.totalQty} <= 1 then 'Mikro'
+  when ${orders.totalQty} <= 10 then 'Sangat kecil'
+  when ${orders.totalQty} <= 50 then 'Kecil'
+  when ${orders.totalQty} <= 100 then 'Menengah'
+  when ${orders.totalQty} <= 250 then 'Besar'
+  when ${orders.totalQty} <= 500 then 'Partai besar'
+  when ${orders.totalQty} <= 1000 then 'Partai sangat besar'
+  else 'Mass production'
+end`;
+const processingKpiTargetDays = sql<number>`case
+  when ${orders.totalQty} <= 1 then 1
+  when ${orders.totalQty} <= 10 then 2
+  when ${orders.totalQty} <= 50 then 3
+  when ${orders.totalQty} <= 100 then 4
+  when ${orders.totalQty} <= 250 then 5
+  when ${orders.totalQty} <= 500 then 7
+  when ${orders.totalQty} <= 1000 then 10
+  else 14
+end`.mapWith(Number);
+const processingKpiToleranceDays = sql<number>`case
+  when ${orders.totalQty} <= 1 then 2
+  when ${orders.totalQty} <= 10 then 3
+  when ${orders.totalQty} <= 50 then 4
+  when ${orders.totalQty} <= 100 then 5
+  when ${orders.totalQty} <= 250 then 7
+  when ${orders.totalQty} <= 500 then 9
+  when ${orders.totalQty} <= 1000 then 12
+  else 17
+end`.mapWith(Number);
+const processingKpiStatus = sql<string>`case
+  when ${processingDurationDays} <= ${processingKpiTargetDays} then 'excellent'
+  when ${processingDurationDays} <= ${processingKpiToleranceDays} then 'evaluation'
+  else 'failed'
+end`;
+
 // Helper: resolve mitraId from JWT user sub (for role=mitra)
 async function getMitraForUser(userId: string) {
   const [mitra] = await db.select().from(mitras).where(eq(mitras.userId, userId)).limit(1);
@@ -90,6 +132,12 @@ router.get('/processing-time', async (req: AuthRequest, res: Response) => {
         mitraName: mitras.name,
         orderedAt: orders.createdAt,
         packedAt: ledgers.createdAt,
+        totalQty: orders.totalQty,
+        durationDays: processingDurationDays,
+        kpiCategory: processingKpiCategory,
+        targetDays: processingKpiTargetDays,
+        toleranceDays: processingKpiToleranceDays,
+        kpiStatus: processingKpiStatus,
       })
         .from(orders)
         .innerJoin(ledgers, eq(ledgers.referenceId, orders.id))
@@ -100,7 +148,18 @@ router.get('/processing-time', async (req: AuthRequest, res: Response) => {
         .offset((page - 1) * boundedPageSize),
       db.select({
         totalCount: count(),
-        averageMilliseconds: sql<number>`avg(${ledgers.createdAt} - ${orders.createdAt})`.mapWith(Number),
+        averageDays: sql<number>`ceil(avg(${processingDurationDays}))`.mapWith(Number),
+        excellentCount: sql<number>`count(*) filter (where ${processingDurationDays} <= ${processingKpiTargetDays})`.mapWith(Number),
+        evaluationCount: sql<number>`count(*) filter (where ${processingDurationDays} > ${processingKpiTargetDays} and ${processingDurationDays} <= ${processingKpiToleranceDays})`.mapWith(Number),
+        failedCount: sql<number>`count(*) filter (where ${processingDurationDays} > ${processingKpiToleranceDays})`.mapWith(Number),
+        microCount: sql<number>`count(*) filter (where ${orders.totalQty} <= 1)`.mapWith(Number),
+        verySmallCount: sql<number>`count(*) filter (where ${orders.totalQty} between 2 and 10)`.mapWith(Number),
+        smallCount: sql<number>`count(*) filter (where ${orders.totalQty} between 11 and 50)`.mapWith(Number),
+        mediumCount: sql<number>`count(*) filter (where ${orders.totalQty} between 51 and 100)`.mapWith(Number),
+        largeCount: sql<number>`count(*) filter (where ${orders.totalQty} between 101 and 250)`.mapWith(Number),
+        bulkCount: sql<number>`count(*) filter (where ${orders.totalQty} between 251 and 500)`.mapWith(Number),
+        veryLargeCount: sql<number>`count(*) filter (where ${orders.totalQty} between 501 and 1000)`.mapWith(Number),
+        massProductionCount: sql<number>`count(*) filter (where ${orders.totalQty} > 1000)`.mapWith(Number),
       })
         .from(orders)
         .innerJoin(ledgers, eq(ledgers.referenceId, orders.id))
@@ -111,7 +170,22 @@ router.get('/processing-time', async (req: AuthRequest, res: Response) => {
     return res.json({
       rows,
       totalCount: summary.totalCount,
-      averageDays: (summary.averageMilliseconds ?? 0) / 86_400_000,
+      averageDays: summary.averageDays ?? 0,
+      kpiSummary: {
+        excellent: summary.excellentCount,
+        evaluation: summary.evaluationCount,
+        failed: summary.failedCount,
+      },
+      kpiCategoryCounts: {
+        micro: summary.microCount,
+        verySmall: summary.verySmallCount,
+        small: summary.smallCount,
+        medium: summary.mediumCount,
+        large: summary.largeCount,
+        bulk: summary.bulkCount,
+        veryLarge: summary.veryLargeCount,
+        massProduction: summary.massProductionCount,
+      },
       page,
       pageSize: boundedPageSize,
     });

@@ -103,7 +103,7 @@ export const api = {
     listQueue: () =>
       request<Order[]>('GET', '/orders?queueView=true'),
     processingTime: (start: string, end: string, mitraId = 'all', page = 1, pageSize = 20) =>
-      request<{ rows: Array<{ orderNumber: string; mitraId: string; mitraName: string; orderedAt: number; packedAt: number }>; totalCount: number; averageDays: number; page: number; pageSize: number }>(
+      request<{ rows: Array<{ orderNumber: string; mitraId: string; mitraName: string; orderedAt: number; packedAt: number; totalQty: number; durationDays: number; kpiCategory: string; targetDays: number; toleranceDays: number; kpiStatus: 'excellent' | 'evaluation' | 'failed' }>; totalCount: number; averageDays: number; kpiSummary: { excellent: number; evaluation: number; failed: number }; kpiCategoryCounts: { micro: number; verySmall: number; small: number; medium: number; large: number; bulk: number; veryLarge: number; massProduction: number }; page: number; pageSize: number }>(
         'GET',
         `/orders/processing-time?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&mitraId=${encodeURIComponent(mitraId)}&page=${page}&pageSize=${pageSize}`,
       ),
