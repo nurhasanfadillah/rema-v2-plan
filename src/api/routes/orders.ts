@@ -1,7 +1,7 @@
 import express, { type Response } from 'express';
-import { eq, inArray, and } from 'drizzle-orm';
+import { eq, inArray, and, gte, lte, desc, count, sql } from 'drizzle-orm';
 import { db } from '../../db/client.ts';
-import { orders, orderItems, mitras } from '../../db/schema.ts';
+import { orders, orderItems, mitras, ledgers } from '../../db/schema.ts';
 import { requireAuth, type AuthRequest } from '../middleware/auth.ts';
 
 const router = express.Router();
@@ -42,6 +42,79 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       items: allItems.filter(i => i.orderId === o.id),
     }));
     return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/processing-time', async (req: AuthRequest, res: Response) => {
+  try {
+    const { start, end } = req.query;
+    if (typeof start !== 'string' || typeof end !== 'string' ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end)) {
+      return res.status(400).json({ error: 'Tanggal mulai dan akhir wajib diisi dengan format YYYY-MM-DD' });
+    }
+
+    const page = Number(req.query.page ?? 1);
+    const pageSize = Number(req.query.pageSize ?? 20);
+    if (!Number.isInteger(page) || page < 1 || !Number.isInteger(pageSize) || pageSize < 1) {
+      return res.status(400).json({ error: 'Nomor halaman dan ukuran halaman tidak valid' });
+    }
+    const boundedPageSize = Math.min(pageSize, 100);
+
+    const startAt = new Date(`${start}T00:00:00+07:00`).getTime();
+    const endAt = new Date(`${end}T23:59:59.999+07:00`).getTime();
+    if (!Number.isFinite(startAt) || !Number.isFinite(endAt) || startAt > endAt) {
+      return res.status(400).json({ error: 'Rentang tanggal tidak valid' });
+    }
+
+    const conditions = [
+      gte(orders.createdAt, startAt),
+      lte(orders.createdAt, endAt),
+      eq(ledgers.source, 'order'),
+      eq(ledgers.direction, 'debit'),
+    ];
+
+    if (req.user.role === 'mitra') {
+      const mitra = await getMitraForUser(req.user.sub);
+      if (!mitra) return res.status(403).json({ error: 'Mitra not found' });
+      conditions.push(eq(orders.mitraId, mitra.id));
+    } else if (req.user.role === 'admin' && typeof req.query.mitraId === 'string' && req.query.mitraId !== 'all') {
+      conditions.push(eq(orders.mitraId, req.query.mitraId));
+    }
+
+    const [rows, [summary]] = await Promise.all([
+      db.select({
+        orderNumber: orders.orderNumber,
+        mitraId: orders.mitraId,
+        mitraName: mitras.name,
+        orderedAt: orders.createdAt,
+        packedAt: ledgers.createdAt,
+      })
+        .from(orders)
+        .innerJoin(ledgers, eq(ledgers.referenceId, orders.id))
+        .innerJoin(mitras, eq(mitras.id, orders.mitraId))
+        .where(and(...conditions))
+        .orderBy(desc(orders.createdAt), desc(orders.id))
+        .limit(boundedPageSize)
+        .offset((page - 1) * boundedPageSize),
+      db.select({
+        totalCount: count(),
+        averageMilliseconds: sql<number>`avg(${ledgers.createdAt} - ${orders.createdAt})`.mapWith(Number),
+      })
+        .from(orders)
+        .innerJoin(ledgers, eq(ledgers.referenceId, orders.id))
+        .innerJoin(mitras, eq(mitras.id, orders.mitraId))
+        .where(and(...conditions)),
+    ]);
+
+    return res.json({
+      rows,
+      totalCount: summary.totalCount,
+      averageDays: (summary.averageMilliseconds ?? 0) / 86_400_000,
+      page,
+      pageSize: boundedPageSize,
+    });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }

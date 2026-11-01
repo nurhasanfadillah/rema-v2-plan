@@ -1,15 +1,18 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
 import type { Mitra, Product, LedgerEntry, Order } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { BarChart3, Receipt, FileText, Download, Filter, Calendar, Info, X, ClipboardList } from 'lucide-react';
+import { BarChart3, Receipt, FileText, Download, Filter, Calendar, Info, X, ClipboardList, Timer } from 'lucide-react';
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { FinanceReportPDF } from '../components/reports/FinanceReportPDF';
 import { OrderReportPDF } from '../components/reports/OrderReportPDF';
 import { BillingRecapPDF, BillingRecapTab, useBillingRecap } from '../components/reports/billing-recap';
+import { ProcessingTimeReportPDF, type ProcessingTimeReportRow } from '../components/reports/ProcessingTimeReportPDF';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
+
+const PROCESSING_TIME_PAGE_SIZE = 20;
 
 export default function Reports() {
   const { user } = useAuth();
@@ -17,15 +20,39 @@ export default function Reports() {
   const [products, setProducts] = useState<Product[]>([]);
   const [allLedgers, setAllLedgers] = useState<LedgerEntry[]>([]);
   const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const loadedLedgers = useRef(false);
+  const loadedOrders = useRef(false);
+  const loadedProducts = useRef(false);
 
   useEffect(() => {
     api.mitras.list().then(setMitras).catch(console.error);
-    api.products.list().then(setProducts).catch(console.error);
-    api.ledgers.list().then(setAllLedgers).catch(console.error);
-    api.orders.list().then(setAllOrders).catch(console.error);
   }, []);
 
-  const [activeTab, setActiveTab] = useState<'finance' | 'order' | 'billing'>(user?.role === 'staff' ? 'order' : 'finance');
+  const [activeTab, setActiveTab] = useState<'finance' | 'order' | 'billing' | 'processingTime'>(user?.role === 'staff' ? 'order' : 'finance');
+
+  useEffect(() => {
+    if ((activeTab === 'finance' || activeTab === 'billing') && !loadedLedgers.current) {
+      loadedLedgers.current = true;
+      api.ledgers.list().then(setAllLedgers).catch(error => {
+        loadedLedgers.current = false;
+        console.error(error);
+      });
+    }
+    if ((activeTab === 'order' || activeTab === 'billing') && !loadedOrders.current) {
+      loadedOrders.current = true;
+      api.orders.list().then(setAllOrders).catch(error => {
+        loadedOrders.current = false;
+        console.error(error);
+      });
+    }
+    if (activeTab === 'order' && !loadedProducts.current) {
+      loadedProducts.current = true;
+      api.products.list().then(setProducts).catch(error => {
+        loadedProducts.current = false;
+        console.error(error);
+      });
+    }
+  }, [activeTab]);
 
   // Finance Filters
   const [finStart, setFinStart] = useState('');
@@ -145,6 +172,58 @@ export default function Reports() {
   const billingMitraName = mitras.find(m => m.id === billingRecap.filters.mitraId)?.name ?? 'Semua Mitra';
   const isBillingExportDisabled = activeTab === 'billing' && billingRecap.recap.rows.length === 0;
 
+  const [processStart, setProcessStart] = useState('');
+  const [processEnd, setProcessEnd] = useState('');
+  const [processMitraId, setProcessMitraId] = useState('all');
+  const [processingTimePage, setProcessingTimePage] = useState(1);
+  const [processingTimeRows, setProcessingTimeRows] = useState<ProcessingTimeReportRow[]>([]);
+  const [processingTimeTotalCount, setProcessingTimeTotalCount] = useState(0);
+  const [processingTimeAverageDays, setProcessingTimeAverageDays] = useState(0);
+  const [isLoadingProcessingTime, setIsLoadingProcessingTime] = useState(false);
+  const [processingTimeError, setProcessingTimeError] = useState('');
+
+  useEffect(() => {
+    if (activeTab !== 'processingTime' || !processStart || !processEnd) {
+      setProcessingTimeRows([]);
+      setProcessingTimeTotalCount(0);
+      setProcessingTimeAverageDays(0);
+      setProcessingTimeError('');
+      setIsLoadingProcessingTime(false);
+      return;
+    }
+
+    let isCurrentRequest = true;
+    setIsLoadingProcessingTime(true);
+    setProcessingTimeError('');
+    setProcessingTimeRows([]);
+    setProcessingTimeTotalCount(0);
+    setProcessingTimeAverageDays(0);
+    api.orders.processingTime(processStart, processEnd, processMitraId, processingTimePage, PROCESSING_TIME_PAGE_SIZE)
+      .then(result => {
+        if (isCurrentRequest) {
+          setProcessingTimeRows(result.rows.map(row => ({
+            ...row,
+            durationDays: Math.max(0, (row.packedAt - row.orderedAt) / 86_400_000),
+          })));
+          setProcessingTimeTotalCount(result.totalCount);
+          setProcessingTimeAverageDays(result.averageDays);
+        }
+      })
+      .catch(error => {
+        if (isCurrentRequest) setProcessingTimeError(error.message || 'Gagal memuat laporan waktu proses.');
+      })
+      .finally(() => {
+        if (isCurrentRequest) setIsLoadingProcessingTime(false);
+      });
+
+    return () => { isCurrentRequest = false; };
+  }, [activeTab, processStart, processEnd, processMitraId, processingTimePage]);
+
+  const isProcessFilterReady = Boolean(processStart && processEnd);
+  const processingTimeTotalPages = Math.max(1, Math.ceil(processingTimeTotalCount / PROCESSING_TIME_PAGE_SIZE));
+  const isReportExportDisabled = isBillingExportDisabled ||
+    (activeTab === 'processingTime' && (!isProcessFilterReady || isLoadingProcessingTime || Boolean(processingTimeError)));
+
   if (!user || user.role === 'operational') return <div className="p-8 text-center text-red-500 font-bold">Akses ditolak</div>;
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -152,11 +231,31 @@ export default function Reports() {
   const handleExport = async () => {
     try {
       setIsExporting(true);
+      let exportProcessingRows = [...processingTimeRows];
+      let exportProcessingAverage = processingTimeAverageDays;
+
+      if (activeTab === 'processingTime') {
+        const firstPage = await api.orders.processingTime(processStart, processEnd, processMitraId, 1, 100);
+        exportProcessingRows = firstPage.rows.map(row => ({
+          ...row,
+          durationDays: Math.max(0, (row.packedAt - row.orderedAt) / 86_400_000),
+        }));
+        exportProcessingAverage = firstPage.averageDays;
+        for (let page = 2; page <= Math.ceil(firstPage.totalCount / firstPage.pageSize); page += 1) {
+          const nextPage = await api.orders.processingTime(processStart, processEnd, processMitraId, page, 100);
+          exportProcessingRows.push(...nextPage.rows.map(row => ({
+            ...row,
+            durationDays: Math.max(0, (row.packedAt - row.orderedAt) / 86_400_000),
+          })));
+        }
+      }
       
       const doc = activeTab === 'finance' ? (
         <FinanceReportPDF ledgers={financeData.filtered} mitras={mitras} filters={{start: finStart, end: finEnd, mitraId: finMitraId}} totalDebit={financeData.totalDebit} totalCredit={financeData.totalCredit} />
       ) : activeTab === 'billing' ? (
         <BillingRecapPDF recap={billingRecap.recap} filters={billingRecap.filters} mitraName={billingMitraName} />
+      ) : activeTab === 'processingTime' ? (
+        <ProcessingTimeReportPDF rows={exportProcessingRows} averageDays={exportProcessingAverage} filters={{ start: processStart, end: processEnd, mitraName: processMitraId === 'all' ? 'Semua Mitra' : mitras.find(m => m.id === processMitraId)?.name ?? 'Mitra' }} />
       ) : (
         <OrderReportPDF items={orderData.items} mitras={mitras} filters={{start: ordStart, end: ordEnd, mitraId: ordMitraId, status: ordStatus, type: ordType, productId: ordProduct}} totalQty={orderData.totalQty} totalSubtotal={orderData.totalSubtotal} showSubtotal={user.role !== 'staff'} recap={orderData.productRecap} />
       );
@@ -190,7 +289,7 @@ export default function Reports() {
            <h1 className="page-title">Laporan & Analitik</h1>
            <p className="text-xs text-slate-400 mt-0.5 font-medium">Tinjauan komprehensif keuangan dan aktivitas pesanan.</p>
         </div>
-        <button onClick={() => setIsExportModalOpen(true)} disabled={isBillingExportDisabled} className="btn-primary">
+        <button onClick={() => setIsExportModalOpen(true)} disabled={isReportExportDisabled} className="btn-primary">
           <Download className="w-4 h-4" /> Cetak PDF
         </button>
       </div>
@@ -204,6 +303,12 @@ export default function Reports() {
              <BarChart3 className="w-4 h-4 hidden sm:block"/> Keuangan
            </button>
          )}
+         <button
+           onClick={() => setActiveTab('processingTime')}
+           className={`flex-1 py-2 px-2 sm:px-4 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'processingTime' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+         >
+           <Timer className="w-4 h-4 hidden sm:block"/> Durasi
+         </button>
          <button 
            onClick={() => setActiveTab('order')}
            className={`flex-1 py-2 px-2 sm:px-4 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'order' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
@@ -215,7 +320,7 @@ export default function Reports() {
              onClick={() => setActiveTab('billing')}
              className={`flex-1 py-2 px-2 sm:px-4 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'billing' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
            >
-             <ClipboardList className="w-4 h-4 hidden sm:block"/> Rekap Tagihan
+             <ClipboardList className="w-4 h-4 hidden sm:block"/> Produk
            </button>
          )}
       </div>
@@ -417,6 +522,109 @@ export default function Reports() {
               onEndDateChange={billingRecap.setEndDate}
               onMitraIdChange={billingRecap.setMitraId}
             />
+          </motion.div>
+        )}
+        {activeTab === 'processingTime' && (
+          <motion.div key="processingTime" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+            <div className="bg-white rounded-2xl p-4 border border-slate-200/60 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <Filter className="w-4 h-4 text-slate-400" />
+                <span className="text-sm font-bold text-slate-700">Filter Waktu Proses</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {user.role === 'admin' && (
+                  <div className="col-span-2 md:col-span-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Mitra</label>
+                    <select value={processMitraId} onChange={e => { setProcessMitraId(e.target.value); setProcessingTimePage(1); }} className="w-full border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-sm font-bold text-slate-700">
+                      <option value="all">Semua Mitra</option>
+                      {mitras.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tanggal Pesanan Mulai</label>
+                  <input type="date" required value={processStart} onChange={e => { setProcessStart(e.target.value); setProcessingTimePage(1); }} className="w-full border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-sm font-bold text-slate-700" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tanggal Pesanan Akhir</label>
+                  <input type="date" required value={processEnd} onChange={e => { setProcessEnd(e.target.value); setProcessingTimePage(1); }} className="w-full border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-sm font-bold text-slate-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Rata-rata Waktu Sampai Packing</span>
+                <p className="text-3xl font-black text-blue-600">{!isProcessFilterReady || isLoadingProcessingTime ? '—' : processingTimeAverageDays.toLocaleString('id-ID', { maximumFractionDigits: 2 })} <span className="text-sm text-slate-500 font-bold">hari</span></p>
+              </div>
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Pesanan Terukur</span>
+                <p className="text-3xl font-black text-slate-900">{!isProcessFilterReady || isLoadingProcessingTime ? '—' : processingTimeRows.length} <span className="text-sm text-slate-500 font-bold">pesanan</span></p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-slate-100">
+                <h2 className="text-sm font-bold text-slate-700">Durasi per Pesanan</h2>
+                <p className="text-xs text-slate-400 mt-1">Durasi dihitung dari tanggal pesanan dibuat sampai tagihan pesanan tercatat.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs min-w-[640px]">
+                  <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider">
+                    <tr>
+                      <th className="px-4 py-3">No. Pesanan</th>
+                      <th className="px-4 py-3">Mitra</th>
+                      <th className="px-4 py-3">Tanggal Pesanan</th>
+                      <th className="px-4 py-3">Masuk Packing</th>
+                      <th className="px-4 py-3 text-right">Durasi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {isLoadingProcessingTime ? (
+                      <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">Memuat data sesuai filter tanggal...</td></tr>
+                    ) : processingTimeError ? (
+                      <tr><td colSpan={5} className="px-4 py-10 text-center text-red-500">{processingTimeError}</td></tr>
+                    ) : !isProcessFilterReady ? (
+                      <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">Pilih tanggal mulai dan tanggal akhir untuk memuat laporan.</td></tr>
+                    ) : processingTimeRows.map(row => (
+                      <tr key={row.orderNumber}>
+                        <td className="px-4 py-3 font-bold text-slate-800">{row.orderNumber}</td>
+                        <td className="px-4 py-3 text-slate-600">{row.mitraName}</td>
+                        <td className="px-4 py-3 text-slate-600">{formatDate(row.orderedAt)}</td>
+                        <td className="px-4 py-3 text-slate-600">{formatDate(row.packedAt)}</td>
+                        <td className="px-4 py-3 text-right font-black text-blue-600">{row.durationDays.toLocaleString('id-ID', { maximumFractionDigits: 2 })} hari</td>
+                      </tr>
+                    ))}
+                    {isProcessFilterReady && !isLoadingProcessingTime && !processingTimeError && processingTimeRows.length === 0 && (
+                      <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">Belum ada tagihan otomatis pesanan pada filter ini.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-slate-100">
+                <p className="text-[11px] text-slate-500">
+                  {isProcessFilterReady && processingTimeTotalCount > 0
+                    ? `Menampilkan ${(processingTimePage - 1) * PROCESSING_TIME_PAGE_SIZE + 1}–${Math.min(processingTimePage * PROCESSING_TIME_PAGE_SIZE, processingTimeTotalCount)} dari ${processingTimeTotalCount} pesanan`
+                    : 'Menampilkan 0 pesanan'}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={processingTimePage <= 1 || isLoadingProcessingTime || !isProcessFilterReady}
+                    onClick={() => setProcessingTimePage(page => Math.max(1, page - 1))}
+                    className="px-3 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50"
+                  >Sebelumnya</button>
+                  <span className="text-xs font-semibold text-slate-500">Halaman {processingTimePage} dari {processingTimeTotalPages}</span>
+                  <button
+                    type="button"
+                    disabled={processingTimePage >= processingTimeTotalPages || isLoadingProcessingTime || !isProcessFilterReady}
+                    onClick={() => setProcessingTimePage(page => Math.min(processingTimeTotalPages, page + 1))}
+                    className="px-3 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50"
+                  >Berikutnya</button>
+                </div>
+              </div>
+              <p className="px-4 py-3 text-[11px] text-slate-400 border-t border-slate-100">Waktu masuk Packing menggunakan tanggal tagihan otomatis untuk pesanan (debit dengan referensi pesanan).</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

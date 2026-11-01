@@ -5,7 +5,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { api } from '../lib/api';
 import { Product } from '../types';
 import { formatCurrency } from '../lib/utils';
-import { Plus, Archive, Edit2, Trash2, X, Shirt, Award, AlertCircle, ShoppingBag } from 'lucide-react';
+import { Plus, Archive, Edit2, Trash2, X, Shirt, Award, AlertCircle, ShoppingBag, Search } from 'lucide-react';
 import { FileUpload } from '../components/FileUpload';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -13,6 +13,7 @@ export default function Products() {
   const { user } = useAuth();
   const { confirm } = useConfirm();
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -109,6 +110,13 @@ export default function Products() {
      return new Intl.NumberFormat('id-ID').format(num);
   };
 
+  const normalizedSearchTerm = searchTerm.trim().toLocaleLowerCase('id-ID');
+  const filteredProducts = normalizedSearchTerm
+    ? products.filter(p =>
+        `${p.name} ${p.description || ''}`.toLocaleLowerCase('id-ID').includes(normalizedSearchTerm)
+      )
+    : products;
+
   return (
     <motion.div 
       variants={containerVariants}
@@ -116,26 +124,39 @@ export default function Products() {
       animate="show"
       className="space-y-6"
     >
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Katalog & Koleksi Produk</h1>
-          <p className="text-[12px] text-slate-500 mt-2 font-medium italic opacity-80 decoration-slate-800">Manajemen inventori, basis harga mitra, dan visual aset produk.</p>
+      <div className="page-header flex-nowrap items-start">
+        <div className="min-w-0">
+          <h1 className="page-title">Daftar Produk</h1>
         </div>
         {user?.role === 'admin' && (
           <button 
             onClick={() => setIsAddOpen(true)}
-            className="btn-primary text-[11px] uppercase tracking-widest"
+            className="btn-primary shrink-0 whitespace-nowrap text-[11px] uppercase tracking-widest"
           >
             <Plus className="w-4 h-4" /> Tambah Produk
           </button>
         )}
       </div>
 
+      {products.length > 0 && (
+        <div className="relative max-w-xl">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+          <input
+            type="search"
+            aria-label="Cari produk katalog"
+            placeholder="Cari nama atau deskripsi produk..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all"
+          />
+        </div>
+      )}
+
       <motion.div 
         variants={containerVariants} 
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
       >
-        {products.map(p => (
+        {filteredProducts.map(p => (
           <motion.div 
             variants={itemVariants}
             key={p.id} 
@@ -175,6 +196,14 @@ export default function Products() {
            <p className="text-slate-800 font-bold mb-1">Belum Ada Produk Katalog</p>
            <p className="text-xs text-slate-400 font-medium">Tambahkan produk baru sebagai item persediaan pesanan.</p>
          </motion.div>
+      )}
+
+      {products.length > 0 && filteredProducts.length === 0 && (
+        <motion.div variants={itemVariants} className="text-center py-16 border-2 border-dashed border-white/10 rounded-3xl p-8 max-w-md mx-auto">
+          <Search className="w-10 h-10 text-slate-500 mx-auto mb-3" />
+          <p className="text-slate-300 font-bold mb-1">Produk tidak ditemukan</p>
+          <p className="text-xs text-slate-500 font-medium">Coba kata kunci lain atau hapus pencarian.</p>
+        </motion.div>
       )}
 
       {isAddOpen && (
@@ -291,7 +320,7 @@ function ProductDetailPanel({
                    <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Kontrol Manajemen</h4>
                    <div className="grid grid-cols-2 gap-3 text-xs font-bold">
                       <button onClick={() => setIsEditing(true)} className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 border border-slate-900 text-white hover:bg-slate-800 rounded-xl transition-all cursor-pointer active:scale-95 text-xs font-extrabold shadow-md">
-                        <Edit2 className="w-4 h-4" /> Simpan
+                        <Edit2 className="w-4 h-4" /> Edit Produk
                       </button>
                       <button onClick={onToggleArchive} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all cursor-pointer active:scale-95 ${product.isArchived ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700' : 'bg-orange-50 hover:bg-orange-100 text-orange-700'}`}>
                         <Archive className="w-4 h-4" />
